@@ -70,6 +70,24 @@ ZONE_NAMES = {
     "PZZ945": "WA Coast 60 to 150 NM offshore"
 }
 
+# NAVTEX zones matching navtex.geojson
+NAVTEX_ZONES = {
+    "OFFN09_NW": "Canadian Border to 45N",
+    "OFFN09_SW": "45N to Point Saint George",
+    "OFFN08_NW": "Point Saint George to Point Arena",
+    "OFFN08_SW": "Point Arena to Point Piedras Blancas",
+    "OFFN07_NW": "Point Piedras Blancas to Point Conception",
+    "OFFN07_SW": "Point Conception to Mexican Border",
+    "OFFN01_NE": "Eastport Maine to Cape Cod",
+    "OFFN01_SE": "Cape Cod to Nantucket Shoals and Georges Bank",
+    "OFFN01_SW": "South of New England",
+    "OFFN02_NE": "Sandy Hook to Wallops Island",
+    "OFFN02_E": "Wallops Island to Cape Hatteras",
+    "OFFN02_SE": "Cape Hatteras to Murrells Inlet",
+    "OFFN03_NE": "Murrells Inlet to 31N",
+    "OFFN03_SE": "South of 31N"
+}
+
 
 def fetch_text(url):
     """Fetch text content from URL"""
@@ -78,7 +96,7 @@ def fetch_text(url):
         with urlopen(req, timeout=30) as response:
             return response.read().decode('utf-8', errors='ignore')
     except (URLError, HTTPError) as e:
-        print(f"Failed to fetch {url}: {e}")
+        print("Failed to fetch {}: {}".format(url, e))
         return None
 
 
@@ -94,7 +112,7 @@ def extract_warning(text):
         "STORM FORCE": "STORM FORCE POSSIBLE",
         "TROPICAL STORM CONDITIONS": "TROPICAL STORM CONDITIONS POSSIBLE"
     }
-    
+
     text_upper = text.upper()
     for pattern, warning_type in warnings_map.items():
         if pattern in text_upper:
@@ -102,45 +120,19 @@ def extract_warning(text):
     return "NONE"
 
 
-def parse_wind_speed(text):
-    """Parse wind speed from text (e.g., 'N TO NW 20 TO 30 KT')"""
-    matches = re.findall(r'(\d+)\s*(?:TO\s*)?(\d+)?\s*(?:KT|KNOTS)', text, re.IGNORECASE)
-    if matches:
-        speeds = []
-        for match in matches:
-            low = int(match[0])
-            high = int(match[1]) if match[1] else low
-            speeds.append(max(low, high))
-        return max(speeds) if speeds else 0
-    return 0
-
-
-def parse_wave_height(text):
-    """Parse wave height from text (e.g., 'COMBINED SEAS 8 TO 12 FT')"""
-    matches = re.findall(r'(\d+)\s*(?:TO\s*)?(\d+)?\s*FT', text, re.IGNORECASE)
-    if matches:
-        heights = []
-        for match in matches:
-            low = int(match[0])
-            high = int(match[1]) if match[1] else low
-            heights.append(max(low, high))
-        return max(heights) if heights else 0
-    return 0
-
-
 def parse_offshore_product(content, zones):
     """Parse offshore forecast product"""
     results = []
-    
+
     if not content:
         return results
-    
+
     # Extract issue time
     issue_time = ""
     time_match = re.search(r'(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})', content, re.IGNORECASE)
     if time_match:
         issue_time = time_match.group(1).strip()
-    
+
     # Process each zone
     for zone in zones:
         zone_data = {
@@ -150,68 +142,70 @@ def parse_offshore_product(content, zones):
             "warning": "NONE",
             "forecast": []
         }
-        
+
         # Find zone section using regex
-        zone_pattern = rf'({re.escape(zone)}.*?)(?={"|".join(re.escape(z) for z in zones)}|\$\$|$)'
+        zone_pattern = r'({}.*?)(?={}|\$\$|$)'.format(
+            re.escape(zone),
+            "|".join(re.escape(z) for z in zones)
+        )
         zone_match = re.search(zone_pattern, content, re.IGNORECASE | re.DOTALL)
-        
+
         if zone_match:
             zone_text = zone_match.group(1)
-            
+
             # Extract warning
             zone_data["warning"] = extract_warning(zone_text)
-            
+
             # Parse forecast using period markers
-            # Match patterns like ".TODAY...", ".TONIGHT...", ".MON...", ".THU NIGHT..."
             period_pattern = r'\.([A-Z][A-Z\s]+?)\.\.\.([^\.]+(?:\.[^\.]+)*?)(?=\.[A-Z]|\$\$|$)'
             period_matches = re.findall(period_pattern, zone_text, re.DOTALL)
-            
+
             for period_name, period_text in period_matches:
                 period_name = period_name.strip()
                 period_text = period_text.strip()
-                
+
                 # Skip if not a valid day/period name
                 valid_periods = ["TODAY", "TONIGHT", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN",
                                "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY",
                                "REST OF TODAY", "REST OF TONIGHT"]
-                
+
                 is_valid = False
                 for vp in valid_periods:
                     if period_name.upper().startswith(vp):
                         is_valid = True
                         break
-                
+
                 if not is_valid:
                     continue
-                
+
                 # Clean up newlines in period_text for parsing
                 clean_text = re.sub(r'\s+', ' ', period_text)
-                
+
                 # Extract wind info
                 wind_match = re.search(r'([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:winds?\s+)?\d+\s+(?:TO\s+)?\d*\s*KT)', clean_text, re.IGNORECASE)
                 winds = wind_match.group(1).strip() if wind_match else clean_text[:50]
-                
+
                 # Extract seas info
                 seas_match = re.search(r'(?:Seas?|Combined\s+seas?)\s+(\d+\s+(?:TO\s+)?\d*\s*FT)', clean_text, re.IGNORECASE)
-                seas = f"Seas {seas_match.group(1)}" if seas_match else ""
+                seas = "Seas {}".format(seas_match.group(1)) if seas_match else ""
                 if not seas:
                     seas_match2 = re.search(r'(\d+\s+TO\s+\d+\s*FT)', clean_text, re.IGNORECASE)
-                    seas = f"Seas {seas_match2.group(1)}" if seas_match2 else "Seas variable"
-                
+                    seas = "Seas {}".format(seas_match2.group(1)) if seas_match2 else "Seas variable"
+
                 # Extract weather
                 weather = "N/A"
                 if re.search(r'(rain|snow|fog|tstms?|thunderstorms?|showers?|freezing spray)', period_text, re.IGNORECASE):
                     weather_match = re.search(r'((?:chance\s+of\s+)?(?:rain|snow|fog|tstms?|thunderstorms?|showers?|freezing spray)[^\.]*)', period_text, re.IGNORECASE)
                     if weather_match:
                         weather = weather_match.group(1).strip().capitalize()
-                
+
                 zone_data["forecast"].append({
                     "Day": period_name.title(),
                     "Winds": winds.capitalize() if winds else "Variable winds",
                     "Seas": seas,
                     "Weather": weather
                 })
-        
+
         # Ensure at least some forecast data exists
         if not zone_data["forecast"]:
             zone_data["forecast"].append({
@@ -220,22 +214,22 @@ def parse_offshore_product(content, zones):
                 "Seas": "Seas 4 to 8 FT",
                 "Weather": "N/A"
             })
-        
+
         results.append(zone_data)
-    
+
     return results
 
 
 def scrape_forecasts():
     """Main scraper function"""
     all_forecasts = []
-    
+
     for product, url in OFFSHORE_URLS.items():
         content = fetch_text(url)
         zones = ZONE_MAPPINGS[product]
         forecasts = parse_offshore_product(content, zones)
         all_forecasts.extend(forecasts)
-    
+
     return all_forecasts
 
 
@@ -244,12 +238,12 @@ def generate_sample_data():
     warnings = ["NONE", "NONE", "NONE", "GALE WARNING", "NONE", "STORM WARNING", "NONE", "NONE"]
     days = ["Today", "Tonight", "Tomorrow", "Tomorrow Night", "Day 3", "Day 4", "Day 5"]
     directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-    
+
     results = []
-    
+
     for zone, name in ZONE_NAMES.items():
         warning = random.choice(warnings)
-        
+
         forecasts = []
         for day in days:
             base_wind = random.randint(10, 35)
@@ -258,14 +252,14 @@ def generate_sample_data():
             sea_high = sea_low + random.randint(2, 8)
             dir1 = random.choice(directions)
             dir2 = random.choice(directions)
-            
+
             forecasts.append({
                 "Day": day,
-                "Winds": f"{dir1} TO {dir2} {base_wind} TO {wind_high} KT",
-                "Seas": f"Combined seas {sea_low} TO {sea_high} FT",
+                "Winds": "{} TO {} {} TO {} KT".format(dir1, dir2, base_wind, wind_high),
+                "Seas": "Seas {} TO {} FT".format(sea_low, sea_high),
                 "Weather": "Scattered showers" if random.random() > 0.7 else "N/A"
             })
-        
+
         results.append({
             "zone": zone,
             "name": name,
@@ -273,30 +267,23 @@ def generate_sample_data():
             "warning": warning,
             "forecast": forecasts
         })
-    
+
     return results
 
 
 def generate_navtex_data():
-    """Generate NAVTEX sample data"""
-    navtex_zones = [
-        {"Name": "Boston", "area": "Gulf of Maine"},
-        {"Name": "Savannah", "area": "Georgia Coast"},
-        {"Name": "Portsmouth", "area": "Virginia Coast"},
-        {"Name": "Pt_Reyes", "area": "Northern California"},
-        {"Name": "Cambria", "area": "Central California"},
-        {"Name": "Astoria", "area": "Oregon Coast"}
-    ]
-    
-    warnings = ["NONE", "NONE", "GALE WARNING", "NONE", "STORM WARNING", "NONE"]
+    """Generate NAVTEX data matching navtex.geojson zones"""
+    warnings = ["NONE", "NONE", "GALE WARNING", "NONE", "STORM WARNING", "NONE",
+                "NONE", "GALE FORCE POSSIBLE", "NONE", "NONE", "NONE", "STORM WARNING",
+                "NONE", "NONE"]
     days = ["Today", "Tonight", "Tomorrow", "Tomorrow Night", "Day 3"]
     directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-    
+
     results = []
-    
-    for i, zone in enumerate(navtex_zones):
+
+    for i, (zone_id, zone_name) in enumerate(NAVTEX_ZONES.items()):
         warning = warnings[i % len(warnings)]
-        
+
         forecasts = []
         for day in days:
             base_wind = random.randint(10, 30)
@@ -305,100 +292,50 @@ def generate_navtex_data():
             sea_high = sea_low + random.randint(2, 6)
             dir1 = random.choice(directions)
             dir2 = random.choice(directions)
-            
+
             forecasts.append({
                 "Day": day,
-                "Winds": f"{dir1} TO {dir2} {base_wind} TO {wind_high} KT",
-                "Seas": f"Combined seas {sea_low} TO {sea_high} FT",
+                "Winds": "{} TO {} {} TO {} KT".format(dir1, dir2, base_wind, wind_high),
+                "Seas": "Seas {} TO {} FT".format(sea_low, sea_high),
                 "Weather": "N/A"
             })
-        
+
         results.append({
-            "zone": zone["Name"],
-            "name": zone["area"],
+            "zone": zone_id,
+            "name": zone_name,
             "time": datetime.now().strftime("%I:%M %p %Z %a %b %d %Y"),
             "warning": warning,
             "forecast": forecasts
         })
-    
-    return results
 
-
-def generate_vobra_data():
-    """Generate VOBRA sample data"""
-    vobra_zones = [
-        {"ID": "VOBRA_1", "Name": "Offshore Waters - Atlantic"},
-        {"ID": "VOBRA_2", "Name": "Offshore Waters - Pacific"},
-        {"ID": "VOBRA_3", "Name": "Coastal Waters - East"},
-        {"ID": "VOBRA_4", "Name": "Coastal Waters - West"}
-    ]
-    
-    warnings = ["NONE", "GALE WARNING", "NONE", "NONE"]
-    days = ["Today", "Tonight", "Tomorrow"]
-    directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-    
-    results = []
-    
-    for i, zone in enumerate(vobra_zones):
-        warning = warnings[i]
-        
-        forecasts = []
-        for day in days:
-            base_wind = random.randint(12, 28)
-            wind_high = base_wind + random.randint(5, 12)
-            sea_low = random.randint(3, 7)
-            sea_high = sea_low + random.randint(2, 5)
-            dir1 = random.choice(directions)
-            dir2 = random.choice(directions)
-            
-            forecasts.append({
-                "Day": day,
-                "Winds": f"{dir1} TO {dir2} {base_wind} TO {wind_high} KT",
-                "Seas": f"Combined seas {sea_low} TO {sea_high} FT",
-                "Weather": "N/A"
-            })
-        
-        results.append({
-            "zone": zone["ID"],
-            "name": zone["Name"],
-            "time": datetime.now().strftime("%I:%M %p %Z %a %b %d %Y"),
-            "warning": warning,
-            "forecast": forecasts
-        })
-    
     return results
 
 
 def main():
     """Main function"""
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
+
     # Try to scrape live data, fall back to sample data
     print("Attempting to fetch live forecast data...")
     offshore_data = scrape_forecasts()
-    
+
     # If no data from scraping, generate sample data
     if not offshore_data:
         print("Live data unavailable, generating sample data...")
         offshore_data = generate_sample_data()
-    
+
     navtex_data = generate_navtex_data()
-    vobra_data = generate_vobra_data()
-    
+
     # Save JSON files
     with open(os.path.join(script_dir, 'off.json'), 'w') as f:
         json.dump(offshore_data, f, indent=2)
-    
+
     with open(os.path.join(script_dir, 'nav.json'), 'w') as f:
         json.dump(navtex_data, f, indent=2)
-    
-    with open(os.path.join(script_dir, 'vob.json'), 'w') as f:
-        json.dump(vobra_data, f, indent=2)
-    
+
     print("Forecast data updated successfully.")
-    print(f"Offshore zones: {len(offshore_data)}")
-    print(f"NAVTEX zones: {len(navtex_data)}")
-    print(f"VOBRA zones: {len(vobra_data)}")
+    print("Offshore zones: {}".format(len(offshore_data)))
+    print("NAVTEX zones: {}".format(len(navtex_data)))
 
 
 if __name__ == "__main__":

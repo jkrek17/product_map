@@ -4,10 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather Warning Lightmap</title>
-    
-    <!-- Local Leaflet CSS -->
-    <link rel="stylesheet" href="libs/leaflet/leaflet.css" />
-    
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css">
     <style>
         * {
             box-sizing: border-box;
@@ -252,7 +249,30 @@
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
-        /* Leaflet popup styling */
+        .legend-color-none {
+            background: #808080;
+        }
+
+        .legend-color-gale {
+            background: #ffff00;
+        }
+
+        .legend-color-gale-possible {
+            background: #ffc0cb;
+        }
+
+        .legend-color-storm {
+            background: #ffa500;
+        }
+
+        .legend-color-storm-possible {
+            background: #800080;
+        }
+
+        .legend-color-hurricane {
+            background: #ff0000;
+        }
+
         .leaflet-popup-content-wrapper {
             background: #0f3460;
             color: #fff;
@@ -285,7 +305,6 @@
             font-size: 13px;
         }
 
-        /* Map info overlay */
         .map-info {
             position: absolute;
             bottom: 25px;
@@ -302,7 +321,6 @@
             color: #e94560;
         }
 
-        /* Scrollbar styling */
         .forecast-panel::-webkit-scrollbar {
             width: 6px;
         }
@@ -329,21 +347,20 @@
         </div>
         <div class="controls">
             <div class="control-group">
-                <label>Region:</label>
+                <label for="basin">Region:</label>
                 <select id="basin">
                     <option value="atlantic">Western Atlantic</option>
                     <option value="pacific">Eastern Pacific</option>
                 </select>
             </div>
             <div class="control-group">
-                <label>Product:</label>
+                <label for="product">Product:</label>
                 <select id="product">
                     <option value="offshore">Offshore Forecasts</option>
                     <option value="navtex">NAVTEX</option>
-                    <option value="vobra">VOBRA</option>
                 </select>
             </div>
-            <button id="refreshBtn">Refresh Data</button>
+            <button type="button" id="refreshBtn">Refresh Data</button>
         </div>
     </div>
 
@@ -355,7 +372,7 @@
                 <div class="no-data">Click on a zone to view forecast details</div>
             </div>
             <div class="chart-panel">
-                <h3>Wind & Wave Forecast</h3>
+                <h3>Wind &amp; Wave Forecast</h3>
                 <div class="chart-container">
                     <canvas id="weatherChart"></canvas>
                 </div>
@@ -365,45 +382,42 @@
 
     <div class="legend">
         <div class="legend-item">
-            <span class="legend-color" style="background: #808080;"></span>
+            <span class="legend-color legend-color-none"></span>
             <span>No Warning</span>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background: #ffff00;"></span>
+            <span class="legend-color legend-color-gale"></span>
             <span>Gale Warning</span>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background: #ffc0cb;"></span>
+            <span class="legend-color legend-color-gale-possible"></span>
             <span>Gale Force Possible</span>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background: #ffa500;"></span>
+            <span class="legend-color legend-color-storm"></span>
             <span>Storm Warning</span>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background: #800080;"></span>
+            <span class="legend-color legend-color-storm-possible"></span>
             <span>Storm Force Possible</span>
         </div>
         <div class="legend-item">
-            <span class="legend-color" style="background: #ff0000;"></span>
+            <span class="legend-color legend-color-hurricane"></span>
             <span>Hurricane Force</span>
         </div>
     </div>
 
-    <!-- Local JavaScript Libraries -->
     <script src="libs/leaflet/leaflet.js"></script>
     <script src="libs/chartjs/chart.min.js"></script>
 
     <script>
-        // Global variables
-        let map;
-        let zonesLayer;
-        let forecastData = [];
-        let weatherChart = null;
-        let currentZoneId = null;
+        var map;
+        var zonesLayer;
+        var forecastData = [];
+        var weatherChart = null;
+        var currentZoneId = null;
 
-        // Warning colors mapping
-        const warningColors = {
+        var warningColors = {
             'HURRICANE FORCE WIND WARNING': '#ff0000',
             'HURRICANE WARNING': '#ff0000',
             'STORM WARNING': '#ffa500',
@@ -415,39 +429,36 @@
             'NONE': '#808080'
         };
 
-        // Get color for warning type
         function getWarningColor(warning) {
             if (!warning) return '#808080';
-            const upperWarning = warning.toUpperCase();
-            
-            for (const [key, color] of Object.entries(warningColors)) {
-                if (upperWarning.includes(key)) {
-                    return color;
+            var upperWarning = warning.toUpperCase();
+
+            for (var key in warningColors) {
+                if (warningColors.hasOwnProperty(key)) {
+                    if (upperWarning.indexOf(key) !== -1) {
+                        return warningColors[key];
+                    }
                 }
             }
             return '#808080';
         }
 
-        // Initialize map
         function initMap() {
             map = L.map('map', {
                 zoomControl: true
             }).setView([38, -72], 5);
 
-            // Ocean base layer
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 13,
                 attribution: 'Esri Ocean Basemap'
             }).addTo(map);
 
-            // Add reference overlay
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 13
             }).addTo(map);
 
             zonesLayer = L.layerGroup().addTo(map);
 
-            // Add scale control
             L.control.scale({
                 imperial: true,
                 metric: true,
@@ -455,12 +466,11 @@
             }).addTo(map);
         }
 
-        // Load GeoJSON zones
-        async function loadZones() {
-            const product = document.getElementById('product').value;
-            let geoJsonFile;
-            let idField;
-            
+        function loadZones() {
+            var product = document.getElementById('product').value;
+            var geoJsonFile;
+            var idField;
+
             switch (product) {
                 case 'offshore':
                     geoJsonFile = 'offshores.geojson';
@@ -468,10 +478,6 @@
                     break;
                 case 'navtex':
                     geoJsonFile = 'navtex.geojson';
-                    idField = 'Name';
-                    break;
-                case 'vobra':
-                    geoJsonFile = 'offshores.geojson';
                     idField = 'ID';
                     break;
                 default:
@@ -479,40 +485,39 @@
                     idField = 'ID';
             }
 
-            try {
-                const response = await fetch(geoJsonFile);
-                let text = await response.text();
-                
-                // Handle JavaScript variable format (var offshores = {...})
-                if (text.startsWith('var ')) {
-                    const match = text.match(/var\s+\w+\s*=\s*({[\s\S]*})/);
-                    if (match) {
-                        text = match[1];
+            fetch(geoJsonFile)
+                .then(function(response) {
+                    return response.text();
+                })
+                .then(function(text) {
+                    if (text.indexOf('var ') === 0) {
+                        var match = text.match(/var\s+\w+\s*=\s*({[\s\S]*})/);
+                        if (match) {
+                            text = match[1];
+                        }
                     }
-                }
-                
-                const geoJson = JSON.parse(text);
-                displayZones(geoJson, idField);
-            } catch (error) {
-                console.error('Error loading zones:', error);
-                createSampleZones();
-            }
+                    var geoJson = JSON.parse(text);
+                    displayZones(geoJson, idField);
+                })
+                .catch(function(error) {
+                    console.error('Error loading zones:', error);
+                    createSampleZones();
+                });
         }
 
-        // Display zones on map
         function displayZones(geoJson, idField) {
             zonesLayer.clearLayers();
 
             L.geoJSON(geoJson, {
                 style: function(feature) {
-                    const zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
-                    const forecast = forecastData.find(f => 
-                        f.zone === zoneId || 
-                        f.zone === feature.properties.Name ||
-                        f.name === feature.properties.Name
-                    );
-                    const warning = forecast ? forecast.warning : 'NONE';
-                    
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var forecast = forecastData.find(function(f) {
+                        return f.zone === zoneId ||
+                            f.zone === feature.properties.Name ||
+                            f.name === feature.properties.Name;
+                    });
+                    var warning = forecast ? forecast.warning : 'NONE';
+
                     return {
                         fillColor: getWarningColor(warning),
                         weight: 1.5,
@@ -522,36 +527,34 @@
                     };
                 },
                 onEachFeature: function(feature, layer) {
-                    const zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
-                    const zoneName = feature.properties.Name || feature.properties.name || zoneId;
-                    
-                    // Popup
-                    layer.bindPopup(`
-                        <div class="zone-popup-title">${zoneName}</div>
-                        <div class="zone-popup-id">Zone: ${zoneId}</div>
-                    `);
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var zoneName = feature.properties.Name || feature.properties.name || zoneId;
 
-                    // Event handlers
+                    layer.bindPopup(
+                        '<div class="zone-popup-title">' + zoneName + '</div>' +
+                        '<div class="zone-popup-id">Zone: ' + zoneId + '</div>'
+                    );
+
                     layer.on({
                         mouseover: function(e) {
-                            const layer = e.target;
-                            layer.setStyle({
+                            var targetLayer = e.target;
+                            targetLayer.setStyle({
                                 weight: 3,
                                 color: '#e94560',
                                 fillOpacity: 0.75
                             });
-                            layer.bringToFront();
+                            targetLayer.bringToFront();
                         },
                         mouseout: function(e) {
-                            const layer = e.target;
-                            const forecast = forecastData.find(f => 
-                                f.zone === zoneId || 
-                                f.zone === feature.properties.Name ||
-                                f.name === feature.properties.Name
-                            );
-                            const warning = forecast ? forecast.warning : 'NONE';
-                            
-                            layer.setStyle({
+                            var targetLayer = e.target;
+                            var forecast = forecastData.find(function(f) {
+                                return f.zone === zoneId ||
+                                    f.zone === feature.properties.Name ||
+                                    f.name === feature.properties.Name;
+                            });
+                            var warning = forecast ? forecast.warning : 'NONE';
+
+                            targetLayer.setStyle({
                                 fillColor: getWarningColor(warning),
                                 weight: 1.5,
                                 opacity: 1,
@@ -559,7 +562,7 @@
                                 fillOpacity: 0.55
                             });
                         },
-                        click: function(e) {
+                        click: function() {
                             showForecast(zoneId, zoneName);
                         }
                     });
@@ -567,9 +570,8 @@
             }).addTo(zonesLayer);
         }
 
-        // Create sample zones for testing
         function createSampleZones() {
-            const sampleZones = {
+            var sampleZones = {
                 type: "FeatureCollection",
                 features: [
                     {
@@ -598,15 +600,14 @@
                     }
                 ]
             };
-            
+
             displayZones(sampleZones, 'ID');
         }
 
-        // Load forecast data
-        async function loadForecastData() {
-            const product = document.getElementById('product').value;
-            let jsonFile;
-            
+        function loadForecastData() {
+            var product = document.getElementById('product').value;
+            var jsonFile;
+
             switch (product) {
                 case 'offshore':
                     jsonFile = 'off.json';
@@ -614,59 +615,58 @@
                 case 'navtex':
                     jsonFile = 'nav.json';
                     break;
-                case 'vobra':
-                    jsonFile = 'vob.json';
-                    break;
                 default:
                     jsonFile = 'off.json';
             }
 
-            try {
-                const response = await fetch(jsonFile);
-                if (response.ok) {
-                    forecastData = await response.json();
-                } else {
+            fetch(jsonFile)
+                .then(function(response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Network response was not ok');
+                })
+                .then(function(data) {
+                    forecastData = data;
+                    loadZones();
+                })
+                .catch(function(error) {
+                    console.error('Error loading forecast data:', error);
                     forecastData = generateSampleForecastData();
-                }
-            } catch (error) {
-                console.error('Error loading forecast data:', error);
-                forecastData = generateSampleForecastData();
-            }
-            
-            loadZones();
+                    loadZones();
+                });
         }
 
-        // Generate sample forecast data
         function generateSampleForecastData() {
-            const zones = ['ANZ800', 'ANZ805', 'ANZ810', 'ANZ815', 'ANZ820', 'ANZ825', 
-                          'ANZ900', 'ANZ905', 'ANZ910', 'ANZ915', 'ANZ920', 'ANZ925',
-                          'PZZ800', 'PZZ805', 'PZZ810', 'PZZ815', 'PZZ820', 'PZZ825'];
-            const warnings = ['NONE', 'NONE', 'NONE', 'GALE WARNING', 'NONE', 'STORM WARNING'];
-            const days = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3', 'Day 4', 'Day 5'];
-            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+            var zones = ['ANZ800', 'ANZ805', 'ANZ810', 'ANZ815', 'ANZ820', 'ANZ825',
+                'ANZ900', 'ANZ905', 'ANZ910', 'ANZ915', 'ANZ920', 'ANZ925',
+                'PZZ800', 'PZZ805', 'PZZ810', 'PZZ815', 'PZZ820', 'PZZ825'];
+            var warnings = ['NONE', 'NONE', 'NONE', 'GALE WARNING', 'NONE', 'STORM WARNING'];
+            var days = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3', 'Day 4', 'Day 5'];
+            var directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
 
-            return zones.map(zone => {
-                const warning = warnings[Math.floor(Math.random() * warnings.length)];
-                
-                const forecasts = days.map(day => {
-                    const baseWind = Math.floor(Math.random() * 25) + 10;
-                    const windHigh = baseWind + Math.floor(Math.random() * 15) + 5;
-                    const seaLow = Math.floor(Math.random() * 6) + 4;
-                    const seaHigh = seaLow + Math.floor(Math.random() * 6) + 2;
-                    const dir1 = directions[Math.floor(Math.random() * directions.length)];
-                    const dir2 = directions[Math.floor(Math.random() * directions.length)];
+            return zones.map(function(zone) {
+                var warning = warnings[Math.floor(Math.random() * warnings.length)];
+
+                var forecasts = days.map(function(day) {
+                    var baseWind = Math.floor(Math.random() * 25) + 10;
+                    var windHigh = baseWind + Math.floor(Math.random() * 15) + 5;
+                    var seaLow = Math.floor(Math.random() * 6) + 4;
+                    var seaHigh = seaLow + Math.floor(Math.random() * 6) + 2;
+                    var dir1 = directions[Math.floor(Math.random() * directions.length)];
+                    var dir2 = directions[Math.floor(Math.random() * directions.length)];
 
                     return {
                         Day: day,
-                        Winds: `${dir1} TO ${dir2} ${baseWind} TO ${windHigh} KT`,
-                        Seas: `Seas ${seaLow} TO ${seaHigh} FT`,
+                        Winds: dir1 + ' TO ' + dir2 + ' ' + baseWind + ' TO ' + windHigh + ' KT',
+                        Seas: 'Seas ' + seaLow + ' TO ' + seaHigh + ' FT',
                         Weather: Math.random() > 0.7 ? 'Scattered showers' : 'N/A'
                     };
                 });
 
                 return {
                     zone: zone,
-                    name: `Zone ${zone}`,
+                    name: 'Zone ' + zone,
                     time: new Date().toLocaleString(),
                     warning: warning,
                     forecast: forecasts
@@ -674,52 +674,48 @@
             });
         }
 
-        // Show forecast in sidebar
         function showForecast(zoneId, zoneName) {
             currentZoneId = zoneId;
-            const panel = document.getElementById('forecastPanel');
-            const forecast = forecastData.find(f => 
-                f.zone === zoneId || 
-                f.zone === zoneName ||
-                f.name === zoneName
-            );
+            var panel = document.getElementById('forecastPanel');
+            var forecast = forecastData.find(function(f) {
+                return f.zone === zoneId ||
+                    f.zone === zoneName ||
+                    f.name === zoneName;
+            });
 
             if (!forecast) {
-                panel.innerHTML = `
-                    <h3>Forecast Details</h3>
-                    <div class="no-data">No forecast data available for<br><strong>${zoneName}</strong></div>
-                `;
+                panel.innerHTML =
+                    '<h3>Forecast Details</h3>' +
+                    '<div class="no-data">No forecast data available for<br><strong>' + zoneName + '</strong></div>';
                 return;
             }
 
-            const warningColor = getWarningColor(forecast.warning);
-            const textColor = ['#ffff00', '#ffc0cb'].includes(warningColor) ? '#000' : '#fff';
+            var warningColor = getWarningColor(forecast.warning);
+            var textColor = (warningColor === '#ffff00' || warningColor === '#ffc0cb') ? '#000' : '#fff';
 
-            let forecastHtml = `
-                <h3>Forecast Details</h3>
-                <div class="forecast-header">${forecast.name || zoneName}</div>
-                <div class="forecast-time">Issued: ${forecast.time}</div>
-            `;
+            var forecastHtml =
+                '<h3>Forecast Details</h3>' +
+                '<div class="forecast-header">' + (forecast.name || zoneName) + '</div>' +
+                '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
 
             if (forecast.warning && forecast.warning !== 'NONE') {
-                forecastHtml += `
-                    <div class="warning-banner" style="background: ${warningColor}; color: ${textColor};">
-                        ${forecast.warning}
-                    </div>
-                `;
+                forecastHtml +=
+                    '<div class="warning-banner" style="background:' + warningColor + ';color:' + textColor + ';">' +
+                    forecast.warning +
+                    '</div>';
             }
 
             if (forecast.forecast && forecast.forecast.length > 0) {
-                forecast.forecast.forEach(day => {
-                    forecastHtml += `
-                        <div class="day-forecast">
-                            <span class="day-name">${day.Day}</span>
-                            <span class="forecast-detail"><strong>Winds:</strong> ${day.Winds}</span>
-                            <span class="forecast-detail"><strong>Seas:</strong> ${day.Seas}</span>
-                            ${day.Weather && day.Weather !== 'N/A' ? 
-                                `<span class="forecast-detail"><strong>Weather:</strong> ${day.Weather}</span>` : ''}
-                        </div>
-                    `;
+                forecast.forecast.forEach(function(day) {
+                    forecastHtml +=
+                        '<div class="day-forecast">' +
+                        '<span class="day-name">' + day.Day + '</span>' +
+                        '<span class="forecast-detail"><strong>Winds:</strong> ' + day.Winds + '</span>' +
+                        '<span class="forecast-detail"><strong>Seas:</strong> ' + day.Seas + '</span>';
+                    if (day.Weather && day.Weather !== 'N/A') {
+                        forecastHtml += '<span class="forecast-detail"><strong>Weather:</strong> ' + day.Weather + '</span>';
+                    }
+                    forecastHtml += '</div>';
                 });
             }
 
@@ -727,10 +723,9 @@
             updateChart(forecast);
         }
 
-        // Update weather chart
         function updateChart(forecast) {
-            const ctx = document.getElementById('weatherChart').getContext('2d');
-            
+            var ctx = document.getElementById('weatherChart').getContext('2d');
+
             if (weatherChart) {
                 weatherChart.destroy();
             }
@@ -739,21 +734,19 @@
                 return;
             }
 
-            const labels = [];
-            const windSpeeds = [];
-            const waveHeights = [];
+            var labels = [];
+            var windSpeeds = [];
+            var waveHeights = [];
 
-            forecast.forecast.forEach(day => {
+            forecast.forecast.forEach(function(day) {
                 labels.push(day.Day);
-                
-                // Parse wind speed (get max value)
-                const windMatch = day.Winds.match(/(\d+)/g);
-                const maxWind = windMatch ? Math.max(...windMatch.map(Number)) : 0;
+
+                var windMatch = day.Winds.match(/(\d+)/g);
+                var maxWind = windMatch ? Math.max.apply(null, windMatch.map(Number)) : 0;
                 windSpeeds.push(maxWind);
 
-                // Parse wave height (get max value)
-                const waveMatch = day.Seas.match(/(\d+)/g);
-                const maxWave = waveMatch ? Math.max(...waveMatch.map(Number)) : 0;
+                var waveMatch = day.Seas.match(/(\d+)/g);
+                var maxWave = waveMatch ? Math.max.apply(null, waveMatch.map(Number)) : 0;
                 waveHeights.push(maxWave);
             });
 
@@ -816,7 +809,7 @@
                                 font: { size: 10 }
                             },
                             beginAtZero: true,
-                            suggestedMax: Math.max(...windSpeeds) + 10,
+                            suggestedMax: Math.max.apply(null, windSpeeds) + 10,
                             grid: {
                                 color: 'rgba(0, 0, 0, 0.08)'
                             },
@@ -831,7 +824,7 @@
                                 font: { size: 10 }
                             },
                             beginAtZero: true,
-                            suggestedMax: Math.max(...waveHeights) + 5,
+                            suggestedMax: Math.max.apply(null, waveHeights) + 5,
                             grid: {
                                 drawOnChartArea: false
                             },
@@ -848,45 +841,41 @@
             });
         }
 
-        // Change basin/region
         function changeBasin() {
-            const basin = document.getElementById('basin').value;
-            
+            var basin = document.getElementById('basin').value;
+
             if (basin === 'atlantic') {
                 map.flyTo([38, -72], 5);
             } else if (basin === 'pacific') {
                 map.flyTo([38, -125], 5);
             }
-            
+
             loadForecastData();
         }
 
-        // Refresh data
-        async function refreshData() {
-            const btn = document.getElementById('refreshBtn');
+        function refreshData() {
+            var btn = document.getElementById('refreshBtn');
             btn.textContent = 'Loading...';
             btn.disabled = true;
-            
-            try {
-                await fetch('scraper.php?run=1');
-            } catch (e) {
-                console.log('Scraper endpoint not available');
-            }
-            
-            await loadForecastData();
-            
-            btn.textContent = 'Refresh Data';
-            btn.disabled = false;
+
+            fetch('scraper.php?run=1')
+                .catch(function() {
+                    console.log('Scraper endpoint not available');
+                })
+                .finally(function() {
+                    loadForecastData();
+                    btn.textContent = 'Refresh Data';
+                    btn.disabled = false;
+                });
         }
 
-        // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
             initMap();
-            
+
             document.getElementById('basin').addEventListener('change', changeBasin);
             document.getElementById('product').addEventListener('change', loadForecastData);
             document.getElementById('refreshBtn').addEventListener('click', refreshData);
-            
+
             loadForecastData();
         });
     </script>

@@ -1,0 +1,230 @@
+[
+  {
+    "zone": "Boston",
+    "name": "Gulf of Maine",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "NONE",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "SW TO W 10 TO 24 KT",
+        "Seas": "Combined seas 5 TO 8 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "S TO SE 21 TO 30 KT",
+        "Seas": "Combined seas 3 TO 6 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "S TO S 19 TO 30 KT",
+        "Seas": "Combined seas 4 TO 8 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "N TO N 10 TO 21 KT",
+        "Seas": "Combined seas 7 TO 12 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "NW TO S 23 TO 38 KT",
+        "Seas": "Combined seas 6 TO 12 FT",
+        "Weather": "N/A"
+      }
+    ]
+  },
+  {
+    "zone": "Savannah",
+    "name": "Georgia Coast",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "NONE",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "S TO SW 15 TO 29 KT",
+        "Seas": "Combined seas 3 TO 8 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "W TO S 27 TO 33 KT",
+        "Seas": "Combined seas 8 TO 10 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "SE TO NW 22 TO 34 KT",
+        "Seas": "Combined seas 4 TO 10 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "SE TO S 28 TO 35 KT",
+        "Seas": "Combined seas 7 TO 11 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "NE TO W 13 TO 19 KT",
+        "Seas": "Combined seas 5 TO 8 FT",
+        "Weather": "N/A"
+      }
+    ]
+  },
+  {
+    "zone": "Portsmouth",
+    "name": "Virginia Coast",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "GALE WARNING",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "W TO SE 16 TO 22 KT",
+        "Seas": "Combined seas 5 TO 11 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "N TO N 21 TO 36 KT",
+        "Seas": "Combined seas 8 TO 14 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "W TO SW 11 TO 24 KT",
+        "Seas": "Combined seas 7 TO 12 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "S TO N 23 TO 35 KT",
+        "Seas": "Combined seas 5 TO 9 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "SE TO W 30 TO 40 KT",
+        "Seas": "Combined seas 3 TO 7 FT",
+        "Weather": "N/A"
+      }
+    ]
+  },
+  {
+    "zone": "Pt_Reyes",
+    "name": "Northern California",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "NONE",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "E TO NE 13 TO 19 KT",
+        "Seas": "Combined seas 6 TO 10 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "SE TO NW 18 TO 33 KT",
+        "Seas": "Combined seas 4 TO 6 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "W TO SE 28 TO 40 KT",
+        "Seas": "Combined seas 7 TO 13 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "SE TO NW 12 TO 17 KT",
+        "Seas": "Combined seas 4 TO 6 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "E TO E 11 TO 23 KT",
+        "Seas": "Combined seas 6 TO 8 FT",
+        "Weather": "N/A"
+      }
+    ]
+  },
+  {
+    "zone": "Cambria",
+    "name": "Central California",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "STORM WARNING",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "NW TO SW 15 TO 25 KT",
+        "Seas": "Combined seas 6 TO 9 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "W TO SE 21 TO 33 KT",
+        "Seas": "Combined seas 6 TO 8 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "SE TO NE 27 TO 33 KT",
+        "Seas": "Combined seas 4 TO 8 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "E TO NE 17 TO 27 KT",
+        "Seas": "Combined seas 8 TO 11 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "SW TO W 12 TO 22 KT",
+        "Seas": "Combined seas 3 TO 8 FT",
+        "Weather": "N/A"
+      }
+    ]
+  },
+  {
+    "zone": "Astoria",
+    "name": "Oregon Coast",
+    "time": "07:28 PM  Wed Jan 28 2026",
+    "warning": "NONE",
+    "forecast": [
+      {
+        "Day": "Today",
+        "Winds": "N TO SE 28 TO 35 KT",
+        "Seas": "Combined seas 8 TO 12 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "SE TO SW 23 TO 36 KT",
+        "Seas": "Combined seas 3 TO 5 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "SW TO S 27 TO 35 KT",
+        "Seas": "Combined seas 7 TO 11 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow Night",
+        "Winds": "S TO E 19 TO 31 KT",
+        "Seas": "Combined seas 8 TO 13 FT",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Day 3",
+        "Winds": "W TO E 14 TO 26 KT",
+        "Seas": "Combined seas 6 TO 8 FT",
+        "Weather": "N/A"
+      }
+    ]
+  }
+]

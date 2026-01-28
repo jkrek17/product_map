@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Warning Lightmap</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" 
+          integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 20px;
+            text-align: center;
+            border-bottom: 2px solid #0f3460;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #e94560;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group select {
+            padding: 10px 20px;
+            font-size: 14px;
+            background: #0f3460;
+            color: #fff;
+            border: 1px solid #1a1a4e;
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 180px;
+        }
+
+        .control-group select:hover {
+            background: #1a1a4e;
+        }
+
+        .main-container {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 15px;
+            gap: 15px;
+            max-width: 1800px;
+            margin: 0 auto;
+        }
+
+        #map {
+            flex: 1;
+            min-width: 500px;
+            height: 600px;
+            border-radius: 12px;
+            border: 2px solid #0f3460;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .sidebar {
+            width: 450px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .forecast-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            color: #1a1a2e;
+            max-height: 400px;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .forecast-panel h3 {
+            color: #0f3460;
+            margin-bottom: 10px;
+            font-size: 16px;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 8px;
+        }
+
+        .forecast-header {
+            font-size: 18px;
+            font-weight: bold;
+            color: #0f3460;
+            margin-bottom: 10px;
+        }
+
+        .forecast-time {
+            color: #64748b;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+
+        .warning-banner {
+            padding: 10px 15px;
+            border-radius: 8px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .day-forecast {
+            background: #f8fafc;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+            border-left: 4px solid #0f3460;
+        }
+
+        .day-name {
+            font-weight: bold;
+            color: #0f3460;
+            background: #e2e8f0;
+            padding: 5px 10px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            display: inline-block;
+        }
+
+        .forecast-detail {
+            display: block;
+            font-size: 13px;
+            color: #475569;
+            margin-top: 5px;
+        }
+
+        .forecast-detail strong {
+            color: #0f3460;
+        }
+
+        .chart-panel {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-panel h3 {
+            color: #0f3460;
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        #weatherChart {
+            max-height: 250px;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .info-box {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(15, 52, 96, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            max-width: 250px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .info-box h4 {
+            color: #e94560;
+            margin-bottom: 5px;
+        }
+
+        .info-box p {
+            font-size: 12px;
+            color: #94a3b8;
+        }
+
+        /* Leaflet popup styling */
+        .leaflet-popup-content-wrapper {
+            background: #0f3460;
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        .leaflet-popup-tip {
+            background: #0f3460;
+        }
+
+        .leaflet-popup-content {
+            margin: 10px 15px;
+        }
+
+        .zone-popup-title {
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .zone-popup-id {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #e94560;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 20px;
+            color: #64748b;
+        }
+
+        @media (max-width: 1000px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+            }
+
+            #map {
+                min-width: 100%;
+                height: 500px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Weather Warning Lightmap</h1>
+        <p>Interactive Marine Weather Forecast Visualization</p>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label>Region</label>
+            <select id="basin">
+                <option value="atlantic">Western Atlantic</option>
+                <option value="pacific">Eastern Pacific</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Product Type</label>
+            <select id="product">
+                <option value="offshore">Offshore Forecasts</option>
+                <option value="navtex">NAVTEX</option>
+                <option value="vobra">VOBRA</option>
+            </select>
+        </div>
+        <div class="control-group">
+            <label>Action</label>
+            <button id="refreshBtn" style="padding: 10px 20px; background: #e94560; color: #fff; border: none; border-radius: 8px; cursor: pointer;">
+                Refresh Data
+            </button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <div class="forecast-panel" id="forecastPanel">
+                <h3>Forecast Details</h3>
+                <div class="no-data">Click on a zone to view forecast details</div>
+            </div>
+            <div class="chart-panel">
+                <h3>Wind & Wave Forecast</h3>
+                <canvas id="weatherChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color" style="background: #808080;"></span>
+            <span>No Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #ffff00;"></span>
+            <span>Gale Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #ffc0cb;"></span>
+            <span>Gale Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #ffa500;"></span>
+            <span>Storm Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #800080;"></span>
+            <span>Storm Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color" style="background: #ff0000;"></span>
+            <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+            integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <script>
+        // Global variables
+        let map;
+        let zonesLayer;
+        let forecastData = [];
+        let weatherChart = null;
+
+        // Warning colors mapping
+        const warningColors = {
+            'HURRICANE FORCE WIND WARNING': '#ff0000',
+            'HURRICANE WARNING': '#ff0000',
+            'STORM WARNING': '#ffa500',
+            'TROPICAL STORM WARNING': '#ffa500',
+            'GALE WARNING': '#ffff00',
+            'GALE FORCE POSSIBLE': '#ffc0cb',
+            'STORM FORCE POSSIBLE': '#800080',
+            'TROPICAL STORM CONDITIONS POSSIBLE': '#800080',
+            'NONE': '#808080'
+        };
+
+        // Get color for warning type
+        function getWarningColor(warning) {
+            if (!warning) return '#808080';
+            const upperWarning = warning.toUpperCase();
+            
+            for (const [key, color] of Object.entries(warningColors)) {
+                if (upperWarning.includes(key)) {
+                    return color;
+                }
+            }
+            return '#808080';
+        }
+
+        // Initialize map
+        function initMap() {
+            map = L.map('map').setView([38, -72], 5);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 19,
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            // Add ocean base layer
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13,
+                attribution: 'Tiles &copy; Esri &mdash; Sources: GEBCO, NOAA, CHS, OSU, UNH, CSUMB, National Geographic, DeLorme, NAVTEQ, and Esri'
+            }).addTo(map);
+
+            zonesLayer = L.layerGroup().addTo(map);
+        }
+
+        // Load GeoJSON zones
+        async function loadZones() {
+            const product = document.getElementById('product').value;
+            let geoJsonFile;
+            let idField;
+            
+            switch (product) {
+                case 'offshore':
+                    geoJsonFile = 'offshores.geojson';
+                    idField = 'ID';
+                    break;
+                case 'navtex':
+                    geoJsonFile = 'navtex.geojson';
+                    idField = 'Name';
+                    break;
+                case 'vobra':
+                    geoJsonFile = 'offshores.geojson'; // Use offshore zones as fallback
+                    idField = 'ID';
+                    break;
+                default:
+                    geoJsonFile = 'offshores.geojson';
+                    idField = 'ID';
+            }
+
+            try {
+                const response = await fetch(geoJsonFile);
+                let text = await response.text();
+                
+                // Handle JavaScript variable format (var offshores = {...})
+                if (text.startsWith('var ')) {
+                    const match = text.match(/var\s+\w+\s*=\s*({[\s\S]*})/);
+                    if (match) {
+                        text = match[1];
+                    }
+                }
+                
+                const geoJson = JSON.parse(text);
+                displayZones(geoJson, idField);
+            } catch (error) {
+                console.error('Error loading zones:', error);
+                // Create sample zones if files don't load
+                createSampleZones();
+            }
+        }
+
+        // Display zones on map
+        function displayZones(geoJson, idField) {
+            zonesLayer.clearLayers();
+
+            L.geoJSON(geoJson, {
+                style: function(feature) {
+                    const zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    const forecast = forecastData.find(f => 
+                        f.zone === zoneId || 
+                        f.zone === feature.properties.Name ||
+                        f.name === feature.properties.Name
+                    );
+                    const warning = forecast ? forecast.warning : 'NONE';
+                    
+                    return {
+                        fillColor: getWarningColor(warning),
+                        weight: 2,
+                        opacity: 1,
+                        color: '#333',
+                        dashArray: '3',
+                        fillOpacity: 0.6
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    const zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    const zoneName = feature.properties.Name || feature.properties.name || zoneId;
+                    
+                    // Popup on hover
+                    layer.bindPopup(`
+                        <div class="zone-popup-title">${zoneName}</div>
+                        <div class="zone-popup-id">Zone: ${zoneId}</div>
+                    `);
+
+                    // Highlight on hover
+                    layer.on({
+                        mouseover: function(e) {
+                            const layer = e.target;
+                            layer.setStyle({
+                                weight: 4,
+                                color: '#e94560',
+                                dashArray: '',
+                                fillOpacity: 0.8
+                            });
+                            layer.bringToFront();
+                        },
+                        mouseout: function(e) {
+                            const layer = e.target;
+                            const forecast = forecastData.find(f => 
+                                f.zone === zoneId || 
+                                f.zone === feature.properties.Name ||
+                                f.name === feature.properties.Name
+                            );
+                            const warning = forecast ? forecast.warning : 'NONE';
+                            
+                            layer.setStyle({
+                                fillColor: getWarningColor(warning),
+                                weight: 2,
+                                opacity: 1,
+                                color: '#333',
+                                dashArray: '3',
+                                fillOpacity: 0.6
+                            });
+                        },
+                        click: function(e) {
+                            showForecast(zoneId, zoneName);
+                        }
+                    });
+                }
+            }).addTo(zonesLayer);
+        }
+
+        // Create sample zones for testing
+        function createSampleZones() {
+            const sampleZones = {
+                type: "FeatureCollection",
+                features: [
+                    {
+                        type: "Feature",
+                        properties: { ID: "ANZ910", Name: "Atlantic Offshore Zone 910" },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [[[-75, 35], [-70, 35], [-70, 40], [-75, 40], [-75, 35]]]
+                        }
+                    },
+                    {
+                        type: "Feature",
+                        properties: { ID: "ANZ920", Name: "Atlantic Offshore Zone 920" },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [[[-70, 35], [-65, 35], [-65, 40], [-70, 40], [-70, 35]]]
+                        }
+                    },
+                    {
+                        type: "Feature",
+                        properties: { ID: "ANZ930", Name: "Atlantic Offshore Zone 930" },
+                        geometry: {
+                            type: "Polygon",
+                            coordinates: [[[-75, 40], [-70, 40], [-70, 45], [-75, 45], [-75, 40]]]
+                        }
+                    }
+                ]
+            };
+            
+            displayZones(sampleZones, 'ID');
+        }
+
+        // Load forecast data
+        async function loadForecastData() {
+            const product = document.getElementById('product').value;
+            let jsonFile;
+            
+            switch (product) {
+                case 'offshore':
+                    jsonFile = 'off.json';
+                    break;
+                case 'navtex':
+                    jsonFile = 'nav.json';
+                    break;
+                case 'vobra':
+                    jsonFile = 'vob.json';
+                    break;
+                default:
+                    jsonFile = 'off.json';
+            }
+
+            try {
+                const response = await fetch(jsonFile);
+                if (response.ok) {
+                    forecastData = await response.json();
+                } else {
+                    // Generate sample data if file doesn't exist
+                    forecastData = generateSampleForecastData();
+                }
+            } catch (error) {
+                console.error('Error loading forecast data:', error);
+                forecastData = generateSampleForecastData();
+            }
+            
+            // Refresh zones with new data
+            loadZones();
+        }
+
+        // Generate sample forecast data
+        function generateSampleForecastData() {
+            const zones = ['ANZ800', 'ANZ805', 'ANZ810', 'ANZ815', 'ANZ820', 'ANZ825', 
+                          'ANZ900', 'ANZ905', 'ANZ910', 'ANZ915', 'ANZ920', 'ANZ925',
+                          'PZZ800', 'PZZ805', 'PZZ810', 'PZZ815', 'PZZ820', 'PZZ825'];
+            const warnings = ['NONE', 'NONE', 'NONE', 'GALE WARNING', 'NONE', 'STORM WARNING'];
+            const days = ['Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3', 'Day 4', 'Day 5'];
+            const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW'];
+
+            return zones.map(zone => {
+                const warning = warnings[Math.floor(Math.random() * warnings.length)];
+                
+                const forecasts = days.map(day => {
+                    const baseWind = Math.floor(Math.random() * 25) + 10;
+                    const windHigh = baseWind + Math.floor(Math.random() * 15) + 5;
+                    const seaLow = Math.floor(Math.random() * 6) + 4;
+                    const seaHigh = seaLow + Math.floor(Math.random() * 6) + 2;
+                    const dir1 = directions[Math.floor(Math.random() * directions.length)];
+                    const dir2 = directions[Math.floor(Math.random() * directions.length)];
+
+                    return {
+                        Day: day,
+                        Winds: `${dir1} TO ${dir2} ${baseWind} TO ${windHigh} KT`,
+                        Seas: `Combined seas ${seaLow} TO ${seaHigh} FT`,
+                        Weather: Math.random() > 0.7 ? 'Scattered showers' : 'N/A'
+                    };
+                });
+
+                return {
+                    zone: zone,
+                    name: `Zone ${zone}`,
+                    time: new Date().toLocaleString(),
+                    warning: warning,
+                    forecast: forecasts
+                };
+            });
+        }
+
+        // Show forecast in sidebar
+        function showForecast(zoneId, zoneName) {
+            const panel = document.getElementById('forecastPanel');
+            const forecast = forecastData.find(f => 
+                f.zone === zoneId || 
+                f.zone === zoneName ||
+                f.name === zoneName
+            );
+
+            if (!forecast) {
+                panel.innerHTML = `
+                    <h3>Forecast Details</h3>
+                    <div class="no-data">No forecast data available for ${zoneName}</div>
+                `;
+                return;
+            }
+
+            const warningColor = getWarningColor(forecast.warning);
+            const textColor = ['#ffff00', '#ffc0cb'].includes(warningColor) ? '#000' : '#fff';
+
+            let forecastHtml = `
+                <h3>Forecast Details</h3>
+                <div class="forecast-header">${forecast.name || zoneName}</div>
+                <div class="forecast-time">Issued: ${forecast.time}</div>
+            `;
+
+            if (forecast.warning && forecast.warning !== 'NONE') {
+                forecastHtml += `
+                    <div class="warning-banner" style="background: ${warningColor}; color: ${textColor};">
+                        ${forecast.warning}
+                    </div>
+                `;
+            }
+
+            if (forecast.forecast && forecast.forecast.length > 0) {
+                forecast.forecast.forEach(day => {
+                    forecastHtml += `
+                        <div class="day-forecast">
+                            <span class="day-name">${day.Day}</span>
+                            <span class="forecast-detail"><strong>Winds:</strong> ${day.Winds}</span>
+                            <span class="forecast-detail"><strong>Seas:</strong> ${day.Seas}</span>
+                            ${day.Weather && day.Weather !== 'N/A' ? 
+                                `<span class="forecast-detail"><strong>Weather:</strong> ${day.Weather}</span>` : ''}
+                        </div>
+                    `;
+                });
+            }
+
+            panel.innerHTML = forecastHtml;
+
+            // Update chart
+            updateChart(forecast);
+        }
+
+        // Update weather chart
+        function updateChart(forecast) {
+            const ctx = document.getElementById('weatherChart').getContext('2d');
+            
+            if (weatherChart) {
+                weatherChart.destroy();
+            }
+
+            if (!forecast.forecast || forecast.forecast.length === 0) {
+                return;
+            }
+
+            const labels = [];
+            const windSpeeds = [];
+            const waveHeights = [];
+
+            forecast.forecast.forEach(day => {
+                labels.push(day.Day);
+                
+                // Parse wind speed (get max value)
+                const windMatch = day.Winds.match(/(\d+)/g);
+                const maxWind = windMatch ? Math.max(...windMatch.map(Number)) : 0;
+                windSpeeds.push(maxWind);
+
+                // Parse wave height (get max value)
+                const waveMatch = day.Seas.match(/(\d+)/g);
+                const maxWave = waveMatch ? Math.max(...waveMatch.map(Number)) : 0;
+                waveHeights.push(maxWave);
+            });
+
+            weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Wind Speed (kt)',
+                            data: windSpeeds,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Wave Height (ft)',
+                            data: waveHeights,
+                            borderColor: '#e94560',
+                            backgroundColor: 'rgba(233, 69, 96, 0.2)',
+                            yAxisID: 'y1',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                usePointStyle: true,
+                                padding: 15
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: `${forecast.name || forecast.zone} - Wind & Wave Forecast`,
+                            font: {
+                                size: 14
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: 'Wind Speed (kt)'
+                            },
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...windSpeeds) + 10,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'Wave Height (ft)'
+                            },
+                            beginAtZero: true,
+                            suggestedMax: Math.max(...waveHeights) + 5,
+                            grid: {
+                                drawOnChartArea: false
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Change basin/region
+        function changeBasin() {
+            const basin = document.getElementById('basin').value;
+            
+            if (basin === 'atlantic') {
+                map.flyTo([38, -72], 5);
+            } else if (basin === 'pacific') {
+                map.flyTo([40, -125], 5);
+            }
+            
+            loadForecastData();
+        }
+
+        // Refresh data
+        async function refreshData() {
+            const btn = document.getElementById('refreshBtn');
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            
+            try {
+                // Try to trigger scraper if available
+                await fetch('scraper.php?run=1');
+            } catch (e) {
+                console.log('Scraper not available, using local data');
+            }
+            
+            await loadForecastData();
+            
+            btn.textContent = 'Refresh Data';
+            btn.disabled = false;
+        }
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            
+            // Event listeners
+            document.getElementById('basin').addEventListener('change', changeBasin);
+            document.getElementById('product').addEventListener('change', loadForecastData);
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            
+            // Initial data load
+            loadForecastData();
+        });
+    </script>
+</body>
+</html>

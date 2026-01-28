@@ -14,7 +14,7 @@ An interactive marine weather forecast visualization application that displays N
   - Gray: No Warning
 - **Forecast Details**: Click any zone to view detailed forecast text
 - **Wind & Wave Charts**: Chart.js visualization of wind speed and wave height over time
-- **Multiple Products**: Support for Offshore, NAVTEX, and VOBRA forecasts
+- **Multiple Products**: Support for Offshore and NAVTEX forecasts
 - **Region Selection**: Western Atlantic and Eastern Pacific basins
 - **Offline Capable**: All libraries included locally (no CDN dependencies)
 
@@ -23,11 +23,9 @@ An interactive marine weather forecast visualization application that displays N
 ```
 ├── index.html          # Main application
 ├── scraper.py          # Python script to fetch/parse NWS forecasts
-├── scraper.php         # PHP version of the scraper
 ├── serve.py            # Simple HTTP server for local testing
 ├── off.json            # Offshore forecast data
 ├── nav.json            # NAVTEX forecast data
-├── vob.json            # VOBRA forecast data
 ├── offshores.geojson   # Offshore zone polygons
 ├── navtex.geojson      # NAVTEX zone polygons
 ├── libs/

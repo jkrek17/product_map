@@ -358,7 +358,6 @@
                 <select id="product">
                     <option value="offshore">Offshore Forecasts</option>
                     <option value="navtex">NAVTEX</option>
-                    <option value="vobra">VOBRA</option>
                 </select>
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
@@ -479,10 +478,6 @@
                     break;
                 case 'navtex':
                     geoJsonFile = 'navtex.geojson';
-                    idField = 'Name';
-                    break;
-                case 'vobra':
-                    geoJsonFile = 'offshores.geojson';
                     idField = 'ID';
                     break;
                 default:
@@ -619,9 +614,6 @@
                     break;
                 case 'navtex':
                     jsonFile = 'nav.json';
-                    break;
-                case 'vobra':
-                    jsonFile = 'vob.json';
                     break;
                 default:
                     jsonFile = 'off.json';

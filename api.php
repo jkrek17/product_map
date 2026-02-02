@@ -399,49 +399,6 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
     return $results;
 }
 
-/**
- * Generate NAVTEX data
- */
-function generateNavtexData($navtexZones) {
-    $results = array();
-    $warnings = array('NONE', 'NONE', 'GALE WARNING', 'NONE', 'STORM WARNING', 'NONE', 'NONE', 'GALE FORCE POSSIBLE', 'NONE', 'NONE', 'NONE', 'NONE', 'NONE', 'NONE');
-    $days = array('Today', 'Tonight', 'Tomorrow', 'Tomorrow Night', 'Day 3');
-    $directions = array('N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW');
-    
-    $i = 0;
-    foreach ($navtexZones as $zoneId => $zoneName) {
-        $warning = $warnings[$i % count($warnings)];
-        $forecasts = array();
-        
-        foreach ($days as $day) {
-            $baseWind = rand(10, 30);
-            $windHigh = $baseWind + rand(5, 15);
-            $seaLow = rand(3, 8);
-            $seaHigh = $seaLow + rand(2, 6);
-            $dir1 = $directions[array_rand($directions)];
-            $dir2 = $directions[array_rand($directions)];
-            
-            $forecasts[] = array(
-                'Day' => $day,
-                'Winds' => "$dir1 to $dir2 $baseWind to $windHigh kt",
-                'Seas' => "Seas $seaLow to $seaHigh ft",
-                'Weather' => 'N/A'
-            );
-        }
-        
-        $results[] = array(
-            'zone' => $zoneId,
-            'name' => $zoneName,
-            'time' => date('g:i A T D M j Y'),
-            'warning' => $warning,
-            'forecast' => $forecasts
-        );
-        
-        $i++;
-    }
-    
-    return $results;
-}
 
 // Main execution
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
@@ -564,10 +521,7 @@ if ($type === 'offshore') {
             debugLog("ERROR: Could not read nav.json");
         }
     } else {
-        debugLog("ERROR: nav.json not found - generating data");
-        // Fall back to generating data if file doesn't exist
-        $navtexData = generateNavtexData($NAVTEX_ZONES);
-        debugLog("NAVTEX data generated", array('count' => count($navtexData)));
+        debugLog("ERROR: nav.json not found");
     }
     
     if ($DEBUG) {

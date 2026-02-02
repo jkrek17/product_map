@@ -5,11 +5,15 @@
  */
 
 // =============================================================================
-// CONFIGURATION - Set the path to your local NWS data directory
+// CONFIGURATION - Path to local NWS data directory
 // =============================================================================
-// Path to directory containing NWS forecast text files
-// Set to null to fall back to static JSON files (off.json, nav.json)
-$LOCAL_DATA_DIR = "/home/opc/shtml";
+// The NWS text files are served from the /shtml/ directory on this server.
+// This auto-detects the path based on the web server's document root.
+// Example: if DocumentRoot is /home/www, files are at /home/www/shtml/
+//
+// You can override this by setting a specific path:
+// $LOCAL_DATA_DIR = "/home/www/shtml";
+$LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
 
 // Offshore forecast files (relative to LOCAL_DATA_DIR)
 $OFFSHORE_FILES = array(

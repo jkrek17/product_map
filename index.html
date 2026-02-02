@@ -496,9 +496,13 @@
 
         function loadForecastData() {
             var product = document.getElementById('product').value;
-            var jsonFile = (product === 'navtex') ? 'nav.json' : 'off.json';
+            var apiUrl = 'api.php?type=' + product;
 
-            fetch(jsonFile)
+            // Show loading state
+            document.getElementById('forecastPanel').innerHTML =
+                '<h3>Forecast Details</h3><div class="no-data">Loading live data from NWS...</div>';
+
+            fetch(apiUrl)
                 .then(function(response) {
                     if (response.ok) return response.json();
                     throw new Error('Failed to load');
@@ -506,11 +510,25 @@
                 .then(function(data) {
                     forecastData = data;
                     loadZones();
+                    document.getElementById('forecastPanel').innerHTML =
+                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
                 })
                 .catch(function(error) {
                     console.error('Error loading forecast data:', error);
-                    forecastData = [];
-                    loadZones();
+                    // Fallback to static JSON files
+                    var jsonFile = (product === 'navtex') ? 'nav.json' : 'off.json';
+                    fetch(jsonFile)
+                        .then(function(r) { return r.json(); })
+                        .then(function(data) {
+                            forecastData = data;
+                            loadZones();
+                        })
+                        .catch(function() {
+                            forecastData = [];
+                            loadZones();
+                        });
+                    document.getElementById('forecastPanel').innerHTML =
+                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
                 });
         }
 
@@ -599,13 +617,29 @@
 
         function refreshData() {
             var btn = document.getElementById('refreshBtn');
-            btn.textContent = 'Loading...';
+            btn.textContent = 'Fetching...';
             btn.disabled = true;
-            loadForecastData();
-            setTimeout(function() {
-                btn.textContent = 'Refresh Data';
-                btn.disabled = false;
-            }, 1000);
+
+            var product = document.getElementById('product').value;
+            var apiUrl = 'api.php?type=' + product + '&t=' + Date.now();
+
+            fetch(apiUrl)
+                .then(function(response) {
+                    if (response.ok) return response.json();
+                    throw new Error('Failed to load');
+                })
+                .then(function(data) {
+                    forecastData = data;
+                    loadZones();
+                    btn.textContent = 'Refresh Data';
+                    btn.disabled = false;
+                })
+                .catch(function(error) {
+                    console.error('Error refreshing data:', error);
+                    btn.textContent = 'Refresh Data';
+                    btn.disabled = false;
+                    alert('Failed to fetch live data. Please try again.');
+                });
         }
 
         document.addEventListener('DOMContentLoaded', function() {

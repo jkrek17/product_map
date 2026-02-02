@@ -20,21 +20,35 @@ Interactive marine weather forecast visualization from the NOAA Ocean Prediction
 
 ## Quick Start
 
-### 1. Update Forecast Data
+### Option 1: With PHP Server (Recommended - Live Data)
+
+If you have PHP installed, data is fetched live from NWS on each page load:
 
 ```bash
-python3 scraper.py
+php -S localhost:8000
 ```
-
-### 2. Start Local Server
-
-```bash
-python3 serve.py
-```
-
-### 3. Open Application
 
 Navigate to http://localhost:8000
+
+### Option 2: With Python (Static Data)
+
+Generate static data files first, then serve:
+
+```bash
+python3 scraper.py    # Fetch and save data
+python3 serve.py      # Start server
+```
+
+Navigate to http://localhost:8000
+
+## API Endpoint
+
+`api.php` provides live forecast data:
+
+- `api.php?type=offshore` - Offshore forecasts (37 zones)
+- `api.php?type=navtex` - NAVTEX forecasts (14 zones)
+
+Data is fetched directly from NWS servers on each request.
 
 ## Data Sources
 

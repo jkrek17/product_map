@@ -244,7 +244,14 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
             $zoneText = $zoneMatch[1];
             debugLog("Zone text found for " . $zone, array(
                 'text_length' => strlen($zoneText),
-                'text_preview' => substr($zoneText, 0, 150)
+                'text_preview' => substr($zoneText, 0, 500)
+            ));
+            
+            // Debug: show what periods we're finding
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^$]*?)(?=\.[A-Z][A-Z\s]*?\.\.\.|$)/s', $zoneText, $debugPeriods, PREG_SET_ORDER);
+            debugLog("Period matches for " . $zone, array(
+                'count' => count($debugPeriods),
+                'periods' => array_map(function($m) { return $m[1]; }, $debugPeriods)
             ));
             
             // Extract warning

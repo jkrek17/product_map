@@ -32,6 +32,31 @@ $NAVTEX_FILES = array(
     "N08" => "NFDOFFN08.txt",
     "N09" => "NFDOFFN09.txt"
 );
+
+// NAVTEX zone name mappings (text in file -> zone ID for GeoJSON)
+$NAVTEX_NAME_TO_ID = array(
+    // N09 - Pacific Northwest
+    "Canadian border to 45N" => "OFFN09_NW",
+    "45N to Point Saint George" => "OFFN09_SW",
+    // N08 - Northern California
+    "Point Saint George to Point Arena" => "OFFN08_NW",
+    "Point Arena to Point Piedras Blancas" => "OFFN08_SW",
+    // N07 - Southern California
+    "Point Piedras Blancas to Point Conception" => "OFFN07_NW",
+    "Point Conception to Mexican Border" => "OFFN07_SW",
+    // N01 - New England
+    "Eastport Maine to Cape Cod" => "OFFN01_NE",
+    "Eastport ME to Cape Cod" => "OFFN01_NE",
+    "Cape Cod to Nantucket Shoals and Georges Bank" => "OFFN01_SE",
+    "South of New England" => "OFFN01_SW",
+    // N02 - Mid-Atlantic
+    "Sandy Hook to Wallops Island" => "OFFN02_NE",
+    "Wallops Island to Cape Hatteras" => "OFFN02_E",
+    "Cape Hatteras to Murrells Inlet" => "OFFN02_SE",
+    // N03 - South Atlantic
+    "Murrells Inlet to 31N" => "OFFN03_NE",
+    "South of 31N" => "OFFN03_SE"
+);
 // =============================================================================
 
 // Enable error logging for debugging
@@ -148,6 +173,135 @@ $NAVTEX_ZONES = array(
     "OFFN03_NE" => "Murrells Inlet to 31N",
     "OFFN03_SE" => "South of 31N"
 );
+
+/**
+ * Parse NAVTEX forecast product
+ * NAVTEX format uses zone names instead of zone IDs
+ */
+function parseNavtexProduct($content, $nameToId, $zoneNames) {
+    $results = array();
+    
+    debugLog("parseNavtexProduct called", array(
+        'content_length' => $content ? strlen($content) : 0
+    ));
+    
+    if (empty($content)) {
+        debugLog("WARNING: Empty content passed to parseNavtexProduct");
+        return $results;
+    }
+    
+    // Extract issue time
+    $issueTime = '';
+    if (preg_match('/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i', $content, $timeMatch)) {
+        $issueTime = trim($timeMatch[1]);
+        debugLog("Extracted issue time", $issueTime);
+    }
+    
+    // Find each zone by its name
+    foreach ($nameToId as $zoneName => $zoneId) {
+        // Look for zone name at start of line, followed by forecast content
+        // Zone content ends at next zone name or end of file
+        $pattern = '/^' . preg_quote($zoneName, '/') . '\s*\n(.*?)(?=^[A-Z][a-z].*(?:to|Border|Point|Cape|South|Sandy|Wallops|Murrells)|\z)/ims';
+        
+        if (preg_match($pattern, $content, $zoneMatch)) {
+            $zoneText = $zoneMatch[1];
+            
+            debugLog("NAVTEX zone found: " . $zoneName, array(
+                'zone_id' => $zoneId,
+                'text_length' => strlen($zoneText),
+                'text_preview' => substr($zoneText, 0, 300)
+            ));
+            
+            $zoneData = array(
+                'zone' => $zoneId,
+                'name' => isset($zoneNames[$zoneId]) ? $zoneNames[$zoneId] : $zoneName,
+                'time' => $issueTime ? $issueTime : date('g:i A T D M j Y'),
+                'warning' => 'NONE',
+                'forecast' => array()
+            );
+            
+            // Extract warning
+            $zoneData['warning'] = extractWarning($zoneText);
+            
+            // Parse forecast periods
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
+            
+            debugLog("NAVTEX periods for " . $zoneId, array(
+                'count' => count($periodMatches),
+                'periods' => array_map(function($m) { return trim($m[1]); }, $periodMatches)
+            ));
+            
+            foreach ($periodMatches as $match) {
+                $periodName = trim($match[1]);
+                $periodText = trim($match[2]);
+                
+                // Validate period name
+                $validStarts = array('TODAY', 'TONIGHT', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'REST');
+                $isValid = false;
+                foreach ($validStarts as $v) {
+                    if (stripos($periodName, $v) === 0) {
+                        $isValid = true;
+                        break;
+                    }
+                }
+                
+                if (!$isValid) continue;
+                
+                $cleanText = preg_replace('/\s+/', ' ', $periodText);
+                
+                // Extract winds
+                $winds = 'Variable winds';
+                if (preg_match('/([NSEW]{1,2}(?:\s+to\s+[NSEW]{1,2})?\s+winds?\s+)?(\d+)\s+to\s+(\d+)\s*kt/i', $cleanText, $windMatch)) {
+                    $winds = trim($windMatch[0]);
+                } elseif (preg_match('/([NSEW]{1,2})\s+(\d+)\s*kt/i', $cleanText, $windMatch2)) {
+                    $winds = trim($windMatch2[0]);
+                }
+                
+                // Extract seas
+                $seas = 'Seas variable';
+                if (preg_match('/Seas?\s+(\d+)\s+to\s+(\d+)\s*ft/i', $cleanText, $seasMatch)) {
+                    $seas = "Seas {$seasMatch[1]} to {$seasMatch[2]} ft";
+                } elseif (preg_match('/(\d+)\s+to\s+(\d+)\s*ft/i', $cleanText, $seasMatch2)) {
+                    $seas = "Seas {$seasMatch2[1]} to {$seasMatch2[2]} ft";
+                }
+                
+                // Extract weather
+                $weather = 'N/A';
+                $weatherPatterns = array('rain', 'snow', 'fog', 'tstms', 'thunderstorms', 'showers', 'spray', 'drizzle');
+                foreach ($weatherPatterns as $wp) {
+                    if (stripos($cleanText, $wp) !== false) {
+                        if (preg_match('/((?:Chance of |Areas of |Isolated |Scattered )?' . $wp . '[^.]*)/i', $cleanText, $wxMatch)) {
+                            $weather = ucfirst(strtolower(trim($wxMatch[1])));
+                        }
+                        break;
+                    }
+                }
+                
+                $zoneData['forecast'][] = array(
+                    'Day' => ucwords(strtolower($periodName)),
+                    'Winds' => ucfirst(strtolower($winds)),
+                    'Seas' => $seas,
+                    'Weather' => $weather
+                );
+            }
+            
+            // Ensure forecast data exists
+            if (empty($zoneData['forecast'])) {
+                $zoneData['forecast'][] = array(
+                    'Day' => 'Today',
+                    'Winds' => 'Data unavailable',
+                    'Seas' => 'Data unavailable',
+                    'Weather' => 'N/A'
+                );
+            }
+            
+            $results[] = $zoneData;
+        }
+    }
+    
+    debugLog("parseNavtexProduct complete", array('results_count' => count($results)));
+    return $results;
+}
 
 /**
  * Read content from a local file
@@ -429,24 +583,13 @@ if ($type === 'offshore') {
     debugLog("Loading NAVTEX data from local files", $LOCAL_DATA_DIR);
     $allForecasts = array();
     
-    // NAVTEX zone mappings
-    $NAVTEX_ZONE_MAPPINGS = array(
-        "N01" => array("OFFN01_NE", "OFFN01_SE", "OFFN01_SW"),
-        "N02" => array("OFFN02_NE", "OFFN02_E", "OFFN02_SE"),
-        "N03" => array("OFFN03_NE", "OFFN03_SE"),
-        "N07" => array("OFFN07_NW", "OFFN07_SW"),
-        "N08" => array("OFFN08_NW", "OFFN08_SW"),
-        "N09" => array("OFFN09_NW", "OFFN09_SW")
-    );
-    
     foreach ($NAVTEX_FILES as $product => $filename) {
         $filepath = $LOCAL_DATA_DIR . '/' . $filename;
         debugLog("Processing NAVTEX product", array('product' => $product, 'file' => $filepath));
         
         $content = readLocalFile($filepath);
         if ($content) {
-            $zones = isset($NAVTEX_ZONE_MAPPINGS[$product]) ? $NAVTEX_ZONE_MAPPINGS[$product] : array();
-            $forecasts = parseOffshoreProduct($content, $zones, $NAVTEX_ZONES);
+            $forecasts = parseNavtexProduct($content, $NAVTEX_NAME_TO_ID, $NAVTEX_ZONES);
             debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
         } else {

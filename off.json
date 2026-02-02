@@ -2,73 +2,67 @@
   {
     "zone": "ANZ800",
     "name": "East of Great South Channel and south of Georges Bank",
-    "time": "345 PM EST Wed Jan 28 2026",
-    "warning": "GALE FORCE POSSIBLE",
+    "time": "412 AM EST Mon Feb 2 2026",
+    "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "N winds 30 to 40 kt",
+        "Seas": "Seas 10 to 16 ft",
+        "Weather": "Freezing spray early"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W to nw winds 10 to 20 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "Freezing spray and scattered snow\nshowers"
+        "Winds": "N winds 10 to 20 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "N to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "Freezing spray early"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "Sw winds 5 to 10 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to sw winds 15 to 25 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "N winds 10 to 20 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "Chance of snow early"
+        "Winds": "Nw winds 10 to 20 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "W to nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Freezing spray"
+        "Winds": "N to nw winds 10 to 20 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "W to nw winds 20 to 30 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Freezing spray"
+        "Winds": "N 5 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "N to ne winds 5 to 15 kt",
-        "Seas": "Seas 3 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Ne winds 30 to 45 kt",
-        "Seas": "Seas 9 to 16 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N to ne winds 35 to 45 kt",
-        "Seas": "Seas 12 to 21 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 14 to 23 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
+        "Winds": "S winds 10 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       }
     ]
@@ -76,73 +70,67 @@
   {
     "zone": "ANZ805",
     "name": "Georges Bank between Cape Cod and 68W north of 1000 FM",
-    "time": "345 PM EST Wed Jan 28 2026",
-    "warning": "STORM FORCE POSSIBLE",
+    "time": "412 AM EST Mon Feb 2 2026",
+    "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "N to nw winds 30 to 40 kt",
+        "Seas": "Seas 11 to 18 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 10 to 15 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Freezing spray and scattered snow showers"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Chance of snow"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "W to nw winds 25 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Freezing spray and scattered snow showers"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "W winds 20 to 30 kt",
-        "Seas": "Seas 6 to 11 ft",
-        "Weather": "Snow\nshowers early"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "W to nw winds 15 to 25 kt",
+        "Winds": "Nw winds 10 to 20 kt",
         "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "W winds 10 to 15 kt",
+        "Day": "Tue",
+        "Winds": "W to nw winds 5 to 15 kt",
         "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 10 to 20 kt",
+        "Day": "Tue Night",
+        "Winds": "W to sw winds 10 to 20 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 4 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "Nw winds 10 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
+        "Winds": "N to nw winds 10 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "N 5 kt",
         "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 10 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N to ne winds 40 to 50 kt",
-        "Seas": "Seas 17 to 26 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 14 to 24 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 13 ft",
+        "Day": "Fri Night",
+        "Winds": "Sw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       }
     ]
@@ -150,73 +138,67 @@
   {
     "zone": "ANZ900",
     "name": "Georges Bank - Outer Continental Shelf",
-    "time": "345 PM EST Wed Jan 28 2026",
-    "warning": "GALE FORCE POSSIBLE",
+    "time": "412 AM EST Mon Feb 2 2026",
+    "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 35 to 45 kt",
+        "Seas": "Seas 12 to 21 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "Nw winds 15 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "W to nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Chance of snow"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 25 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Freezing spray and scattered snow showers"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "W winds 25 to 30 kt",
-        "Seas": "Seas 8 to 12 ft",
-        "Weather": "Snow showers"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "W winds 20 to 30 kt",
+        "Winds": "Nw winds 10 to 20 kt",
         "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "W winds 10 to 20 kt",
+        "Day": "Tue",
+        "Winds": "Nw winds 10 to 15 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 5 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W winds 15 to 25 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "Nw winds 10 to 15 kt",
         "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 10 to 20 kt",
+        "Day": "Thu Night",
+        "Winds": "Nw winds 10 to 20 kt",
+        "Seas": "Seas 4 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "N 10 kt",
         "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Ne winds 30 to 45 kt",
-        "Seas": "Seas 10 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Ne winds 30 to 40 kt",
-        "Seas": "Seas 17 to 26 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 13 to 27 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "W to nw winds 25 to 30 kt",
-        "Seas": "Seas 9 to 15 ft",
+        "Day": "Fri Night",
+        "Winds": "S to sw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       }
     ]
@@ -224,73 +206,67 @@
   {
     "zone": "ANZ810",
     "name": "South of Georges Bank between 68W and 65W",
-    "time": "345 PM EST Wed Jan 28 2026",
-    "warning": "STORM FORCE POSSIBLE",
+    "time": "412 AM EST Mon Feb 2 2026",
+    "warning": "NONE",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 35 kt",
+        "Seas": "Seas 10 to 16 ft",
+        "Weather": "Freezing spray"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 10 to 15 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "Snow showers"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Chance of snow\nearly"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "Nw winds 15 to 25 kt",
+        "Winds": "Nw winds 10 to 20 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "Nw winds 5 to 15 kt",
+        "Day": "Tue",
+        "Winds": "W to nw winds 10 to 15 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 15 to 25 kt",
+        "Day": "Wed",
+        "Winds": "Nw winds 10 to 15 kt",
         "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 11 to 21 ft",
+        "Day": "Wed Night",
+        "Winds": "Nw winds 15 to 20 kt",
+        "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "N winds 40 to 50 kt",
-        "Seas": "Seas 15 to 25 ft",
+        "Day": "Thu",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 13 to 21 ft",
+        "Day": "Thu Night",
+        "Winds": "N to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
+        "Day": "Fri",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W to sw winds 10 to 20 kt",
+        "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       }
     ]
@@ -298,73 +274,67 @@
   {
     "zone": "ANZ815",
     "name": "Gulf of Maine to Georges Bank",
-    "time": "345 PM EST Wed Jan 28 2026",
-    "warning": "STORM FORCE POSSIBLE",
+    "time": "412 AM EST Mon Feb 2 2026",
+    "warning": "NONE",
     "forecast": [
       {
-        "Day": "Tonight",
-        "Winds": "W winds 10 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "Freezing spray and scattered snow showers"
-      },
-      {
-        "Day": "Thu",
+        "Day": "Today",
         "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 8 ft",
-        "Weather": "Chance of snow\nearly"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 8 ft",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "Freezing spray"
       },
       {
-        "Day": "Fri",
-        "Winds": "Nw winds 20 to 25 kt",
-        "Seas": "Seas 5 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri Night",
+        "Day": "Tonight",
         "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 3 to 4 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 20 to 30 kt",
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 12 to 23 ft",
+        "Day": "Tue Night",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "Chance of snow"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "Nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "N winds 35 to 50 kt",
-        "Seas": "Seas 12 to 22 ft",
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 10 to 20 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 8 to 15 ft",
+        "Day": "Thu",
+        "Winds": "N to nw winds 10 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Day": "Thu Night",
+        "Winds": "N to nw winds 10 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "W winds 5 to 10 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       }
     ]
@@ -372,72 +342,66 @@
   {
     "zone": "ANZ820",
     "name": "South of New England between 69W and 71W",
-    "time": "350 PM EST Wed Jan 28 2026",
-    "warning": "STORM FORCE POSSIBLE",
+    "time": "416 AM EST Mon Feb 2 2026",
+    "warning": "GALE FORCE POSSIBLE",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 35 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "Freezing spray early"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 10 to 20 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 8 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Fri",
         "Winds": "Nw winds 15 to 25 kt",
         "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "Nw winds 15 to 25 kt",
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
+        "Day": "Tue Night",
+        "Winds": "W to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
         "Winds": "N winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "N winds 10 to 20 kt",
         "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 7 to 11 ft",
+        "Day": "Thu Night",
+        "Winds": "N to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Ne winds 40 to 50 kt",
-        "Seas": "Seas 14 to 24 ft",
+        "Day": "Fri",
+        "Winds": "W to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "N to nw winds 35 to 50 kt",
-        "Seas": "Seas 11 to 22 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 8 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
+        "Day": "Fri Night",
+        "Winds": "W winds 15 to 25 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       }
@@ -446,73 +410,67 @@
   {
     "zone": "ANZ915",
     "name": "South of New England - Outer waters",
-    "time": "350 PM EST Wed Jan 28 2026",
-    "warning": "GALE WARNING",
+    "time": "416 AM EST Mon Feb 2 2026",
+    "warning": "NONE",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 9 to 16 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 10 to 15 kt",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 7 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 5 to 9 ft",
-        "Weather": "Snow showers"
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 15 to 20 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "Freezing spray and chance of snow"
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "Snow showers"
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "W to nw winds 25 to 35 kt",
-        "Seas": "Seas 6 to 11 ft",
-        "Weather": "Freezing spray early"
+        "Winds": "W to nw winds 5 to 10 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "W to nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "Nw winds 5 to 15 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 15 to 25 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N winds 45 to 55 kt",
-        "Seas": "Seas 15 to 27 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 13 to 21 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 8 to 13 ft",
+        "Winds": "W winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       }
     ]
@@ -520,73 +478,67 @@
   {
     "zone": "ANZ920",
     "name": "East of 69W - Southern section",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 11 to 18 ft",
+        "Weather": "Isolated showers with vsby 1 nm or less"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 10 to 20 kt",
-        "Seas": "Seas 6 to 11 ft",
-        "Weather": "Showers"
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 8 to 14 ft",
+        "Weather": "N/A"
       },
       {
-        "Day": "Thu",
-        "Winds": "Nw winds 30 to 45 kt",
-        "Seas": "Seas 8 to 15 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 9 to 15 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "W to nw winds 25 to 35 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "W to nw winds 25 to 35 kt",
+        "Day": "Tue",
+        "Winds": "W to nw winds 15 to 25 kt",
         "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "N to nw winds 5 to 15 kt",
+        "Day": "Tue Night",
+        "Winds": "W winds 15 to 25 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 10 to 20 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "N winds 10 to 20 kt",
+        "Seas": "Seas 4 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
+        "Winds": "N winds 10 to 20 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "Nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 15 to 25 kt",
         "Seas": "Seas 5 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "E to ne winds 35 to 45 kt",
-        "Seas": "Seas 11 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Ne winds 35 to 45 kt",
-        "Seas": "Seas 13 to 28 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 45 to 55 kt",
-        "Seas": "Seas 16 to 31 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 13 to 22 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 8 to 14 ft",
         "Weather": "N/A"
       }
     ]
@@ -594,73 +546,67 @@
   {
     "zone": "ANZ905",
     "name": "East of 69W between 39N and 1000 Fathoms",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 35 to 45 kt",
+        "Seas": "Seas 14 to 24 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "Nw winds 15 to 20 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "Snow showers"
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 8 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "Nw winds 10 to 20 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W winds 5 to 15 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 6 to 11 ft",
-        "Weather": "Chance of snow and rain likely early, then scattered\nsnow showers"
+        "Winds": "N to nw winds 10 to 15 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 8 to 11 ft",
-        "Weather": "Snow showers"
+        "Winds": "N to nw winds 5 to 15 kt",
+        "Seas": "Seas 4 to 6 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "W to nw winds 25 to 30 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "Snow showers"
+        "Winds": "N to ne winds 5 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "W to nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "W to nw winds 10 to 20 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "E winds 15 to 25 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "E to ne winds 35 to 45 kt",
-        "Seas": "Seas 10 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Sw winds 30 to 40 kt",
-        "Seas": "Seas 17 to 29 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "W to nw winds 35 to 45 kt",
-        "Seas": "Seas 14 to 29 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "W to nw winds 25 to 30 kt",
-        "Seas": "Seas 11 to 18 ft",
+        "Winds": "E winds 5 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       }
     ]
@@ -668,73 +614,67 @@
   {
     "zone": "ANZ910",
     "name": "East of 69W and south of 39N to 250 NM offshore",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 35 to 45 kt",
+        "Seas": "Seas 13 to 22 ft",
+        "Weather": "Isolated showers with vsby 1 nm or less"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "Nw winds 15 to 20 kt",
-        "Seas": "Seas 7 to 13 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 8 to 14 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 10 to 14 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "W to nw winds 25 to 35 kt",
-        "Seas": "Seas 11 to 14 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "W to nw winds 25 to 35 kt",
-        "Seas": "Seas 8 to 14 ft",
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 9 to 15 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "Nw winds 10 to 20 kt",
+        "Day": "Tue",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "E winds 30 to 40 kt",
-        "Seas": "Seas 10 to 16 ft",
+        "Day": "Wed",
+        "Winds": "W winds 5 to 15 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "E to se winds 25 to 35 kt",
-        "Seas": "Seas 12 to 17 ft",
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "W to sw winds 40 to 50 kt",
-        "Seas": "Seas 20 to 33 ft",
+        "Day": "Thu",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 5 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon",
-        "Winds": "W winds 30 to 40 kt",
-        "Seas": "Seas 14 to 28 ft",
+        "Day": "Thu Night",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 4 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 25 to 30 kt",
-        "Seas": "Seas 10 to 17 ft",
+        "Day": "Fri",
+        "Winds": "N to ne winds 5 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 5 to 15 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       }
     ]
@@ -742,73 +682,67 @@
   {
     "zone": "ANZ825",
     "name": "East of New Jersey to 1000 Fathoms",
-    "time": "350 PM EST Wed Jan 28 2026",
-    "warning": "STORM FORCE POSSIBLE",
+    "time": "416 AM EST Mon Feb 2 2026",
+    "warning": "GALE FORCE POSSIBLE",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 35 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "Freezing spray early"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 5 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 3 to 5 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N winds 15 to 20 kt",
+        "Winds": "W to nw winds 10 to 20 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 30 to 40 kt",
-        "Seas": "Seas 11 to 18 ft",
+        "Day": "Tue",
+        "Winds": "W to sw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "N winds 40 to 55 kt",
-        "Seas": "Seas 15 to 25 ft",
+        "Day": "Tue Night",
+        "Winds": "Sw winds 10 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 35 to 45 kt",
-        "Seas": "Seas 13 to 22 ft",
+        "Day": "Wed",
+        "Winds": "Nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 8 to 14 ft",
+        "Day": "Wed Night",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 4 to 8 ft",
+        "Day": "Thu",
+        "Winds": "N winds 15 to 25 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
+        "Winds": "N winds 10 to 20 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "W to nw winds 5 to 15 kt",
+        "Seas": "Seas 3 to 4 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       }
     ]
@@ -816,73 +750,67 @@
   {
     "zone": "ANZ828",
     "name": "Delaware Bay to Virginia",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 7 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W to nw winds 5 to 15 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "Sw winds 10 to 20 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N winds 15 to 25 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Freezing spray"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "N winds 15 to 25 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri",
+        "Day": "Thu Night",
         "Winds": "N to nw winds 10 to 20 kt",
         "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "N winds 10 to 15 kt",
-        "Seas": "Seas 3 to 5 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "Ne winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "N to ne winds 35 to 45 kt",
-        "Seas": "Seas 11 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "N winds 40 to 50 kt",
-        "Seas": "Seas 13 to 22 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 35 to 45 kt",
-        "Seas": "Seas 15 to 25 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 20 to 25 kt",
-        "Seas": "Seas 10 to 16 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
+        "Day": "Fri",
         "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -890,73 +818,67 @@
   {
     "zone": "ANZ925",
     "name": "Virginia Coast - Offshore",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 11 to 18 ft",
+        "Weather": "Isolated showers with vsby 1 nm or less"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W to nw winds 10 to 20 kt",
-        "Seas": "Seas 6 to 11 ft",
-        "Weather": "Showers"
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 8 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W winds 15 to 20 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to nw winds 20 to 30 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N to nw winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 9 to 15 ft",
-        "Weather": "Showers"
+        "Winds": "N winds 15 to 25 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 8 to 14 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "Showers"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "N to nw winds 15 to 25 kt",
+        "Winds": "N winds 20 to 30 kt",
         "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "Ne winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "E to ne winds 35 to 45 kt",
-        "Seas": "Seas 11 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Sw winds 40 to 50 kt",
-        "Seas": "Seas 14 to 24 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 40 to 55 kt",
-        "Seas": "Seas 19 to 34 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 13 to 22 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
+        "Day": "Fri",
         "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 8 to 13 ft",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -964,73 +886,67 @@
   {
     "zone": "ANZ830",
     "name": "Virginia to NC Offshore",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 8 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
         "Winds": "W winds 10 to 20 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tue Night",
+        "Winds": "Sw winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N winds 15 to 25 kt",
+        "Seas": "Seas 4 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Thu",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 7 to 11 ft",
+        "Winds": "N winds 20 to 30 kt",
+        "Seas": "Seas 6 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "N to nw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N to nw winds 10 to 20 kt",
+        "Winds": "Nw winds 10 to 20 kt",
         "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "Ne winds 25 to 30 kt",
+        "Winds": "W winds 20 to 30 kt",
         "Seas": "Seas 7 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "Ne winds 25 to 35 kt",
-        "Seas": "Seas 9 to 16 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to nw winds 45 to 60 kt",
-        "Seas": "Seas 15 to 30 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 35 to 45 kt",
-        "Seas": "Seas 16 to 26 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 20 to 25 kt",
-        "Seas": "Seas 10 to 17 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 15 to 20 kt",
-        "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -1038,73 +954,67 @@
   {
     "zone": "ANZ833",
     "name": "Cape Hatteras Area",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
-        "Day": "Tonight",
-        "Winds": "W to nw winds 15 to 25 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu",
+        "Day": "Today",
         "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 6 to 11 ft",
+        "Seas": "Seas 8 to 14 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu Night",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Day": "Tonight",
+        "Winds": "W to nw winds 10 to 20 kt",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri",
-        "Winds": "N to nw winds 5 to 15 kt",
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "Sw winds 15 to 25 kt",
         "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "E to ne winds 15 to 25 kt",
-        "Seas": "Seas 3 to 6 ft",
+        "Day": "Wed",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "Ne winds 25 to 35 kt",
-        "Seas": "Seas 6 to 11 ft",
+        "Day": "Wed Night",
+        "Winds": "N to ne winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
+        "Day": "Thu",
+        "Winds": "N winds 20 to 30 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
         "Winds": "N to nw winds 20 to 30 kt",
-        "Seas": "Seas 10 to 17 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to nw winds 35 to 50 kt",
-        "Seas": "Seas 15 to 26 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 15 to 25 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "N to nw winds 15 to 25 kt",
-        "Seas": "Seas 9 to 16 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "N to nw winds 10 to 20 kt",
         "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "Nw winds 10 to 20 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 20 to 30 kt",
+        "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1112,72 +1022,66 @@
   {
     "zone": "ANZ930",
     "name": "Cape Hatteras - Offshore",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 11 to 18 ft",
+        "Weather": "Isolated showers with vsby 1 nm or less"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 15 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "Showers"
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 8 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W to sw winds 20 to 30 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to sw winds 20 to 30 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "W to sw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 8 to 14 ft",
-        "Weather": "Showers"
+        "Winds": "W to sw winds 20 to 30 kt",
+        "Seas": "Seas 6 to 9 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
+        "Winds": "N winds 20 to 30 kt",
+        "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "Showers"
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "E to ne winds 20 to 30 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 10 to 17 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to sw winds 35 to 50 kt",
-        "Seas": "Seas 18 to 33 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W to nw winds 35 to 50 kt",
-        "Seas": "Seas 16 to 31 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 20 to 30 kt",
-        "Seas": "Seas 13 to 21 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 10 to 20 kt",
+        "Winds": "W to nw winds 25 to 35 kt",
         "Seas": "Seas 8 to 13 ft",
         "Weather": "N/A"
       }
@@ -1186,73 +1090,67 @@
   {
     "zone": "ANZ835",
     "name": "South of Cape Hatteras",
-    "time": "350 PM EST Wed Jan 28 2026",
-    "warning": "GALE WARNING",
+    "time": "416 AM EST Mon Feb 2 2026",
+    "warning": "NONE",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 25 to 35 kt",
+        "Seas": "Seas 8 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W to nw winds 15 to 25 kt",
-        "Seas": "Seas 5 to 8 ft",
+        "Winds": "W to nw winds 5 to 15 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W winds 10 to 20 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "W to sw winds 20 to 30 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to sw winds 15 to 25 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Sw winds 20 to 30 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 25 to 35 kt",
+        "Winds": "N winds 20 to 30 kt",
         "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "N winds 20 to 30 kt",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N to ne winds 5 to 15 kt",
-        "Seas": "Seas 3 to 5 ft",
+        "Winds": "W to nw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "Ne winds 15 to 25 kt",
-        "Seas": "Seas 3 to 4 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "Ne winds 20 to 30 kt",
-        "Seas": "Seas 5 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "W to nw winds 35 to 45 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Nw winds 35 to 45 kt",
-        "Seas": "Seas 13 to 20 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 11 to 19 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 7 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 10 to 15 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "W to nw winds 20 to 30 kt",
+        "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1260,73 +1158,67 @@
   {
     "zone": "ANZ935",
     "name": "South Atlantic - Offshore",
-    "time": "350 PM EST Wed Jan 28 2026",
+    "time": "416 AM EST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
+        "Day": "Today",
+        "Winds": "Nw winds 30 to 40 kt",
+        "Seas": "Seas 9 to 16 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tonight",
-        "Winds": "W winds 15 to 25 kt",
+        "Winds": "Nw winds 15 to 25 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "W to nw winds 10 to 20 kt",
         "Seas": "Seas 6 to 10 ft",
-        "Weather": "Showers"
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "Sw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "W to sw winds 15 to 25 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Sw winds 20 to 30 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Nw winds 25 to 35 kt",
-        "Seas": "Seas 6 to 11 ft",
+        "Winds": "W winds 15 to 25 kt",
+        "Seas": "Seas 6 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "N winds 20 to 30 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 4 to 8 ft",
+        "Winds": "Nw winds 20 to 30 kt",
+        "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S to se winds 5 to 15 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "W to sw winds 35 to 45 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W winds 35 to 45 kt",
-        "Seas": "Seas 17 to 28 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 30 to 40 kt",
-        "Seas": "Seas 15 to 25 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon",
-        "Winds": "Nw winds 15 to 25 kt",
-        "Seas": "Seas 11 to 19 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Mon Night",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 8 to 13 ft",
+        "Winds": "W to nw winds 25 to 35 kt",
+        "Seas": "Seas 7 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -1334,67 +1226,67 @@
   {
     "zone": "PZZ800",
     "name": "Point St. George to Cape Mendocino out to 60 NM",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 12 to 15 ft",
-        "Weather": "Chance of rain"
+        "Winds": "S to sw winds 15 to 25 kt",
+        "Seas": "Seas 13 to 15 ft",
+        "Weather": "Rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 18 ft",
-        "Weather": "Chance of rain\nwith vsby 1 nm or less"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 14 to 18 ft",
+        "Winds": "S to se winds 10 to 15 kt",
+        "Seas": "Seas 9 to 13 ft",
         "Weather": "Fog with vsby 1 nm or less"
       },
       {
-        "Day": "Thu Night",
-        "Winds": "S to se winds 20 to 30 kt",
-        "Seas": "Seas 13 to 16 ft",
-        "Weather": "Chance\nof rain"
+        "Day": "Tue",
+        "Winds": "Se winds 20 to 30 kt",
+        "Seas": "Seas 8 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
-        "Day": "Fri",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 14 to 17 ft",
+        "Day": "Tue Night",
+        "Winds": "Se winds 20 to 30 kt",
+        "Seas": "Seas 9 to 16 ft",
+        "Weather": "Rain"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S to se winds 15 to 25 kt",
+        "Seas": "Seas 12 to 15 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 11 to 13 ft",
+        "Day": "Wed Night",
+        "Winds": "S to se winds 10 to 20 kt",
+        "Seas": "Seas 12 to 15 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "Se winds 20 to 25 kt",
+        "Day": "Thu",
+        "Winds": "E winds 5 to 10 kt",
         "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "S to se winds 15 to 25 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W winds 10 to 15 kt",
+        "Day": "Thu Night",
+        "Winds": "Se winds 5 to 10 kt",
         "Seas": "Seas 11 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "S winds 10 to 15 kt",
+        "Seas": "Seas 10 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "S winds 10 to 15 kt",
+        "Seas": "Seas 9 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -1402,67 +1294,67 @@
   {
     "zone": "PZZ900",
     "name": "Point St. George to Cape Mendocino 60 to 150 NM offshore",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 25 to 35 kt",
-        "Seas": "Seas 12 to 19 ft",
-        "Weather": "Chance of rain"
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 12 to 16 ft",
+        "Weather": "Rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 16 to 19 ft",
-        "Weather": "Chance of\nrain"
-      },
-      {
-        "Day": "Thu",
-        "Winds": "Sw winds 10 to 20 kt",
-        "Seas": "Seas 14 to 17 ft",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 9 to 12 ft",
         "Weather": "Fog with vsby 1 nm or less"
       },
       {
-        "Day": "Thu Night",
+        "Day": "Tue",
         "Winds": "S to se winds 25 to 35 kt",
-        "Seas": "Seas 13 to 18 ft",
-        "Weather": "Chance\nof rain"
+        "Seas": "Seas 12 to 20 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 25 to 35 kt",
+        "Seas": "Seas 12 to 20 ft",
+        "Weather": "Chance of rain"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 14 to 19 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 13 to 16 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "Se winds 10 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
+        "Winds": "Se winds 10 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 17 ft",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 11 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S to se winds 5 to 15 kt",
-        "Seas": "Seas 11 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S to se winds 20 to 30 kt",
-        "Seas": "Seas 11 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
         "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S to sw winds 5 to 15 kt",
-        "Seas": "Seas 12 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Sw winds 10 to 15 kt",
-        "Seas": "Seas 11 to 13 ft",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -1470,67 +1362,67 @@
   {
     "zone": "PZZ805",
     "name": "Cape Mendocino to Point Arena out to 60 NM",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 11 to 14 ft",
+        "Winds": "Sw winds 15 to 25 kt",
+        "Seas": "Seas 12 to 15 ft",
         "Weather": "Chance of rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 25 to 30 kt",
-        "Seas": "Seas 13 to 19 ft",
-        "Weather": "Chance of\nrain"
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 9 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "Se winds 10 to 20 kt",
+        "Seas": "Seas 7 to 10 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 8 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 11 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 14 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 15 to 18 ft",
+        "Winds": "E winds 5 to 10 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 16 ft",
-        "Weather": "Chance of\nrain"
+        "Winds": "S to se winds 5 to 10 kt",
+        "Seas": "Seas 11 to 12 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 13 to 16 ft",
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 11 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S to se winds 5 to 15 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S to se winds 15 to 25 kt",
-        "Seas": "Seas 9 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 12 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W winds 10 to 15 kt",
-        "Seas": "Seas 11 to 13 ft",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 10 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -1538,67 +1430,67 @@
   {
     "zone": "PZZ905",
     "name": "Cape Mendocino to Point Arena 60 to 150 NM offshore",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 12 to 19 ft",
-        "Weather": "Chance of rain"
+        "Winds": "S winds 25 to 30 kt",
+        "Seas": "Seas 12 to 16 ft",
+        "Weather": "Rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 14 to 20 ft",
-        "Weather": "Chance\nof rain"
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 9 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "S winds 25 to 35 kt",
+        "Seas": "Seas 11 to 19 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 11 to 19 ft",
+        "Weather": "Chance of rain"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 13 to 18 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S to se winds 10 to 15 kt",
+        "Seas": "Seas 12 to 16 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "Sw winds 10 to 20 kt",
-        "Seas": "Seas 14 to 18 ft",
+        "Winds": "Se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 25 to 35 kt",
-        "Seas": "Seas 14 to 18 ft",
-        "Weather": "Chance of\nrain"
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 14 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 17 ft",
+        "Winds": "S winds 10 to 15 kt",
+        "Seas": "Seas 11 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S to se winds 5 to 15 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 15 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
         "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 13 ft",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1606,67 +1498,67 @@
   {
     "zone": "PZZ810",
     "name": "Point Arena to Pigeon Point out to 60 NM",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 11 to 13 ft",
-        "Weather": "Showers"
+        "Winds": "S to sw winds 15 to 25 kt",
+        "Seas": "Seas 11 to 14 ft",
+        "Weather": "Chance of rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 25 to 30 kt",
-        "Seas": "Seas 12 to 19 ft",
-        "Weather": "Chance of\nrain"
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 7 to 8 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 7 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 11 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 15 to 18 ft",
+        "Winds": "E to ne winds 5 to 10 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 20 to 25 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "Chance of\nrain"
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 11 to 12 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 12 to 15 ft",
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 11 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 9 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W winds 10 to 15 kt",
-        "Seas": "Seas 12 to 13 ft",
+        "Winds": "S winds 5 to 10 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1674,67 +1566,67 @@
   {
     "zone": "PZZ910",
     "name": "Point Arena to Pigeon Point 60 to 150 NM offshore",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 12 to 18 ft",
+        "Winds": "S winds 20 to 25 kt",
+        "Seas": "Seas 12 to 15 ft",
         "Weather": "Chance of rain"
       },
       {
         "Day": "Tonight",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 14 to 20 ft",
-        "Weather": "Chance\nof rain"
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 9 to 16 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 10 to 17 ft",
+        "Weather": "Chance of rain"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 13 to 17 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S to se winds 10 to 15 kt",
+        "Seas": "Seas 12 to 15 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 14 to 18 ft",
+        "Winds": "E to se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 17 ft",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 11 to 15 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 13 to 17 ft",
+        "Winds": "S winds 10 to 15 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "Se winds 10 to 20 kt",
-        "Seas": "Seas 10 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 15 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
         "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1742,67 +1634,67 @@
   {
     "zone": "PZZ815",
     "name": "Pigeon Point to Point Piedras Blancas out to 60 NM",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 15 to 25 kt",
+        "Winds": "S winds 10 to 20 kt",
         "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 18 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 7 to 8 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 10 to 20 kt",
+        "Seas": "Seas 9 to 13 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 13 to 18 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 10 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 10 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "S winds 10 to 15 kt",
-        "Seas": "Seas 9 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 9 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 15 to 25 kt",
+        "Winds": "S winds 5 to 10 kt",
         "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 12 to 13 ft",
+        "Day": "Fri",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "W winds 5 to 10 kt",
-        "Seas": "Seas 12 to 13 ft",
+        "Day": "Fri Night",
+        "Winds": "S to sw winds 5 to 10 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1810,67 +1702,67 @@
   {
     "zone": "PZZ915",
     "name": "Pigeon Point to Point Piedras Blancas 60 to 150 NM offshore",
-    "time": "754 AM PST Wed Jan 28 2026",
+    "time": "154 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
+        "Winds": "S to sw winds 15 to 25 kt",
+        "Seas": "Seas 10 to 15 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
         "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 9 to 15 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 20 to 30 kt",
+        "Seas": "Seas 10 to 17 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 15 to 25 kt",
         "Seas": "Seas 11 to 17 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Tonight",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 12 to 20 ft",
-        "Weather": "Chance\nof rain"
+        "Day": "Wed Night",
+        "Winds": "S to se winds 10 to 20 kt",
+        "Seas": "Seas 11 to 15 ft",
+        "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 14 to 18 ft",
+        "Winds": "Se winds 5 to 15 kt",
+        "Seas": "Seas 11 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 11 to 17 ft",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 12 to 16 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S to sw winds 20 to 30 kt",
-        "Seas": "Seas 12 to 16 ft",
+        "Winds": "Sw winds 5 to 15 kt",
+        "Seas": "Seas 12 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
         "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 10 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 15 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W to sw winds 10 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -1878,67 +1770,67 @@
   {
     "zone": "PZZ820",
     "name": "Point Piedras Blancas to Point Conception out to 60 NM",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 9 to 11 ft",
-        "Weather": "N/A"
+        "Winds": "N 10 kt",
+        "Seas": "Seas 10 to 13 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 9 to 15 ft",
+        "Winds": "N winds 5 to 15 kt",
+        "Seas": "Seas 8 to 10 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "S to sw winds 5 to 15 kt",
+        "Seas": "Seas 6 to 8 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 9 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 11 to 15 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 9 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 9 to 13 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 8 to 12 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 12 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 8 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 8 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "S to sw winds 10 to 20 kt",
-        "Seas": "Seas 10 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W to nw winds 5 to 10 kt",
-        "Seas": "Seas 12 to 13 ft",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -1946,67 +1838,67 @@
   {
     "zone": "PZZ920",
     "name": "Point Piedras Blancas to Point Conception 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 9 to 13 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 7 to 10 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tue",
         "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 7 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 9 to 15 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "S winds 15 to 25 kt",
+        "Seas": "Seas 9 to 15 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "Se winds 10 to 20 kt",
         "Seas": "Seas 10 to 14 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Tonight",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 10 to 18 ft",
-        "Weather": "N/A"
-      },
-      {
         "Day": "Thu",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 12 to 17 ft",
+        "Winds": "Se winds 10 to 20 kt",
+        "Seas": "Seas 10 to 15 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 9 to 15 ft",
+        "Winds": "S winds 5 to 15 kt",
+        "Seas": "Seas 12 to 16 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 9 to 16 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 12 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "S winds 15 to 25 kt",
-        "Seas": "Seas 8 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 20 to 30 kt",
-        "Seas": "Seas 9 to 15 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S to sw winds 15 to 25 kt",
-        "Seas": "Seas 9 to 14 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Sw winds 10 to 20 kt",
-        "Seas": "Seas 11 to 15 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "W winds 5 to 15 kt",
-        "Seas": "Seas 12 to 14 ft",
+        "Winds": "S to sw winds 5 to 15 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -2014,67 +1906,67 @@
   {
     "zone": "PZZ825",
     "name": "Point Conception to Santa Cruz Island out to 60 NM",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S to se winds 5 to 10 kt",
-        "Seas": "Seas 7 to 10 ft",
-        "Weather": "N/A"
+        "Winds": "Nw winds 5 to 15 kt",
+        "Seas": "Seas 10 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
+        "Winds": "N to nw winds 5 to 15 kt",
+        "Seas": "Seas 8 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
         "Winds": "N 10 kt",
-        "Seas": "Seas 8 to 11 ft",
+        "Seas": "Seas 6 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 9 to 13 ft",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 9 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 9 to 12 ft",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 9 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "S to sw winds 5 to 15 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 13 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 7 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 7 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 7 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Sw winds 5 to 15 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 5 to 15 kt",
-        "Seas": "Seas 11 to 13 ft",
+        "Winds": "W to nw winds 5 to 10 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2082,67 +1974,67 @@
   {
     "zone": "PZZ925",
     "name": "Point Conception to Santa Cruz Island 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 8 to 11 ft",
-        "Weather": "N/A"
+        "Winds": "N 10 kt",
+        "Seas": "Seas 9 to 13 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
-        "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 9 to 14 ft",
-        "Weather": "N/A"
+        "Winds": "N 10 kt",
+        "Seas": "Seas 7 to 10 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
-        "Day": "Thu",
+        "Day": "Tue",
         "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 10 to 14 ft",
+        "Seas": "Seas 6 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu Night",
+        "Day": "Tue Night",
         "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 9 to 12 ft",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri",
-        "Winds": "S winds 10 to 20 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 8 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
+        "Day": "Wed",
         "Winds": "S winds 10 to 20 kt",
         "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "S to sw winds 10 to 20 kt",
-        "Seas": "Seas 8 to 13 ft",
+        "Day": "Wed Night",
+        "Winds": "S to se winds 5 to 15 kt",
+        "Seas": "Seas 9 to 12 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "W to sw winds 5 to 15 kt",
+        "Day": "Thu",
+        "Winds": "S winds 5 to 15 kt",
         "Seas": "Seas 9 to 14 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
+        "Day": "Thu Night",
         "Winds": "N 10 kt",
-        "Seas": "Seas 12 to 14 ft",
+        "Seas": "Seas 11 to 16 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "W to nw winds 5 to 10 kt",
+        "Seas": "Seas 13 to 14 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W to nw winds 5 to 10 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2150,67 +2042,67 @@
   {
     "zone": "PZZ830",
     "name": "Santa Cruz Island to San Clemente Island out to 60 NM",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to ne winds 5 to 15 kt",
-        "Seas": "Seas 6 to 9 ft",
+        "Winds": "N winds 10 to 20 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 8 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 9 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 9 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 7 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 7 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N 10 kt",
+        "Day": "Tue",
+        "Winds": "N winds 5 to 10 kt",
         "Seas": "Seas 6 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
+        "Day": "Tue Night",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 8 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu Night",
         "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 9 ft",
+        "Seas": "Seas 9 to 13 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "W to sw winds 5 to 10 kt",
-        "Seas": "Seas 7 to 12 ft",
+        "Day": "Fri",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 12 to 14 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 10 to 15 kt",
-        "Seas": "Seas 10 to 13 ft",
+        "Day": "Fri Night",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2218,19 +2110,43 @@
   {
     "zone": "PZZ930",
     "name": "Santa Cruz Island to San Clemente Island 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "E to ne winds 5 to 10 kt",
+        "Winds": "N winds 5 to 15 kt",
+        "Seas": "Seas 9 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
+      },
+      {
+        "Day": "Tonight",
+        "Winds": "N winds 5 to 15 kt",
         "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Tonight",
+        "Day": "Tue",
         "Winds": "N 10 kt",
-        "Seas": "Seas 8 to 11 ft",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 6 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
@@ -2242,43 +2158,19 @@
       {
         "Day": "Thu Night",
         "Winds": "N 10 kt",
-        "Seas": "Seas 8 to 11 ft",
+        "Seas": "Seas 10 to 15 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 13 to 15 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 7 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "S winds 5 to 15 kt",
-        "Seas": "Seas 6 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "S to sw winds 5 to 15 kt",
-        "Seas": "Seas 7 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W to sw winds 5 to 15 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 11 to 13 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2286,67 +2178,67 @@
   {
     "zone": "PZZ835",
     "name": "San Clemente Island to Mexican Border out to 60 NM",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N winds 10 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
-        "Weather": "N/A"
+        "Winds": "N winds 15 to 20 kt",
+        "Seas": "Seas 11 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 6 to 9 ft",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 7 to 9 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "N winds 10 to 20 kt",
-        "Seas": "Seas 9 to 11 ft",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "N winds 10 to 15 kt",
-        "Seas": "Seas 9 to 11 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 8 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 7 to 10 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 10 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 6 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "N 5 kt",
-        "Seas": "Seas 6 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
         "Winds": "Nw winds 5 to 10 kt",
-        "Seas": "Seas 7 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 9 to 12 ft",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2354,67 +2246,67 @@
   {
     "zone": "PZZ935",
     "name": "San Clemente Island to Mexican Border 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to ne winds 5 to 15 kt",
-        "Seas": "Seas 5 to 9 ft",
-        "Weather": "N/A"
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 10 to 12 ft",
+        "Weather": "Fog with vsby 1 nm or less"
       },
       {
         "Day": "Tonight",
         "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 6 to 9 ft",
+        "Seas": "Seas 7 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 6 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tue Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu",
-        "Winds": "N winds 10 to 20 kt",
-        "Seas": "Seas 9 to 11 ft",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Thu Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 9 to 11 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 8 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N to ne winds 5 to 15 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 12 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 7 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "W winds 5 to 10 kt",
-        "Seas": "Seas 7 to 12 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "N winds 10 to 15 kt",
-        "Seas": "Seas 9 to 12 ft",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 11 to 14 ft",
         "Weather": "N/A"
       }
     ]
@@ -2422,67 +2314,67 @@
   {
     "zone": "PZZ840",
     "name": "Point St. George to Oregon Border out to 60 NM",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 3 to 6 ft",
+        "Winds": "Nw winds 10 to 20 kt",
+        "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 4 to 8 ft",
+        "Winds": "N winds 5 to 15 kt",
+        "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu",
-        "Winds": "N winds 10 to 20 kt",
+        "Day": "Tue",
+        "Winds": "N winds 5 to 10 kt",
         "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tue Night",
+        "Winds": "N to nw winds 5 to 10 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 3 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 4 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Thu Night",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 6 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 7 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 4 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sat Night",
         "Winds": "Nw winds 5 to 10 kt",
-        "Seas": "Seas 4 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun",
-        "Winds": "Nw winds 5 to 10 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 10 to 20 kt",
-        "Seas": "Seas 6 to 11 ft",
+        "Seas": "Seas 8 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2490,67 +2382,67 @@
   {
     "zone": "PZZ940",
     "name": "Oregon Border to WA coast 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "N to nw winds 10 to 20 kt",
+        "Seas": "Seas 8 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to nw winds 10 to 20 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "N winds 10 to 15 kt",
+        "Seas": "Seas 8 to 11 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu",
-        "Winds": "N winds 10 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "N winds 5 to 15 kt",
-        "Seas": "Seas 8 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri",
+        "Day": "Tue",
         "Winds": "N winds 5 to 15 kt",
         "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "N 10 kt",
-        "Seas": "Seas 6 to 8 ft",
+        "Day": "Tue Night",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
+        "Day": "Wed",
+        "Winds": "N winds 5 to 10 kt",
+        "Seas": "Seas 5 to 6 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 5 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Thu",
         "Winds": "N 5 kt",
-        "Seas": "Seas 5 to 7 ft",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
+        "Day": "Thu Night",
         "Winds": "N 10 kt",
-        "Seas": "Seas 5 to 7 ft",
+        "Seas": "Seas 7 to 13 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
+        "Day": "Fri",
         "Winds": "Nw winds 5 to 10 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Seas": "Seas 9 to 13 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "N winds 10 to 15 kt",
-        "Seas": "Seas 7 to 12 ft",
+        "Day": "Fri Night",
+        "Winds": "Nw winds 5 to 10 kt",
+        "Seas": "Seas 11 to 13 ft",
         "Weather": "N/A"
       }
     ]
@@ -2558,67 +2450,67 @@
   {
     "zone": "PZZ945",
     "name": "WA Coast 60 to 150 NM offshore",
-    "time": "755 AM PST Wed Jan 28 2026",
+    "time": "156 AM PST Mon Feb 2 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to nw winds 10 to 15 kt",
-        "Seas": "Seas 3 to 5 ft",
+        "Winds": "N 10 kt",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "Nw winds 10 to 15 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "Nw winds 5 to 15 kt",
+        "Seas": "Seas 8 to 10 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Thu",
-        "Winds": "N to nw winds 5 to 15 kt",
-        "Seas": "Seas 4 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Thu Night",
-        "Winds": "N to nw winds 5 to 10 kt",
-        "Seas": "Seas 6 to 9 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Fri",
+        "Day": "Tue",
         "Winds": "N winds 5 to 10 kt",
         "Seas": "Seas 8 to 9 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Fri Night",
-        "Winds": "N 10 kt",
+        "Day": "Tue Night",
+        "Winds": "N winds 5 to 10 kt",
         "Seas": "Seas 6 to 8 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat",
-        "Winds": "N winds 5 to 10 kt",
+        "Day": "Wed",
+        "Winds": "N to nw winds 5 to 10 kt",
         "Seas": "Seas 5 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sat Night",
-        "Winds": "Nw winds 5 to 10 kt",
+        "Day": "Wed Night",
+        "Winds": "N 10 kt",
         "Seas": "Seas 5 to 6 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun",
-        "Winds": "Nw winds 5 to 10 kt",
+        "Day": "Thu",
+        "Winds": "N 5 kt",
         "Seas": "Seas 5 to 7 ft",
         "Weather": "N/A"
       },
       {
-        "Day": "Sun Night",
-        "Winds": "Nw winds 10 to 15 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Day": "Thu Night",
+        "Winds": "N 5 kt",
+        "Seas": "Seas 5 to 9 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri",
+        "Winds": "S to sw winds 5 to 10 kt",
+        "Seas": "Seas 7 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Fri Night",
+        "Winds": "W winds 5 to 10 kt",
+        "Seas": "Seas 10 to 12 ft",
         "Weather": "N/A"
       }
     ]

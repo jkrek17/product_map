@@ -447,39 +447,52 @@ function generateNavtexData($navtexZones) {
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
 debugLog("Processing request", array('type' => $type));
 
-// Diagnostic endpoint - check connectivity to NWS
+// Diagnostic endpoint - check data file status
 if ($type === 'diagnose') {
     debugLog("Running diagnostics");
+    
+    $offFile = __DIR__ . '/off.json';
+    $navFile = __DIR__ . '/nav.json';
     
     $diagnostics = array(
         'php_version' => PHP_VERSION,
         'server_time' => date('Y-m-d H:i:s T'),
-        'allow_url_fopen' => ini_get('allow_url_fopen') ? true : false,
-        'curl_available' => function_exists('curl_init'),
-        'openssl_available' => extension_loaded('openssl'),
-        'url_tests' => array()
+        'data_source' => 'static_files (updated by scraper.py)',
+        'files' => array(
+            'off.json' => array(
+                'exists' => file_exists($offFile),
+                'path' => $offFile,
+                'size' => file_exists($offFile) ? filesize($offFile) : 0,
+                'modified' => file_exists($offFile) ? date('Y-m-d H:i:s T', filemtime($offFile)) : null,
+                'zones_count' => 0
+            ),
+            'nav.json' => array(
+                'exists' => file_exists($navFile),
+                'path' => $navFile,
+                'size' => file_exists($navFile) ? filesize($navFile) : 0,
+                'modified' => file_exists($navFile) ? date('Y-m-d H:i:s T', filemtime($navFile)) : null,
+                'zones_count' => 0
+            )
+        ),
+        'instructions' => 'Run scraper.py from a machine with internet access to update the data files'
     );
     
-    // Test each offshore URL
-    foreach ($OFFSHORE_URLS as $product => $url) {
-        $testResult = array(
-            'product' => $product,
-            'url' => $url,
-            'success' => false,
-            'content_length' => 0,
-            'error' => null
-        );
-        
-        $content = fetchUrl($url);
-        if ($content !== null) {
-            $testResult['success'] = true;
-            $testResult['content_length'] = strlen($content);
-            $testResult['content_preview'] = substr($content, 0, 500);
-        } else {
-            $testResult['error'] = 'Failed to fetch - check debug log for details';
+    // Check offshore data
+    if (file_exists($offFile)) {
+        $offData = json_decode(file_get_contents($offFile), true);
+        if (is_array($offData)) {
+            $diagnostics['files']['off.json']['zones_count'] = count($offData);
+            $diagnostics['files']['off.json']['sample_zones'] = array_slice(array_column($offData, 'zone'), 0, 5);
         }
-        
-        $diagnostics['url_tests'][$product] = $testResult;
+    }
+    
+    // Check navtex data
+    if (file_exists($navFile)) {
+        $navData = json_decode(file_get_contents($navFile), true);
+        if (is_array($navData)) {
+            $diagnostics['files']['nav.json']['zones_count'] = count($navData);
+            $diagnostics['files']['nav.json']['sample_zones'] = array_slice(array_column($navData, 'zone'), 0, 5);
+        }
     }
     
     $diagnostics['debug_log'] = $debugLog;
@@ -489,62 +502,30 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
+    // Load data from static off.json file (updated by scraper.py)
+    debugLog("Loading offshore data from static file");
+    $staticFile = __DIR__ . '/off.json';
     $allForecasts = array();
-    $fetchResults = array();
-    $liveDataFailed = false;
     
-    foreach ($OFFSHORE_URLS as $product => $url) {
-        debugLog("Fetching offshore product", array('product' => $product, 'url' => $url));
-        $content = fetchUrl($url);
-        
-        $fetchResults[$product] = array(
-            'url' => $url,
-            'success' => $content !== null,
-            'content_length' => $content ? strlen($content) : 0
-        );
-        
-        if ($content) {
-            $zones = $ZONE_MAPPINGS[$product];
-            debugLog("Parsing product " . $product, array('zones' => $zones));
-            $forecasts = parseOffshoreProduct($content, $zones, $ZONE_NAMES);
-            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
-            $allForecasts = array_merge($allForecasts, $forecasts);
-        } else {
-            debugLog("WARNING: Failed to fetch product " . $product);
-            $liveDataFailed = true;
-        }
-    }
-    
-    debugLog("All offshore data fetched", array(
-        'total_forecasts' => count($allForecasts),
-        'fetch_results' => $fetchResults,
-        'live_data_failed' => $liveDataFailed
-    ));
-    
-    // If live fetch failed or returned no data, fall back to static JSON file
-    if (empty($allForecasts)) {
-        debugLog("Live data empty - falling back to static off.json file");
-        $staticFile = __DIR__ . '/off.json';
-        
-        if (file_exists($staticFile)) {
-            $staticContent = file_get_contents($staticFile);
-            if ($staticContent !== false) {
-                $staticData = json_decode($staticContent, true);
-                if (is_array($staticData) && !empty($staticData)) {
-                    $allForecasts = $staticData;
-                    debugLog("Static fallback successful", array(
-                        'source' => 'off.json',
-                        'forecasts_count' => count($allForecasts)
-                    ));
-                } else {
-                    debugLog("ERROR: Static file JSON decode failed or empty");
-                }
+    if (file_exists($staticFile)) {
+        $staticContent = file_get_contents($staticFile);
+        if ($staticContent !== false) {
+            $staticData = json_decode($staticContent, true);
+            if (is_array($staticData) && !empty($staticData)) {
+                $allForecasts = $staticData;
+                debugLog("Offshore data loaded successfully", array(
+                    'source' => 'off.json',
+                    'forecasts_count' => count($allForecasts),
+                    'file_modified' => date('Y-m-d H:i:s', filemtime($staticFile))
+                ));
             } else {
-                debugLog("ERROR: Could not read static file");
+                debugLog("ERROR: off.json JSON decode failed or empty");
             }
         } else {
-            debugLog("ERROR: Static file not found", $staticFile);
+            debugLog("ERROR: Could not read off.json");
         }
+    } else {
+        debugLog("ERROR: off.json not found", $staticFile);
     }
     
     // If debug mode, include debug log in response
@@ -552,21 +533,49 @@ if ($type === 'offshore') {
         echo json_encode(array(
             'debug' => $debugLog,
             'data' => $allForecasts,
-            'source' => empty($fetchResults) || $liveDataFailed ? 'static_fallback' : 'live_nws'
+            'source' => 'static_file',
+            'file_modified' => file_exists($staticFile) ? date('Y-m-d H:i:s', filemtime($staticFile)) : null
         ));
     } else {
         echo json_encode($allForecasts);
     }
     
 } elseif ($type === 'navtex') {
-    debugLog("Generating NAVTEX data");
-    $navtexData = generateNavtexData($NAVTEX_ZONES);
-    debugLog("NAVTEX data generated", array('count' => count($navtexData)));
+    // Load data from static nav.json file (updated by scraper.py)
+    debugLog("Loading NAVTEX data from static file");
+    $staticFile = __DIR__ . '/nav.json';
+    $navtexData = array();
+    
+    if (file_exists($staticFile)) {
+        $staticContent = file_get_contents($staticFile);
+        if ($staticContent !== false) {
+            $staticData = json_decode($staticContent, true);
+            if (is_array($staticData) && !empty($staticData)) {
+                $navtexData = $staticData;
+                debugLog("NAVTEX data loaded successfully", array(
+                    'source' => 'nav.json',
+                    'forecasts_count' => count($navtexData),
+                    'file_modified' => date('Y-m-d H:i:s', filemtime($staticFile))
+                ));
+            } else {
+                debugLog("ERROR: nav.json JSON decode failed or empty");
+            }
+        } else {
+            debugLog("ERROR: Could not read nav.json");
+        }
+    } else {
+        debugLog("ERROR: nav.json not found - generating data");
+        // Fall back to generating data if file doesn't exist
+        $navtexData = generateNavtexData($NAVTEX_ZONES);
+        debugLog("NAVTEX data generated", array('count' => count($navtexData)));
+    }
     
     if ($DEBUG) {
         echo json_encode(array(
             'debug' => $debugLog,
-            'data' => $navtexData
+            'data' => $navtexData,
+            'source' => 'static_file',
+            'file_modified' => file_exists($staticFile) ? date('Y-m-d H:i:s', filemtime($staticFile)) : null
         ));
     } else {
         echo json_encode($navtexData);

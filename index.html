@@ -304,6 +304,157 @@
         .forecast-panel::-webkit-scrollbar-thumb:hover {
             background: #64748b;
         }
+
+        /* Mobile toggle button */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+
+        .mobile-toggle:hover {
+            background: #d63050;
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 900px) {
+            .header {
+                flex-direction: column;
+                gap: 10px;
+                padding: 10px 15px;
+            }
+
+            .header-title {
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header p {
+                font-size: 11px;
+            }
+
+            .controls {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 10px;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .control-group select {
+                min-width: 140px;
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #map {
+                height: 50vh;
+                min-height: 300px;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: 50vh;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(100%);
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-left: none;
+                border-top: 2px solid #0f3460;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .legend {
+                flex-wrap: wrap;
+                padding: 6px 10px;
+                gap: 6px;
+            }
+
+            .legend-item {
+                font-size: 10px;
+                padding: 3px 6px;
+            }
+
+            .legend-color {
+                width: 12px;
+                height: 12px;
+            }
+
+            .forecast-panel {
+                padding: 15px;
+            }
+
+            .forecast-panel h3 {
+                font-size: 16px;
+            }
+
+            .forecast-header {
+                font-size: 18px;
+            }
+
+            .forecast-detail {
+                font-size: 14px;
+            }
+
+            .chart-panel {
+                height: 200px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .controls {
+                width: 100%;
+            }
+
+            .control-group {
+                flex: 1;
+            }
+
+            .control-group select {
+                width: 100%;
+            }
+
+            #refreshBtn {
+                width: 100%;
+            }
+        }
     </style>
 </head>
 <body>
@@ -328,12 +479,13 @@
                 </select>
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
+            <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
         </div>
     </div>
 
     <div class="main-container">
         <div id="map"></div>
-        <div class="sidebar">
+        <div class="sidebar" id="sidebar">
             <div class="forecast-panel" id="forecastPanel">
                 <h3>Forecast Details</h3>
                 <div class="no-data">Click on a zone to view forecast details</div>
@@ -346,6 +498,10 @@
             </div>
         </div>
     </div>
+
+    <button class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+        &#9650;
+    </button>
 
     <div class="legend">
         <div class="legend-item">
@@ -382,6 +538,39 @@
         var zonesLayer;
         var forecastData = [];
         var weatherChart = null;
+        var currentZone = null;
+        var pendingZoneFromUrl = null;
+
+        // URL Parameter functions for bookmarkable URLs
+        function getUrlParams() {
+            var params = {};
+            var search = window.location.search.substring(1);
+            if (search) {
+                search.split('&').forEach(function(part) {
+                    var pair = part.split('=');
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+                });
+            }
+            return params;
+        }
+
+        function updateUrl(zone, product, basin) {
+            var params = [];
+            if (zone) params.push('zone=' + encodeURIComponent(zone));
+            if (product) params.push('product=' + encodeURIComponent(product));
+            if (basin) params.push('basin=' + encodeURIComponent(basin));
+            
+            var newUrl = window.location.pathname + (params.length ? '?' + params.join('&') : '');
+            history.replaceState({ zone: zone, product: product, basin: basin }, '', newUrl);
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            sidebar.classList.toggle('open');
+            toggle.innerHTML = sidebar.classList.contains('open') ? '&#9660;' : '&#9650;';
+        }
 
         var warningColors = {
             'HURRICANE FORCE WIND WARNING': '#ff0000',
@@ -540,6 +729,18 @@
                 console.log('[DEBUG] Sample forecast zone IDs:', forecastData.slice(0, 5).map(function(f) { return f.zone; }));
                 console.warn('[DEBUG] WARNING: Some zones have no forecast data!');
             }
+            
+            // Handle pending zone from URL
+            if (pendingZoneFromUrl) {
+                console.log('[DEBUG] Showing pending zone from URL:', pendingZoneFromUrl);
+                var zoneToShow = pendingZoneFromUrl;
+                pendingZoneFromUrl = null;
+                
+                // Find the zone name from forecastData
+                var forecast = forecastData.find(function(f) { return f.zone === zoneToShow; });
+                var zoneName = forecast ? (forecast.name || zoneToShow) : zoneToShow;
+                showForecast(zoneToShow, zoneName);
+            }
         }
 
         function loadForecastData() {
@@ -615,6 +816,20 @@
             console.log('[DEBUG] showForecast() called');
             console.log('[DEBUG] Looking for zoneId:', zoneId, 'zoneName:', zoneName);
             console.log('[DEBUG] forecastData has', forecastData ? forecastData.length : 0, 'items');
+            
+            // Store current zone and update URL
+            currentZone = zoneId;
+            var product = document.getElementById('product').value;
+            var basin = document.getElementById('basin').value;
+            updateUrl(zoneId, product, basin);
+            
+            // Open sidebar on mobile
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            if (window.innerWidth <= 900 && !sidebar.classList.contains('open')) {
+                sidebar.classList.add('open');
+                toggle.innerHTML = '&#9660;';
+            }
             
             var panel = document.getElementById('forecastPanel');
             var forecast = forecastData.find(function(f) {
@@ -699,6 +914,9 @@
             var basin = document.getElementById('basin').value;
             if (basin === 'atlantic') map.flyTo([38, -72], 5);
             else if (basin === 'pacific') map.flyTo([38, -125], 5);
+            
+            // Update URL with new basin
+            updateUrl(currentZone, document.getElementById('product').value, basin);
             loadForecastData();
         }
 
@@ -743,12 +961,69 @@
             console.log('[DEBUG] OPC Weather Map initializing...');
             console.log('[DEBUG] Open browser console (F12) to see debug messages');
             console.log('[DEBUG] Add ?debug=1 to API URL for server-side debugging');
+            console.log('[DEBUG] Bookmarkable URLs: ?zone=ANZ800&product=offshore&basin=atlantic');
             console.log('='.repeat(60));
             
+            // Parse URL parameters
+            var params = getUrlParams();
+            console.log('[DEBUG] URL parameters:', JSON.stringify(params));
+            
+            // Set product and basin from URL if provided
+            if (params.product && (params.product === 'offshore' || params.product === 'navtex')) {
+                document.getElementById('product').value = params.product;
+            }
+            if (params.basin && (params.basin === 'atlantic' || params.basin === 'pacific')) {
+                document.getElementById('basin').value = params.basin;
+            }
+            
+            // Store zone to show after data loads
+            if (params.zone) {
+                pendingZoneFromUrl = params.zone;
+                console.log('[DEBUG] Will show zone from URL after data loads:', pendingZoneFromUrl);
+            }
+            
             initMap();
+            
+            // Set initial map view based on basin
+            var basin = document.getElementById('basin').value;
+            if (basin === 'pacific') {
+                map.setView([38, -125], 5);
+            }
+            
             document.getElementById('basin').addEventListener('change', changeBasin);
-            document.getElementById('product').addEventListener('change', loadForecastData);
+            document.getElementById('product').addEventListener('change', function() {
+                currentZone = null;
+                pendingZoneFromUrl = null;
+                updateUrl(null, document.getElementById('product').value, document.getElementById('basin').value);
+                loadForecastData();
+            });
             document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            
+            // Share button - copy URL to clipboard
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                var btn = this;
+                var originalText = btn.textContent;
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    btn.textContent = 'Link Copied!';
+                    setTimeout(function() { btn.textContent = originalText; }, 2000);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    prompt('Copy this link:', window.location.href);
+                });
+            });
+            
+            // Mobile toggle
+            document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', function(event) {
+                if (event.state) {
+                    if (event.state.product) document.getElementById('product').value = event.state.product;
+                    if (event.state.basin) document.getElementById('basin').value = event.state.basin;
+                    pendingZoneFromUrl = event.state.zone || null;
+                    loadForecastData();
+                }
+            });
             
             console.log('[DEBUG] Map initialized, loading forecast data...');
             loadForecastData();

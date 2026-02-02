@@ -755,6 +755,13 @@
             font-weight: 600;
         }
 
+        .warning-example-none { background: #808080; color: #fff; }
+        .warning-example-gale { background: #ffff00; color: #000; }
+        .warning-example-gale-possible { background: #ffc0cb; color: #000; }
+        .warning-example-storm { background: #ffa500; color: #fff; }
+        .warning-example-storm-possible { background: #800080; color: #fff; }
+        .warning-example-hurricane { background: #ff0000; color: #fff; }
+
         .modal-body a {
             color: #e94560;
             font-weight: 500;
@@ -822,7 +829,7 @@
         </div>
     </div>
 
-    <button class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+    <button type="button" class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
         &#9650;
     </button>
 
@@ -858,7 +865,7 @@
         <div class="modal">
             <div class="modal-header">
                 <h2>About OPC Weather Map</h2>
-                <button class="modal-close" id="modalClose">&times;</button>
+                <button type="button" class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body">
                 <h3>Overview</h3>
@@ -876,12 +883,12 @@
                 <h3>Warning Colors</h3>
                 <p>Zones are colored based on active warnings:</p>
                 <ul>
-                    <li><span class="warning-example" style="background:#808080;color:#fff;">Gray</span> - No active warning</li>
-                    <li><span class="warning-example" style="background:#ffff00;color:#000;">Yellow</span> - Gale Warning (34-47 kt winds)</li>
-                    <li><span class="warning-example" style="background:#ffc0cb;color:#000;">Pink</span> - Gale Force Possible</li>
-                    <li><span class="warning-example" style="background:#ffa500;color:#fff;">Orange</span> - Storm Warning (48-63 kt winds)</li>
-                    <li><span class="warning-example" style="background:#800080;color:#fff;">Purple</span> - Storm Force Possible</li>
-                    <li><span class="warning-example" style="background:#ff0000;color:#fff;">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
+                    <li><span class="warning-example warning-example-none">Gray</span> - No active warning</li>
+                    <li><span class="warning-example warning-example-gale">Yellow</span> - Gale Warning (34-47 kt winds)</li>
+                    <li><span class="warning-example warning-example-gale-possible">Pink</span> - Gale Force Possible</li>
+                    <li><span class="warning-example warning-example-storm">Orange</span> - Storm Warning (48-63 kt winds)</li>
+                    <li><span class="warning-example warning-example-storm-possible">Purple</span> - Storm Force Possible</li>
+                    <li><span class="warning-example warning-example-hurricane">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
                 </ul>
 
                 <h3>Bookmarkable URLs</h3>
@@ -891,7 +898,7 @@
                     <li><code>?product=navtex</code> - Open the NAVTEX product</li>
                     <li><code>?basin=pacific</code> - Open the Pacific region</li>
                 </ul>
-                <p>Example: <code>?zone=ANZ800&product=offshore&basin=atlantic</code></p>
+                <p>Example: <code>?zone=ANZ800&amp;product=offshore&amp;basin=atlantic</code></p>
 
                 <h3>Data Sources</h3>
                 <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a>:</p>

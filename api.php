@@ -1,8 +1,63 @@
 <?php
 /**
  * OPC Weather Map - Live Data API
- * Fetches and returns forecast data from NWS Ocean Prediction Center
+ * Reads forecast data from local NWS text files on the server
  */
+
+// =============================================================================
+// CONFIGURATION - Path to local NWS data directory
+// =============================================================================
+// The NWS text files are served from the /shtml/ directory on this server.
+// This auto-detects the path based on the web server's document root.
+// Example: if DocumentRoot is /home/www, files are at /home/www/shtml/
+//
+// You can override this by setting a specific path:
+// $LOCAL_DATA_DIR = "/home/www/shtml";
+$LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
+
+// Offshore forecast files (relative to LOCAL_DATA_DIR)
+$OFFSHORE_FILES = array(
+    "NT1" => "NFDOFFNT1.txt",
+    "NT2" => "NFDOFFNT2.txt",
+    "PZ5" => "NFDOFFPZ5.txt",
+    "PZ6" => "NFDOFFPZ6.txt"
+);
+
+// NAVTEX forecast files (relative to LOCAL_DATA_DIR)
+$NAVTEX_FILES = array(
+    "N01" => "NFDOFFN01.txt",
+    "N02" => "NFDOFFN02.txt",
+    "N03" => "NFDOFFN03.txt",
+    "N07" => "NFDOFFN07.txt",
+    "N08" => "NFDOFFN08.txt",
+    "N09" => "NFDOFFN09.txt"
+);
+
+// NAVTEX zone name mappings (text in file -> zone ID for GeoJSON)
+$NAVTEX_NAME_TO_ID = array(
+    // N09 - Pacific Northwest
+    "Canadian border to 45N" => "OFFN09_NW",
+    "45N to Point Saint George" => "OFFN09_SW",
+    // N08 - Northern California
+    "Point Saint George to Point Arena" => "OFFN08_NW",
+    "Point Arena to Point Piedras Blancas" => "OFFN08_SW",
+    // N07 - Southern California
+    "Point Piedras Blancas to Point Conception" => "OFFN07_NW",
+    "Point Conception to Mexican Border" => "OFFN07_SW",
+    // N01 - New England
+    "Eastport Maine to Cape Cod" => "OFFN01_NE",
+    "Eastport ME to Cape Cod" => "OFFN01_NE",
+    "Cape Cod to Nantucket Shoals and Georges Bank" => "OFFN01_SE",
+    "South of New England" => "OFFN01_SW",
+    // N02 - Mid-Atlantic
+    "Sandy Hook to Wallops Island" => "OFFN02_NE",
+    "Wallops Island to Cape Hatteras" => "OFFN02_E",
+    "Cape Hatteras to Murrells Inlet" => "OFFN02_SE",
+    // N03 - South Atlantic
+    "Murrells Inlet to 31N" => "OFFN03_NE",
+    "South of 31N" => "OFFN03_SE"
+);
+// =============================================================================
 
 // Enable error logging for debugging
 ini_set('display_errors', 0);
@@ -44,20 +99,13 @@ debugLog("API request started", array(
     'debug' => $DEBUG,
     'php_version' => PHP_VERSION,
     'server_time' => date('Y-m-d H:i:s'),
-    'request_uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'N/A'
+    'request_uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'N/A',
+    'local_data_dir' => $LOCAL_DATA_DIR
 ));
 
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Cache-Control: no-cache, must-revalidate');
-
-// Offshore forecast URLs
-$OFFSHORE_URLS = array(
-    "NT1" => "https://ocean.weather.gov/shtml/NFDOFFNT1.txt",
-    "NT2" => "https://ocean.weather.gov/shtml/NFDOFFNT2.txt",
-    "PZ5" => "https://ocean.weather.gov/shtml/NFDOFFPZ5.txt",
-    "PZ6" => "https://ocean.weather.gov/shtml/NFDOFFPZ6.txt"
-);
 
 // Zone mappings
 $ZONE_MAPPINGS = array(
@@ -127,123 +175,164 @@ $NAVTEX_ZONES = array(
 );
 
 /**
- * Fetch content from URL - tries multiple methods
+ * Parse NAVTEX forecast product
+ * NAVTEX format uses zone names instead of zone IDs
  */
-function fetchUrl($url) {
-    debugLog("Fetching URL", $url);
+function parseNavtexProduct($content, $nameToId, $zoneNames) {
+    $results = array();
     
-    // Check PHP configuration
-    $allowUrlFopen = ini_get('allow_url_fopen');
-    $curlAvailable = function_exists('curl_init');
-    debugLog("PHP config check", array(
-        'allow_url_fopen' => $allowUrlFopen ? 'enabled' : 'DISABLED',
-        'curl_available' => $curlAvailable ? 'yes' : 'no'
+    debugLog("parseNavtexProduct called", array(
+        'content_length' => $content ? strlen($content) : 0
     ));
     
-    $startTime = microtime(true);
-    $content = null;
-    $method = 'none';
-    $errorInfo = null;
+    if (empty($content)) {
+        debugLog("WARNING: Empty content passed to parseNavtexProduct");
+        return $results;
+    }
     
-    // Try cURL first (more reliable for HTTPS)
-    if ($curlAvailable) {
-        $method = 'curl';
-        debugLog("Trying cURL method");
+    // Extract issue time
+    $issueTime = '';
+    if (preg_match('/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i', $content, $timeMatch)) {
+        $issueTime = trim($timeMatch[1]);
+        debugLog("Extracted issue time", $issueTime);
+    }
+    
+    // Find each zone by its name
+    foreach ($nameToId as $zoneName => $zoneId) {
+        // Look for zone name at start of line, followed by forecast content
+        // Zone content ends at next zone name or end of file
+        $pattern = '/^' . preg_quote($zoneName, '/') . '\s*\n(.*?)(?=^[A-Z][a-z].*(?:to|Border|Point|Cape|South|Sandy|Wallops|Murrells)|\z)/ims';
         
-        $ch = curl_init();
-        curl_setopt_array($ch, array(
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_CONNECTTIMEOUT => 10,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_MAXREDIRS => 3,
-            CURLOPT_SSL_VERIFYPEER => true,
-            CURLOPT_SSL_VERIFYHOST => 2,
-            CURLOPT_USERAGENT => 'OPCWeatherMap/1.0 (NOAA Data Fetch)',
-            CURLOPT_HTTPHEADER => array(
-                'Accept: text/plain, text/html, */*',
-                'Accept-Language: en-US,en;q=0.9'
-            )
-        ));
-        
-        $content = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        $curlErrno = curl_errno($ch);
-        curl_close($ch);
-        
-        if ($content === false || $curlErrno !== 0) {
-            $errorInfo = array(
-                'method' => 'curl',
-                'curl_errno' => $curlErrno,
-                'curl_error' => $curlError,
-                'http_code' => $httpCode
+        if (preg_match($pattern, $content, $zoneMatch)) {
+            $zoneText = $zoneMatch[1];
+            
+            debugLog("NAVTEX zone found: " . $zoneName, array(
+                'zone_id' => $zoneId,
+                'text_length' => strlen($zoneText),
+                'text_preview' => substr($zoneText, 0, 300)
+            ));
+            
+            $zoneData = array(
+                'zone' => $zoneId,
+                'name' => isset($zoneNames[$zoneId]) ? $zoneNames[$zoneId] : $zoneName,
+                'time' => $issueTime ? $issueTime : date('g:i A T D M j Y'),
+                'warning' => 'NONE',
+                'forecast' => array()
             );
-            debugLog("cURL fetch failed", $errorInfo);
-            $content = null;
-        } elseif ($httpCode !== 200) {
-            $errorInfo = array(
-                'method' => 'curl',
-                'http_code' => $httpCode,
-                'response_preview' => substr($content, 0, 200)
-            );
-            debugLog("cURL got non-200 response", $errorInfo);
-            $content = null;
+            
+            // Extract warning
+            $zoneData['warning'] = extractWarning($zoneText);
+            
+            // Parse forecast periods
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
+            
+            debugLog("NAVTEX periods for " . $zoneId, array(
+                'count' => count($periodMatches),
+                'periods' => array_map(function($m) { return trim($m[1]); }, $periodMatches)
+            ));
+            
+            foreach ($periodMatches as $match) {
+                $periodName = trim($match[1]);
+                $periodText = trim($match[2]);
+                
+                // Validate period name
+                $validStarts = array('TODAY', 'TONIGHT', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'REST');
+                $isValid = false;
+                foreach ($validStarts as $v) {
+                    if (stripos($periodName, $v) === 0) {
+                        $isValid = true;
+                        break;
+                    }
+                }
+                
+                if (!$isValid) continue;
+                
+                $cleanText = preg_replace('/\s+/', ' ', $periodText);
+                
+                // Extract winds
+                $winds = 'Variable winds';
+                if (preg_match('/([NSEW]{1,2}(?:\s+to\s+[NSEW]{1,2})?\s+winds?\s+)?(\d+)\s+to\s+(\d+)\s*kt/i', $cleanText, $windMatch)) {
+                    $winds = trim($windMatch[0]);
+                } elseif (preg_match('/([NSEW]{1,2})\s+(\d+)\s*kt/i', $cleanText, $windMatch2)) {
+                    $winds = trim($windMatch2[0]);
+                }
+                
+                // Extract seas
+                $seas = 'Seas variable';
+                if (preg_match('/Seas?\s+(\d+)\s+to\s+(\d+)\s*ft/i', $cleanText, $seasMatch)) {
+                    $seas = "Seas {$seasMatch[1]} to {$seasMatch[2]} ft";
+                } elseif (preg_match('/(\d+)\s+to\s+(\d+)\s*ft/i', $cleanText, $seasMatch2)) {
+                    $seas = "Seas {$seasMatch2[1]} to {$seasMatch2[2]} ft";
+                }
+                
+                // Extract weather
+                $weather = 'N/A';
+                $weatherPatterns = array('rain', 'snow', 'fog', 'tstms', 'thunderstorms', 'showers', 'spray', 'drizzle');
+                foreach ($weatherPatterns as $wp) {
+                    if (stripos($cleanText, $wp) !== false) {
+                        if (preg_match('/((?:Chance of |Areas of |Isolated |Scattered )?' . $wp . '[^.]*)/i', $cleanText, $wxMatch)) {
+                            $weather = ucfirst(strtolower(trim($wxMatch[1])));
+                        }
+                        break;
+                    }
+                }
+                
+                $zoneData['forecast'][] = array(
+                    'Day' => ucwords(strtolower($periodName)),
+                    'Winds' => ucfirst(strtolower($winds)),
+                    'Seas' => $seas,
+                    'Weather' => $weather
+                );
+            }
+            
+            // Ensure forecast data exists
+            if (empty($zoneData['forecast'])) {
+                $zoneData['forecast'][] = array(
+                    'Day' => 'Today',
+                    'Winds' => 'Data unavailable',
+                    'Seas' => 'Data unavailable',
+                    'Weather' => 'N/A'
+                );
+            }
+            
+            $results[] = $zoneData;
         }
     }
     
-    // Fallback to file_get_contents if cURL failed or unavailable
-    if ($content === null && $allowUrlFopen) {
-        $method = 'file_get_contents';
-        debugLog("Trying file_get_contents method");
-        
-        $context = stream_context_create(array(
-            'http' => array(
-                'timeout' => 30,
-                'user_agent' => 'OPCWeatherMap/1.0 (NOAA Data Fetch)',
-                'ignore_errors' => true
-            ),
-            'ssl' => array(
-                'verify_peer' => true,
-                'verify_peer_name' => true
-            )
-        ));
-        
-        $content = @file_get_contents($url, false, $context);
-        
-        if ($content === false) {
-            $error = error_get_last();
-            $errorInfo = array(
-                'method' => 'file_get_contents',
-                'error' => $error ? $error['message'] : 'Unknown error'
-            );
-            debugLog("file_get_contents failed", $errorInfo);
-            $content = null;
-        }
+    debugLog("parseNavtexProduct complete", array('results_count' => count($results)));
+    return $results;
+}
+
+/**
+ * Read content from a local file
+ */
+function readLocalFile($filepath) {
+    debugLog("Reading local file", $filepath);
+    
+    if (!file_exists($filepath)) {
+        debugLog("File not found", $filepath);
+        return null;
     }
     
-    $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+    $content = @file_get_contents($filepath);
     
-    if ($content !== null && strlen($content) > 0) {
-        debugLog("URL fetch successful", array(
-            'url' => $url,
-            'method' => $method,
-            'elapsed_ms' => $elapsed,
-            'content_length' => strlen($content),
-            'content_preview' => substr($content, 0, 300)
-        ));
-        return $content;
-    } else {
-        debugLog("URL fetch FAILED - all methods exhausted", array(
-            'url' => $url,
-            'elapsed_ms' => $elapsed,
-            'last_error' => $errorInfo,
-            'allow_url_fopen' => $allowUrlFopen,
-            'curl_available' => $curlAvailable
+    if ($content === false) {
+        $error = error_get_last();
+        debugLog("Failed to read file", array(
+            'filepath' => $filepath,
+            'error' => $error ? $error['message'] : 'Unknown error'
         ));
         return null;
     }
+    
+    debugLog("File read successful", array(
+        'filepath' => $filepath,
+        'content_length' => strlen($content),
+        'file_modified' => date('Y-m-d H:i:s', filemtime($filepath)),
+        'content_preview' => substr($content, 0, 300)
+    ));
+    
+    return $content;
 }
 
 /**
@@ -300,23 +389,31 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
             'forecast' => array()
         );
         
-        // Find zone section
-        $pattern = '/' . preg_quote($zone, '/') . '[^A-Z]*[-\d]+[-\s\n]+(.*?)(?=' . implode('|', array_map(function($z) use ($zone) {
-            return $z !== $zone ? preg_quote($z, '/') : '';
-        }, $zones)) . '|\$\$|ANZ\d|PZZ\d|$)/is';
+        // Find zone section - format is: ANZ800-220345-\n...content...\n$$
+        // Zone ID followed by -DDHHTT- then content until $$
+        $pattern = '/' . preg_quote($zone, '/') . '-\d{6}-\s*(.*?)\n\$\$/s';
         
         if (preg_match($pattern, $content, $zoneMatch)) {
             $zoneText = $zoneMatch[1];
             debugLog("Zone text found for " . $zone, array(
                 'text_length' => strlen($zoneText),
-                'text_preview' => substr($zoneText, 0, 150)
+                'text_preview' => substr($zoneText, 0, 500)
+            ));
+            
+            // Debug: show what periods we're finding
+            // Periods are like: .TODAY...text .TONIGHT...text
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $debugPeriods, PREG_SET_ORDER);
+            debugLog("Period matches for " . $zone, array(
+                'count' => count($debugPeriods),
+                'periods' => array_map(function($m) { return trim($m[1]); }, $debugPeriods)
             ));
             
             // Extract warning
             $zoneData['warning'] = extractWarning($zoneText);
             
-            // Parse forecast periods
-            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^$]*?)(?=\.[A-Z][A-Z\s]*?\.\.\.|$)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
+            // Parse forecast periods - format is .DAY...text until next .DAY... or end
+            // Example: .TODAY...W winds 15 to 25 kt. Seas 4 to 7 ft. 
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
             
             foreach ($periodMatches as $match) {
                 $periodName = trim($match[1]);
@@ -404,52 +501,41 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
 debugLog("Processing request", array('type' => $type));
 
-// Diagnostic endpoint - check data file status
+// Diagnostic endpoint - check local file status
 if ($type === 'diagnose') {
     debugLog("Running diagnostics");
-    
-    $offFile = __DIR__ . '/off.json';
-    $navFile = __DIR__ . '/nav.json';
     
     $diagnostics = array(
         'php_version' => PHP_VERSION,
         'server_time' => date('Y-m-d H:i:s T'),
-        'data_source' => 'static_files (updated by scraper.py)',
-        'files' => array(
-            'off.json' => array(
-                'exists' => file_exists($offFile),
-                'path' => $offFile,
-                'size' => file_exists($offFile) ? filesize($offFile) : 0,
-                'modified' => file_exists($offFile) ? date('Y-m-d H:i:s T', filemtime($offFile)) : null,
-                'zones_count' => 0
-            ),
-            'nav.json' => array(
-                'exists' => file_exists($navFile),
-                'path' => $navFile,
-                'size' => file_exists($navFile) ? filesize($navFile) : 0,
-                'modified' => file_exists($navFile) ? date('Y-m-d H:i:s T', filemtime($navFile)) : null,
-                'zones_count' => 0
-            )
-        ),
-        'instructions' => 'Run scraper.py from a machine with internet access to update the data files'
+        'local_data_dir' => $LOCAL_DATA_DIR,
+        'local_data_dir_exists' => is_dir($LOCAL_DATA_DIR),
+        'offshore_files' => array(),
+        'navtex_files' => array()
     );
     
-    // Check offshore data
-    if (file_exists($offFile)) {
-        $offData = json_decode(file_get_contents($offFile), true);
-        if (is_array($offData)) {
-            $diagnostics['files']['off.json']['zones_count'] = count($offData);
-            $diagnostics['files']['off.json']['sample_zones'] = array_slice(array_column($offData, 'zone'), 0, 5);
-        }
+    // Check offshore files
+    foreach ($OFFSHORE_FILES as $product => $filename) {
+        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
+        $diagnostics['offshore_files'][$product] = array(
+            'filename' => $filename,
+            'path' => $filepath,
+            'exists' => file_exists($filepath),
+            'size' => file_exists($filepath) ? filesize($filepath) : 0,
+            'modified' => file_exists($filepath) ? date('Y-m-d H:i:s T', filemtime($filepath)) : null
+        );
     }
     
-    // Check navtex data
-    if (file_exists($navFile)) {
-        $navData = json_decode(file_get_contents($navFile), true);
-        if (is_array($navData)) {
-            $diagnostics['files']['nav.json']['zones_count'] = count($navData);
-            $diagnostics['files']['nav.json']['sample_zones'] = array_slice(array_column($navData, 'zone'), 0, 5);
-        }
+    // Check navtex files
+    foreach ($NAVTEX_FILES as $product => $filename) {
+        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
+        $diagnostics['navtex_files'][$product] = array(
+            'filename' => $filename,
+            'path' => $filepath,
+            'exists' => file_exists($filepath),
+            'size' => file_exists($filepath) ? filesize($filepath) : 0,
+            'modified' => file_exists($filepath) ? date('Y-m-d H:i:s T', filemtime($filepath)) : null
+        );
     }
     
     $diagnostics['debug_log'] = $debugLog;
@@ -459,80 +545,69 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
-    // Load data from static off.json file (updated by scraper.py)
-    debugLog("Loading offshore data from static file");
-    $staticFile = __DIR__ . '/off.json';
+    // Read and parse offshore data from local NWS text files
+    debugLog("Loading offshore data from local files", $LOCAL_DATA_DIR);
     $allForecasts = array();
     
-    if (file_exists($staticFile)) {
-        $staticContent = file_get_contents($staticFile);
-        if ($staticContent !== false) {
-            $staticData = json_decode($staticContent, true);
-            if (is_array($staticData) && !empty($staticData)) {
-                $allForecasts = $staticData;
-                debugLog("Offshore data loaded successfully", array(
-                    'source' => 'off.json',
-                    'forecasts_count' => count($allForecasts),
-                    'file_modified' => date('Y-m-d H:i:s', filemtime($staticFile))
-                ));
-            } else {
-                debugLog("ERROR: off.json JSON decode failed or empty");
-            }
+    foreach ($OFFSHORE_FILES as $product => $filename) {
+        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
+        debugLog("Processing offshore product", array('product' => $product, 'file' => $filepath));
+        
+        $content = readLocalFile($filepath);
+        if ($content) {
+            $zones = $ZONE_MAPPINGS[$product];
+            $forecasts = parseOffshoreProduct($content, $zones, $ZONE_NAMES);
+            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
+            $allForecasts = array_merge($allForecasts, $forecasts);
         } else {
-            debugLog("ERROR: Could not read off.json");
+            debugLog("WARNING: Failed to read product " . $product);
         }
-    } else {
-        debugLog("ERROR: off.json not found", $staticFile);
     }
+    
+    debugLog("All offshore data loaded", array('total_forecasts' => count($allForecasts)));
     
     // If debug mode, include debug log in response
     if ($DEBUG) {
         echo json_encode(array(
             'debug' => $debugLog,
             'data' => $allForecasts,
-            'source' => 'static_file',
-            'file_modified' => file_exists($staticFile) ? date('Y-m-d H:i:s', filemtime($staticFile)) : null
+            'source' => 'local_files',
+            'data_dir' => $LOCAL_DATA_DIR
         ));
     } else {
         echo json_encode($allForecasts);
     }
     
 } elseif ($type === 'navtex') {
-    // Load data from static nav.json file (updated by scraper.py)
-    debugLog("Loading NAVTEX data from static file");
-    $staticFile = __DIR__ . '/nav.json';
-    $navtexData = array();
+    // Read and parse NAVTEX data from local NWS text files
+    debugLog("Loading NAVTEX data from local files", $LOCAL_DATA_DIR);
+    $allForecasts = array();
     
-    if (file_exists($staticFile)) {
-        $staticContent = file_get_contents($staticFile);
-        if ($staticContent !== false) {
-            $staticData = json_decode($staticContent, true);
-            if (is_array($staticData) && !empty($staticData)) {
-                $navtexData = $staticData;
-                debugLog("NAVTEX data loaded successfully", array(
-                    'source' => 'nav.json',
-                    'forecasts_count' => count($navtexData),
-                    'file_modified' => date('Y-m-d H:i:s', filemtime($staticFile))
-                ));
-            } else {
-                debugLog("ERROR: nav.json JSON decode failed or empty");
-            }
+    foreach ($NAVTEX_FILES as $product => $filename) {
+        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
+        debugLog("Processing NAVTEX product", array('product' => $product, 'file' => $filepath));
+        
+        $content = readLocalFile($filepath);
+        if ($content) {
+            $forecasts = parseNavtexProduct($content, $NAVTEX_NAME_TO_ID, $NAVTEX_ZONES);
+            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
+            $allForecasts = array_merge($allForecasts, $forecasts);
         } else {
-            debugLog("ERROR: Could not read nav.json");
+            debugLog("WARNING: Failed to read product " . $product);
         }
-    } else {
-        debugLog("ERROR: nav.json not found");
     }
+    
+    debugLog("All NAVTEX data loaded", array('total_forecasts' => count($allForecasts)));
     
     if ($DEBUG) {
         echo json_encode(array(
             'debug' => $debugLog,
-            'data' => $navtexData,
-            'source' => 'static_file',
-            'file_modified' => file_exists($staticFile) ? date('Y-m-d H:i:s', filemtime($staticFile)) : null
+            'data' => $allForecasts,
+            'source' => 'local_files',
+            'data_dir' => $LOCAL_DATA_DIR
         ));
     } else {
-        echo json_encode($navtexData);
+        echo json_encode($allForecasts);
     }
     
 } else {

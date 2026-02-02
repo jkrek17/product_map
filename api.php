@@ -127,37 +127,120 @@ $NAVTEX_ZONES = array(
 );
 
 /**
- * Fetch content from URL
+ * Fetch content from URL - tries multiple methods
  */
 function fetchUrl($url) {
     debugLog("Fetching URL", $url);
     
-    $context = stream_context_create(array(
-        'http' => array(
-            'timeout' => 30,
-            'user_agent' => 'OPCWeatherMap/1.0',
-            'ignore_errors' => true
-        )
+    // Check PHP configuration
+    $allowUrlFopen = ini_get('allow_url_fopen');
+    $curlAvailable = function_exists('curl_init');
+    debugLog("PHP config check", array(
+        'allow_url_fopen' => $allowUrlFopen ? 'enabled' : 'DISABLED',
+        'curl_available' => $curlAvailable ? 'yes' : 'no'
     ));
     
     $startTime = microtime(true);
-    $content = @file_get_contents($url, false, $context);
+    $content = null;
+    $method = 'none';
+    $errorInfo = null;
+    
+    // Try cURL first (more reliable for HTTPS)
+    if ($curlAvailable) {
+        $method = 'curl';
+        debugLog("Trying cURL method");
+        
+        $ch = curl_init();
+        curl_setopt_array($ch, array(
+            CURLOPT_URL => $url,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_CONNECTTIMEOUT => 10,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_MAXREDIRS => 3,
+            CURLOPT_SSL_VERIFYPEER => true,
+            CURLOPT_SSL_VERIFYHOST => 2,
+            CURLOPT_USERAGENT => 'OPCWeatherMap/1.0 (NOAA Data Fetch)',
+            CURLOPT_HTTPHEADER => array(
+                'Accept: text/plain, text/html, */*',
+                'Accept-Language: en-US,en;q=0.9'
+            )
+        ));
+        
+        $content = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        $curlErrno = curl_errno($ch);
+        curl_close($ch);
+        
+        if ($content === false || $curlErrno !== 0) {
+            $errorInfo = array(
+                'method' => 'curl',
+                'curl_errno' => $curlErrno,
+                'curl_error' => $curlError,
+                'http_code' => $httpCode
+            );
+            debugLog("cURL fetch failed", $errorInfo);
+            $content = null;
+        } elseif ($httpCode !== 200) {
+            $errorInfo = array(
+                'method' => 'curl',
+                'http_code' => $httpCode,
+                'response_preview' => substr($content, 0, 200)
+            );
+            debugLog("cURL got non-200 response", $errorInfo);
+            $content = null;
+        }
+    }
+    
+    // Fallback to file_get_contents if cURL failed or unavailable
+    if ($content === null && $allowUrlFopen) {
+        $method = 'file_get_contents';
+        debugLog("Trying file_get_contents method");
+        
+        $context = stream_context_create(array(
+            'http' => array(
+                'timeout' => 30,
+                'user_agent' => 'OPCWeatherMap/1.0 (NOAA Data Fetch)',
+                'ignore_errors' => true
+            ),
+            'ssl' => array(
+                'verify_peer' => true,
+                'verify_peer_name' => true
+            )
+        ));
+        
+        $content = @file_get_contents($url, false, $context);
+        
+        if ($content === false) {
+            $error = error_get_last();
+            $errorInfo = array(
+                'method' => 'file_get_contents',
+                'error' => $error ? $error['message'] : 'Unknown error'
+            );
+            debugLog("file_get_contents failed", $errorInfo);
+            $content = null;
+        }
+    }
+    
     $elapsed = round((microtime(true) - $startTime) * 1000, 2);
     
-    if ($content !== false) {
+    if ($content !== null && strlen($content) > 0) {
         debugLog("URL fetch successful", array(
             'url' => $url,
+            'method' => $method,
             'elapsed_ms' => $elapsed,
             'content_length' => strlen($content),
-            'content_preview' => substr($content, 0, 200)
+            'content_preview' => substr($content, 0, 300)
         ));
         return $content;
     } else {
-        $error = error_get_last();
-        debugLog("URL fetch FAILED", array(
+        debugLog("URL fetch FAILED - all methods exhausted", array(
             'url' => $url,
             'elapsed_ms' => $elapsed,
-            'error' => $error ? $error['message'] : 'Unknown error'
+            'last_error' => $errorInfo,
+            'allow_url_fopen' => $allowUrlFopen,
+            'curl_available' => $curlAvailable
         ));
         return null;
     }
@@ -363,6 +446,47 @@ function generateNavtexData($navtexZones) {
 // Main execution
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
 debugLog("Processing request", array('type' => $type));
+
+// Diagnostic endpoint - check connectivity to NWS
+if ($type === 'diagnose') {
+    debugLog("Running diagnostics");
+    
+    $diagnostics = array(
+        'php_version' => PHP_VERSION,
+        'server_time' => date('Y-m-d H:i:s T'),
+        'allow_url_fopen' => ini_get('allow_url_fopen') ? true : false,
+        'curl_available' => function_exists('curl_init'),
+        'openssl_available' => extension_loaded('openssl'),
+        'url_tests' => array()
+    );
+    
+    // Test each offshore URL
+    foreach ($OFFSHORE_URLS as $product => $url) {
+        $testResult = array(
+            'product' => $product,
+            'url' => $url,
+            'success' => false,
+            'content_length' => 0,
+            'error' => null
+        );
+        
+        $content = fetchUrl($url);
+        if ($content !== null) {
+            $testResult['success'] = true;
+            $testResult['content_length'] = strlen($content);
+            $testResult['content_preview'] = substr($content, 0, 500);
+        } else {
+            $testResult['error'] = 'Failed to fetch - check debug log for details';
+        }
+        
+        $diagnostics['url_tests'][$product] = $testResult;
+    }
+    
+    $diagnostics['debug_log'] = $debugLog;
+    
+    echo json_encode($diagnostics, JSON_PRETTY_PRINT);
+    exit;
+}
 
 if ($type === 'offshore') {
     $allForecasts = array();

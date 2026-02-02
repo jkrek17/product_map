@@ -2,37 +2,37 @@
   {
     "zone": "OFFN09_NW",
     "name": "Canadian Border to 45N",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SW to S 17 to 31 kt",
-        "Seas": "Seas 8 to 14 ft",
+        "Winds": "S to SE 13 to 27 kt",
+        "Seas": "Seas 6 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to S 14 to 23 kt",
-        "Seas": "Seas 4 to 9 ft",
+        "Winds": "E to E 13 to 18 kt",
+        "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "SE to SW 22 to 36 kt",
-        "Seas": "Seas 3 to 8 ft",
+        "Winds": "NW to NW 29 to 39 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "W to NW 15 to 27 kt",
-        "Seas": "Seas 5 to 8 ft",
+        "Winds": "SW to SW 16 to 26 kt",
+        "Seas": "Seas 7 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "NW to E 30 to 43 kt",
-        "Seas": "Seas 8 to 11 ft",
+        "Winds": "W to SE 11 to 25 kt",
+        "Seas": "Seas 3 to 7 ft",
         "Weather": "N/A"
       }
     ]
@@ -40,37 +40,37 @@
   {
     "zone": "OFFN09_SW",
     "name": "45N to Point Saint George",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to NE 10 to 18 kt",
-        "Seas": "Seas 8 to 10 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tonight",
-        "Winds": "NW to N 24 to 37 kt",
-        "Seas": "Seas 6 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tomorrow",
-        "Winds": "E to SE 23 to 38 kt",
+        "Winds": "NW to W 16 to 28 kt",
         "Seas": "Seas 5 to 8 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tonight",
+        "Winds": "S to SW 19 to 29 kt",
+        "Seas": "Seas 6 to 12 ft",
+        "Weather": "N/A"
+      },
+      {
+        "Day": "Tomorrow",
+        "Winds": "NE to N 11 to 17 kt",
+        "Seas": "Seas 8 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tomorrow Night",
-        "Winds": "W to N 24 to 32 kt",
-        "Seas": "Seas 6 to 8 ft",
+        "Winds": "E to N 28 to 37 kt",
+        "Seas": "Seas 8 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "N to E 28 to 43 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "S to NE 18 to 29 kt",
+        "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       }
     ]
@@ -78,37 +78,37 @@
   {
     "zone": "OFFN08_NW",
     "name": "Point Saint George to Point Arena",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "GALE WARNING",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "NE to S 19 to 30 kt",
-        "Seas": "Seas 6 to 8 ft",
+        "Winds": "S to W 26 to 40 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "SE to NE 13 to 23 kt",
-        "Seas": "Seas 7 to 11 ft",
+        "Winds": "W to W 30 to 38 kt",
+        "Seas": "Seas 5 to 7 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "E to SE 16 to 24 kt",
-        "Seas": "Seas 7 to 13 ft",
+        "Winds": "E to N 18 to 29 kt",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "NW to E 25 to 40 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "NE to N 14 to 21 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "NE to SW 16 to 24 kt",
-        "Seas": "Seas 4 to 9 ft",
+        "Winds": "W to W 15 to 28 kt",
+        "Seas": "Seas 4 to 10 ft",
         "Weather": "N/A"
       }
     ]
@@ -116,37 +116,37 @@
   {
     "zone": "OFFN08_SW",
     "name": "Point Arena to Point Piedras Blancas",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to SW 15 to 30 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "SW to SE 14 to 24 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "NE to NW 28 to 42 kt",
-        "Seas": "Seas 5 to 11 ft",
+        "Winds": "SW to W 10 to 15 kt",
+        "Seas": "Seas 4 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "SW to SE 14 to 28 kt",
-        "Seas": "Seas 8 to 10 ft",
+        "Winds": "SW to SW 24 to 35 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "NE to N 30 to 37 kt",
-        "Seas": "Seas 4 to 10 ft",
+        "Winds": "SE to SW 22 to 37 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "E to N 22 to 28 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "W to NE 27 to 35 kt",
+        "Seas": "Seas 3 to 7 ft",
         "Weather": "N/A"
       }
     ]
@@ -154,37 +154,37 @@
   {
     "zone": "OFFN07_NW",
     "name": "Point Piedras Blancas to Point Conception",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "STORM WARNING",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SE to E 13 to 26 kt",
-        "Seas": "Seas 8 to 14 ft",
+        "Winds": "N to SE 21 to 32 kt",
+        "Seas": "Seas 6 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to S 11 to 16 kt",
-        "Seas": "Seas 8 to 10 ft",
+        "Winds": "SW to W 11 to 26 kt",
+        "Seas": "Seas 4 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "E to NW 13 to 25 kt",
-        "Seas": "Seas 7 to 9 ft",
+        "Winds": "S to S 20 to 29 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "NE to E 15 to 24 kt",
-        "Seas": "Seas 5 to 11 ft",
+        "Winds": "SW to SW 18 to 32 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "SW to NE 19 to 29 kt",
-        "Seas": "Seas 8 to 12 ft",
+        "Winds": "W to NE 11 to 22 kt",
+        "Seas": "Seas 5 to 10 ft",
         "Weather": "N/A"
       }
     ]
@@ -192,37 +192,37 @@
   {
     "zone": "OFFN07_SW",
     "name": "Point Conception to Mexican Border",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "NE to NW 21 to 33 kt",
-        "Seas": "Seas 7 to 13 ft",
+        "Winds": "E to W 10 to 18 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "SW to N 16 to 27 kt",
-        "Seas": "Seas 8 to 11 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tomorrow",
-        "Winds": "S to S 15 to 29 kt",
+        "Winds": "N to NW 25 to 30 kt",
         "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tomorrow",
+        "Winds": "NE to SW 20 to 25 kt",
+        "Seas": "Seas 6 to 11 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tomorrow Night",
-        "Winds": "NW to NW 20 to 25 kt",
-        "Seas": "Seas 3 to 5 ft",
+        "Winds": "NE to S 29 to 40 kt",
+        "Seas": "Seas 7 to 13 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "S to N 23 to 38 kt",
-        "Seas": "Seas 8 to 11 ft",
+        "Winds": "NW to NW 30 to 36 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       }
     ]
@@ -230,37 +230,37 @@
   {
     "zone": "OFFN01_NE",
     "name": "Eastport Maine to Cape Cod",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SW to S 27 to 41 kt",
-        "Seas": "Seas 5 to 7 ft",
+        "Winds": "W to S 10 to 15 kt",
+        "Seas": "Seas 4 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "N to N 10 to 18 kt",
-        "Seas": "Seas 3 to 6 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tomorrow",
-        "Winds": "SW to S 29 to 40 kt",
+        "Winds": "W to N 23 to 31 kt",
         "Seas": "Seas 5 to 10 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tomorrow",
+        "Winds": "NW to SE 13 to 21 kt",
+        "Seas": "Seas 3 to 8 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tomorrow Night",
-        "Winds": "N to S 18 to 32 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "NE to S 24 to 32 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "S to NE 10 to 22 kt",
-        "Seas": "Seas 4 to 6 ft",
+        "Winds": "W to S 10 to 24 kt",
+        "Seas": "Seas 6 to 10 ft",
         "Weather": "N/A"
       }
     ]
@@ -268,37 +268,37 @@
   {
     "zone": "OFFN01_SE",
     "name": "Cape Cod to Nantucket Shoals and Georges Bank",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "GALE FORCE POSSIBLE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "E to NW 26 to 32 kt",
-        "Seas": "Seas 4 to 9 ft",
+        "Winds": "S to S 12 to 25 kt",
+        "Seas": "Seas 3 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "W to W 23 to 37 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "SW to NW 19 to 30 kt",
+        "Seas": "Seas 4 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "S to NW 10 to 18 kt",
+        "Winds": "NW to S 26 to 34 kt",
         "Seas": "Seas 3 to 5 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "SE to S 15 to 21 kt",
-        "Seas": "Seas 5 to 11 ft",
+        "Winds": "SE to S 23 to 34 kt",
+        "Seas": "Seas 3 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "SE to E 15 to 30 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "NW to SW 13 to 23 kt",
+        "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       }
     ]
@@ -306,37 +306,37 @@
   {
     "zone": "OFFN01_SW",
     "name": "South of New England",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SW to N 19 to 31 kt",
-        "Seas": "Seas 3 to 7 ft",
+        "Winds": "SE to NW 22 to 27 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "SE to NW 17 to 29 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "E to E 16 to 24 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "N to W 27 to 38 kt",
-        "Seas": "Seas 3 to 8 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tomorrow Night",
-        "Winds": "E to W 14 to 19 kt",
+        "Winds": "W to NW 27 to 42 kt",
         "Seas": "Seas 6 to 8 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tomorrow Night",
+        "Winds": "NW to S 15 to 30 kt",
+        "Seas": "Seas 5 to 10 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Day 3",
-        "Winds": "W to SE 23 to 28 kt",
-        "Seas": "Seas 4 to 8 ft",
+        "Winds": "W to N 30 to 42 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -344,37 +344,37 @@
   {
     "zone": "OFFN02_NE",
     "name": "Sandy Hook to Wallops Island",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SW to SE 13 to 28 kt",
-        "Seas": "Seas 3 to 7 ft",
+        "Winds": "N to W 29 to 34 kt",
+        "Seas": "Seas 3 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "E to S 27 to 35 kt",
-        "Seas": "Seas 4 to 9 ft",
+        "Winds": "E to NW 29 to 34 kt",
+        "Seas": "Seas 3 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "NW to NW 24 to 39 kt",
-        "Seas": "Seas 3 to 5 ft",
+        "Winds": "NE to SE 25 to 34 kt",
+        "Seas": "Seas 4 to 7 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "SW to SE 24 to 33 kt",
-        "Seas": "Seas 5 to 7 ft",
+        "Winds": "NE to NE 12 to 23 kt",
+        "Seas": "Seas 6 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "E to E 29 to 34 kt",
-        "Seas": "Seas 6 to 11 ft",
+        "Winds": "NW to NW 13 to 25 kt",
+        "Seas": "Seas 3 to 7 ft",
         "Weather": "N/A"
       }
     ]
@@ -382,37 +382,37 @@
   {
     "zone": "OFFN02_E",
     "name": "Wallops Island to Cape Hatteras",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "W to SE 23 to 28 kt",
-        "Seas": "Seas 8 to 12 ft",
+        "Winds": "NW to N 15 to 24 kt",
+        "Seas": "Seas 8 to 14 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "S to N 27 to 40 kt",
-        "Seas": "Seas 7 to 11 ft",
+        "Winds": "E to SW 28 to 36 kt",
+        "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "N to N 10 to 25 kt",
-        "Seas": "Seas 4 to 6 ft",
+        "Winds": "SE to SE 11 to 24 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "SW to SW 26 to 40 kt",
-        "Seas": "Seas 4 to 7 ft",
+        "Winds": "NE to S 30 to 36 kt",
+        "Seas": "Seas 5 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "E to SE 17 to 26 kt",
-        "Seas": "Seas 6 to 12 ft",
+        "Winds": "E to NW 12 to 19 kt",
+        "Seas": "Seas 5 to 8 ft",
         "Weather": "N/A"
       }
     ]
@@ -420,37 +420,37 @@
   {
     "zone": "OFFN02_SE",
     "name": "Cape Hatteras to Murrells Inlet",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "S to N 12 to 27 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "SE to E 26 to 38 kt",
+        "Seas": "Seas 6 to 8 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "SE to SW 18 to 29 kt",
-        "Seas": "Seas 8 to 13 ft",
-        "Weather": "N/A"
-      },
-      {
-        "Day": "Tomorrow",
-        "Winds": "E to NE 24 to 30 kt",
+        "Winds": "SE to N 15 to 21 kt",
         "Seas": "Seas 5 to 11 ft",
         "Weather": "N/A"
       },
       {
+        "Day": "Tomorrow",
+        "Winds": "W to N 26 to 33 kt",
+        "Seas": "Seas 4 to 7 ft",
+        "Weather": "N/A"
+      },
+      {
         "Day": "Tomorrow Night",
-        "Winds": "E to S 22 to 30 kt",
-        "Seas": "Seas 8 to 13 ft",
+        "Winds": "NE to E 15 to 26 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "NW to NE 13 to 20 kt",
-        "Seas": "Seas 6 to 10 ft",
+        "Winds": "SE to E 26 to 32 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       }
     ]
@@ -458,37 +458,37 @@
   {
     "zone": "OFFN03_NE",
     "name": "Murrells Inlet to 31N",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "N to NE 29 to 41 kt",
-        "Seas": "Seas 5 to 10 ft",
+        "Winds": "NW to W 21 to 31 kt",
+        "Seas": "Seas 4 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "W to N 21 to 35 kt",
-        "Seas": "Seas 3 to 7 ft",
+        "Winds": "E to S 25 to 31 kt",
+        "Seas": "Seas 6 to 12 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "S to SE 28 to 37 kt",
-        "Seas": "Seas 3 to 5 ft",
+        "Winds": "NW to NW 22 to 33 kt",
+        "Seas": "Seas 7 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "SW to E 14 to 20 kt",
-        "Seas": "Seas 7 to 10 ft",
+        "Winds": "N to NW 14 to 23 kt",
+        "Seas": "Seas 5 to 9 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "NW to E 26 to 36 kt",
-        "Seas": "Seas 8 to 14 ft",
+        "Winds": "S to NW 15 to 26 kt",
+        "Seas": "Seas 8 to 12 ft",
         "Weather": "N/A"
       }
     ]
@@ -496,37 +496,37 @@
   {
     "zone": "OFFN03_SE",
     "name": "South of 31N",
-    "time": "01:24 PM  Mon Feb 02 2026",
+    "time": "02:07 PM  Mon Feb 02 2026",
     "warning": "NONE",
     "forecast": [
       {
         "Day": "Today",
-        "Winds": "SE to W 21 to 30 kt",
-        "Seas": "Seas 3 to 9 ft",
+        "Winds": "E to S 10 to 19 kt",
+        "Seas": "Seas 5 to 11 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tonight",
-        "Winds": "NE to S 29 to 40 kt",
-        "Seas": "Seas 5 to 7 ft",
+        "Winds": "N to W 20 to 28 kt",
+        "Seas": "Seas 3 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow",
-        "Winds": "S to E 21 to 28 kt",
-        "Seas": "Seas 5 to 9 ft",
+        "Winds": "E to NE 13 to 23 kt",
+        "Seas": "Seas 7 to 10 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Tomorrow Night",
-        "Winds": "SE to S 25 to 36 kt",
-        "Seas": "Seas 4 to 8 ft",
+        "Winds": "NW to NW 14 to 20 kt",
+        "Seas": "Seas 4 to 6 ft",
         "Weather": "N/A"
       },
       {
         "Day": "Day 3",
-        "Winds": "NE to E 13 to 22 kt",
-        "Seas": "Seas 6 to 9 ft",
+        "Winds": "S to N 15 to 30 kt",
+        "Seas": "Seas 7 to 9 ft",
         "Weather": "N/A"
       }
     ]

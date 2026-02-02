@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPC Weather Map</title>
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.4);
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid #0f3460;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            color: #e94560;
+            margin: 0;
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 12px;
+            margin: 0;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .control-group select {
+            padding: 8px 15px;
+            font-size: 13px;
+            background: #0f3460;
+            color: #fff;
+            border: 1px solid #1a1a4e;
+            border-radius: 6px;
+            cursor: pointer;
+            min-width: 160px;
+        }
+
+        .control-group select:hover {
+            background: #1a1a4e;
+        }
+
+        #refreshBtn {
+            padding: 8px 18px;
+            background: #e94560;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        #refreshBtn:hover {
+            background: #d63050;
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar {
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            background: #16213e;
+            border-left: 2px solid #0f3460;
+            overflow: hidden;
+        }
+
+        .forecast-panel {
+            flex: 1;
+            background: rgba(255, 255, 255, 0.97);
+            padding: 15px;
+            color: #1a1a2e;
+            overflow-y: auto;
+        }
+
+        .forecast-panel h3 {
+            color: #0f3460;
+            margin-bottom: 10px;
+            font-size: 14px;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .forecast-header {
+            font-size: 16px;
+            font-weight: bold;
+            color: #0f3460;
+            margin-bottom: 8px;
+        }
+
+        .forecast-time {
+            color: #64748b;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+
+        .warning-banner {
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 12px;
+            color: #000;
+            font-size: 13px;
+        }
+
+        .day-forecast {
+            background: #f8fafc;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #0f3460;
+        }
+
+        .day-name {
+            font-weight: bold;
+            color: #fff;
+            background: #0f3460;
+            padding: 4px 10px;
+            border-radius: 4px;
+            margin-bottom: 6px;
+            display: inline-block;
+            font-size: 12px;
+        }
+
+        .forecast-detail {
+            display: block;
+            font-size: 12px;
+            color: #475569;
+            margin-top: 4px;
+        }
+
+        .forecast-detail strong {
+            color: #0f3460;
+        }
+
+        .chart-panel {
+            height: 220px;
+            background: rgba(255, 255, 255, 0.97);
+            padding: 12px;
+            border-top: 2px solid #0f3460;
+            flex-shrink: 0;
+        }
+
+        .chart-panel h3 {
+            color: #0f3460;
+            margin-bottom: 8px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .chart-container {
+            height: calc(100% - 25px);
+            position: relative;
+        }
+
+        #weatherChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            justify-content: center;
+            flex-shrink: 0;
+            border-top: 1px solid #0f3460;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            font-size: 11px;
+        }
+
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .legend-color-none { background: #808080; }
+        .legend-color-gale { background: #ffff00; }
+        .legend-color-gale-possible { background: #ffc0cb; }
+        .legend-color-storm { background: #ffa500; }
+        .legend-color-storm-possible { background: #800080; }
+        .legend-color-hurricane { background: #ff0000; }
+
+        .leaflet-popup-content-wrapper {
+            background: #0f3460;
+            color: #fff;
+            border-radius: 8px;
+        }
+
+        .leaflet-popup-tip {
+            background: #0f3460;
+        }
+
+        .leaflet-popup-content {
+            margin: 10px 12px;
+            font-size: 13px;
+        }
+
+        .zone-popup-title {
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .zone-popup-id {
+            color: #94a3b8;
+            font-size: 11px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 30px 15px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .forecast-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>OPC Weather Map</h1>
+            <p>Ocean Prediction Center - Marine Forecast Visualization</p>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="basin">Region:</label>
+                <select id="basin">
+                    <option value="atlantic">Western Atlantic</option>
+                    <option value="pacific">Eastern Pacific</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="product">Product:</label>
+                <select id="product">
+                    <option value="offshore">Offshore Forecasts</option>
+                    <option value="navtex">NAVTEX</option>
+                </select>
+            </div>
+            <button type="button" id="refreshBtn">Refresh Data</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="sidebar">
+            <div class="forecast-panel" id="forecastPanel">
+                <h3>Forecast Details</h3>
+                <div class="no-data">Click on a zone to view forecast details</div>
+            </div>
+            <div class="chart-panel">
+                <h3>Wind &amp; Wave Forecast</h3>
+                <div class="chart-container">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color legend-color-none"></span>
+            <span>No Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale"></span>
+            <span>Gale Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale-possible"></span>
+            <span>Gale Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm"></span>
+            <span>Storm Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm-possible"></span>
+            <span>Storm Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-hurricane"></span>
+            <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <script src="libs/leaflet/leaflet.js"></script>
+    <script src="libs/chartjs/chart.min.js"></script>
+
+    <script>
+        var map;
+        var zonesLayer;
+        var forecastData = [];
+        var weatherChart = null;
+
+        var warningColors = {
+            'HURRICANE FORCE WIND WARNING': '#ff0000',
+            'HURRICANE WARNING': '#ff0000',
+            'STORM WARNING': '#ffa500',
+            'TROPICAL STORM WARNING': '#ffa500',
+            'GALE WARNING': '#ffff00',
+            'GALE FORCE POSSIBLE': '#ffc0cb',
+            'STORM FORCE POSSIBLE': '#800080',
+            'TROPICAL STORM CONDITIONS POSSIBLE': '#800080',
+            'NONE': '#808080'
+        };
+
+        function getWarningColor(warning) {
+            if (!warning) return '#808080';
+            var upperWarning = warning.toUpperCase();
+            for (var key in warningColors) {
+                if (warningColors.hasOwnProperty(key) && upperWarning.indexOf(key) !== -1) {
+                    return warningColors[key];
+                }
+            }
+            return '#808080';
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: true }).setView([38, -72], 5);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13,
+                attribution: 'Esri Ocean Basemap'
+            }).addTo(map);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13
+            }).addTo(map);
+
+            zonesLayer = L.layerGroup().addTo(map);
+
+            L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
+        }
+
+        function loadZones() {
+            var product = document.getElementById('product').value;
+            var geoJsonFile = (product === 'navtex') ? 'navtex.geojson' : 'offshores.geojson';
+            var idField = 'ID';
+
+            fetch(geoJsonFile)
+                .then(function(response) { return response.text(); })
+                .then(function(text) {
+                    if (text.indexOf('var ') === 0) {
+                        var match = text.match(/var\s+\w+\s*=\s*(\{[\s\S]*\})/);
+                        if (match) text = match[1];
+                    }
+                    var geoJson = JSON.parse(text);
+                    displayZones(geoJson, idField);
+                })
+                .catch(function(error) {
+                    console.error('Error loading zones:', error);
+                });
+        }
+
+        function displayZones(geoJson, idField) {
+            zonesLayer.clearLayers();
+
+            L.geoJSON(geoJson, {
+                style: function(feature) {
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var forecast = forecastData.find(function(f) {
+                        return f.zone === zoneId || f.zone === feature.properties.Name || f.name === feature.properties.Name;
+                    });
+                    var warning = forecast ? forecast.warning : 'NONE';
+                    return {
+                        fillColor: getWarningColor(warning),
+                        weight: 1.5,
+                        opacity: 1,
+                        color: '#1a1a2e',
+                        fillOpacity: 0.55
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var zoneName = feature.properties.Name || feature.properties.name || zoneId;
+
+                    layer.bindPopup(
+                        '<div class="zone-popup-title">' + zoneName + '</div>' +
+                        '<div class="zone-popup-id">Zone: ' + zoneId + '</div>'
+                    );
+
+                    layer.on({
+                        mouseover: function(e) {
+                            e.target.setStyle({ weight: 3, color: '#e94560', fillOpacity: 0.75 });
+                            e.target.bringToFront();
+                        },
+                        mouseout: function(e) {
+                            var forecast = forecastData.find(function(f) {
+                                return f.zone === zoneId || f.zone === feature.properties.Name;
+                            });
+                            var warning = forecast ? forecast.warning : 'NONE';
+                            e.target.setStyle({
+                                fillColor: getWarningColor(warning),
+                                weight: 1.5,
+                                opacity: 1,
+                                color: '#1a1a2e',
+                                fillOpacity: 0.55
+                            });
+                        },
+                        click: function() { showForecast(zoneId, zoneName); }
+                    });
+                }
+            }).addTo(zonesLayer);
+        }
+
+        function loadForecastData() {
+            var product = document.getElementById('product').value;
+            var jsonFile = (product === 'navtex') ? 'nav.json' : 'off.json';
+
+            fetch(jsonFile)
+                .then(function(response) {
+                    if (response.ok) return response.json();
+                    throw new Error('Failed to load');
+                })
+                .then(function(data) {
+                    forecastData = data;
+                    loadZones();
+                })
+                .catch(function(error) {
+                    console.error('Error loading forecast data:', error);
+                    forecastData = [];
+                    loadZones();
+                });
+        }
+
+        function showForecast(zoneId, zoneName) {
+            var panel = document.getElementById('forecastPanel');
+            var forecast = forecastData.find(function(f) {
+                return f.zone === zoneId || f.zone === zoneName || f.name === zoneName;
+            });
+
+            if (!forecast) {
+                panel.innerHTML = '<h3>Forecast Details</h3><div class="no-data">No forecast data for ' + zoneName + '</div>';
+                return;
+            }
+
+            var warningColor = getWarningColor(forecast.warning);
+            var textColor = (warningColor === '#ffff00' || warningColor === '#ffc0cb') ? '#000' : '#fff';
+
+            var html = '<h3>Forecast Details</h3>' +
+                '<div class="forecast-header">' + (forecast.name || zoneName) + '</div>' +
+                '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
+
+            if (forecast.warning && forecast.warning !== 'NONE') {
+                html += '<div class="warning-banner" style="background:' + warningColor + ';color:' + textColor + ';">' + forecast.warning + '</div>';
+            }
+
+            if (forecast.forecast && forecast.forecast.length > 0) {
+                forecast.forecast.forEach(function(day) {
+                    html += '<div class="day-forecast">' +
+                        '<span class="day-name">' + day.Day + '</span>' +
+                        '<span class="forecast-detail"><strong>Winds:</strong> ' + day.Winds + '</span>' +
+                        '<span class="forecast-detail"><strong>Seas:</strong> ' + day.Seas + '</span>';
+                    if (day.Weather && day.Weather !== 'N/A') {
+                        html += '<span class="forecast-detail"><strong>Weather:</strong> ' + day.Weather + '</span>';
+                    }
+                    html += '</div>';
+                });
+            }
+
+            panel.innerHTML = html;
+            updateChart(forecast);
+        }
+
+        function updateChart(forecast) {
+            var ctx = document.getElementById('weatherChart').getContext('2d');
+            if (weatherChart) weatherChart.destroy();
+            if (!forecast.forecast || forecast.forecast.length === 0) return;
+
+            var labels = [], windSpeeds = [], waveHeights = [];
+
+            forecast.forecast.forEach(function(day) {
+                labels.push(day.Day);
+                var windMatch = day.Winds.match(/(\d+)/g);
+                windSpeeds.push(windMatch ? Math.max.apply(null, windMatch.map(Number)) : 0);
+                var waveMatch = day.Seas.match(/(\d+)/g);
+                waveHeights.push(waveMatch ? Math.max.apply(null, waveMatch.map(Number)) : 0);
+            });
+
+            weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Wind (kt)', data: windSpeeds, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.15)', yAxisID: 'y', tension: 0.3, fill: true },
+                        { label: 'Waves (ft)', data: waveHeights, borderColor: '#e94560', backgroundColor: 'rgba(233,69,96,0.15)', yAxisID: 'y1', tension: 0.3, fill: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 11 } } } },
+                    scales: {
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Wind (kt)', font: { size: 10 } }, beginAtZero: true },
+                        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Waves (ft)', font: { size: 10 } }, beginAtZero: true, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        function changeBasin() {
+            var basin = document.getElementById('basin').value;
+            if (basin === 'atlantic') map.flyTo([38, -72], 5);
+            else if (basin === 'pacific') map.flyTo([38, -125], 5);
+            loadForecastData();
+        }
+
+        function refreshData() {
+            var btn = document.getElementById('refreshBtn');
+            btn.textContent = 'Loading...';
+            btn.disabled = true;
+            loadForecastData();
+            setTimeout(function() {
+                btn.textContent = 'Refresh Data';
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            document.getElementById('basin').addEventListener('change', changeBasin);
+            document.getElementById('product').addEventListener('change', loadForecastData);
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            loadForecastData();
+        });
+    </script>
+</body>
+</html>

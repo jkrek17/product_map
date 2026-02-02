@@ -457,12 +457,195 @@
         @media (max-width: 900px) {
             .header {
                 flex-direction: column;
-                gap: 10px;
-                padding: 10px 15px;
+                gap: 12px;
+                padding: 12px 16px;
             }
 
             .header-title {
                 text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h1::before {
+                display: none;
+            }
+
+            .header p {
+                font-size: 12px;
+                padding-left: 0;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .control-group label {
+                font-size: 10px;
+            }
+
+            .control-group select {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+
+            #shareBtn {
+                grid-column: 1;
+            }
+
+            #aboutBtn {
+                grid-column: 2;
+            }
+
+            #refreshBtn {
+                grid-column: 1 / -1;
+                background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #map {
+                flex: 1;
+                min-height: 45vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                max-height: 55vh;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(calc(100% - 60px));
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-left: none;
+                border-top: 3px solid #e94560;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .sidebar::before {
+                content: "";
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+                margin: 12px auto 8px;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                bottom: 70px;
+            }
+
+            .legend {
+                flex-wrap: wrap;
+                padding: 8px 12px;
+                gap: 6px;
+                display: none;
+            }
+
+            .legend-item {
+                font-size: 11px;
+                padding: 4px 8px;
+            }
+
+            .legend-color {
+                width: 12px;
+                height: 12px;
+            }
+
+            .forecast-panel {
+                padding: 16px 20px;
+                max-height: calc(55vh - 180px);
+            }
+
+            .forecast-panel h3 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .forecast-header {
+                font-size: 17px;
+            }
+
+            .forecast-time {
+                font-size: 12px;
+                padding: 6px 10px;
+            }
+
+            .day-forecast {
+                padding: 12px 14px;
+                margin-bottom: 10px;
+            }
+
+            .day-name {
+                font-size: 12px;
+                padding: 5px 10px;
+            }
+
+            .forecast-detail {
+                font-size: 14px;
+                margin-top: 6px;
+            }
+
+            .warning-banner {
+                font-size: 14px;
+                padding: 10px 14px;
+            }
+
+            .chart-panel {
+                height: 160px;
+                padding: 12px 16px;
+            }
+
+            .chart-panel h3 {
+                font-size: 12px;
+                margin-bottom: 8px;
+            }
+
+            .no-data {
+                padding: 30px 20px;
+                font-size: 14px;
+            }
+
+            .no-data::before {
+                font-size: 24px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 12px;
+                gap: 10px;
             }
 
             .header h1 {
@@ -474,111 +657,29 @@
             }
 
             .controls {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-            }
-
-            .control-group {
-                flex-direction: column;
-                gap: 4px;
+                gap: 8px;
             }
 
             .control-group select {
-                min-width: 140px;
-                padding: 6px 10px;
-                font-size: 12px;
+                padding: 8px 10px;
+                font-size: 13px;
             }
 
-            .main-container {
-                flex-direction: column;
-            }
-
-            #map {
-                height: 50vh;
-                min-height: 300px;
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 10px 12px;
+                font-size: 11px;
             }
 
             .sidebar {
-                width: 100%;
-                height: 50vh;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-                z-index: 999;
-                border-left: none;
-                border-top: 2px solid #0f3460;
-            }
-
-            .sidebar.open {
-                transform: translateY(0);
-            }
-
-            .mobile-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .legend {
-                flex-wrap: wrap;
-                padding: 6px 10px;
-                gap: 6px;
-            }
-
-            .legend-item {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-
-            .legend-color {
-                width: 12px;
-                height: 12px;
+                max-height: 60vh;
             }
 
             .forecast-panel {
-                padding: 15px;
-            }
-
-            .forecast-panel h3 {
-                font-size: 16px;
-            }
-
-            .forecast-header {
-                font-size: 18px;
-            }
-
-            .forecast-detail {
-                font-size: 14px;
+                padding: 14px 16px;
             }
 
             .chart-panel {
-                height: 200px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 16px;
-            }
-
-            .controls {
-                width: 100%;
-            }
-
-            .control-group {
-                flex: 1;
-            }
-
-            .control-group select {
-                width: 100%;
-            }
-
-            #refreshBtn {
-                width: 100%;
+                height: 140px;
             }
         }
 

@@ -455,6 +455,138 @@
                 width: 100%;
             }
         }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            max-width: 600px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            background: #0f3460;
+            color: #fff;
+            padding: 20px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 20px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 28px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+            opacity: 0.8;
+        }
+
+        .modal-close:hover {
+            opacity: 1;
+        }
+
+        .modal-body {
+            padding: 25px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .modal-body h3 {
+            color: #0f3460;
+            margin: 20px 0 10px 0;
+            font-size: 16px;
+            border-bottom: 2px solid #e94560;
+            padding-bottom: 5px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin: 10px 0;
+        }
+
+        .modal-body ul {
+            margin: 10px 0;
+            padding-left: 25px;
+        }
+
+        .modal-body li {
+            margin: 8px 0;
+        }
+
+        .modal-body code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .modal-body .warning-example {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            margin: 2px;
+        }
+
+        .modal-body a {
+            color: #e94560;
+        }
+
+        #aboutBtn {
+            background: #16213e;
+        }
+
+        #aboutBtn:hover {
+            background: #1a1a2e;
+        }
+
+        @media (max-width: 900px) {
+            .modal {
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 15px 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -480,6 +612,7 @@
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
             <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
+            <button type="button" id="aboutBtn">About</button>
         </div>
     </div>
 
@@ -527,6 +660,59 @@
         <div class="legend-item">
             <span class="legend-color legend-color-hurricane"></span>
             <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- About/Help Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>About OPC Weather Map</h2>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Overview</h3>
+                <p>This application visualizes marine weather forecasts from the NOAA Ocean Prediction Center (OPC). It displays offshore forecasts and NAVTEX broadcasts for the Western Atlantic and Eastern Pacific regions.</p>
+
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Select a Region:</strong> Use the "Region" dropdown to switch between Western Atlantic and Eastern Pacific.</li>
+                    <li><strong>Choose a Product:</strong> Select "Offshore Forecasts" for detailed marine forecasts or "NAVTEX" for navigational warnings.</li>
+                    <li><strong>View Forecasts:</strong> Click on any colored zone on the map to view the detailed forecast in the side panel.</li>
+                    <li><strong>Refresh Data:</strong> Click "Refresh Data" to fetch the latest forecasts from the server.</li>
+                    <li><strong>Share:</strong> Click "Share Link" to copy a URL that links directly to your current view and selected zone.</li>
+                </ul>
+
+                <h3>Warning Colors</h3>
+                <p>Zones are colored based on active warnings:</p>
+                <ul>
+                    <li><span class="warning-example" style="background:#808080;color:#fff;">Gray</span> - No active warning</li>
+                    <li><span class="warning-example" style="background:#ffff00;color:#000;">Yellow</span> - Gale Warning (34-47 kt winds)</li>
+                    <li><span class="warning-example" style="background:#ffc0cb;color:#000;">Pink</span> - Gale Force Possible</li>
+                    <li><span class="warning-example" style="background:#ffa500;color:#fff;">Orange</span> - Storm Warning (48-63 kt winds)</li>
+                    <li><span class="warning-example" style="background:#800080;color:#fff;">Purple</span> - Storm Force Possible</li>
+                    <li><span class="warning-example" style="background:#ff0000;color:#fff;">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
+                </ul>
+
+                <h3>Bookmarkable URLs</h3>
+                <p>You can bookmark or share specific views using URL parameters:</p>
+                <ul>
+                    <li><code>?zone=ANZ800</code> - Open with a specific zone selected</li>
+                    <li><code>?product=navtex</code> - Open the NAVTEX product</li>
+                    <li><code>?basin=pacific</code> - Open the Pacific region</li>
+                </ul>
+                <p>Example: <code>?zone=ANZ800&product=offshore&basin=atlantic</code></p>
+
+                <h3>Data Sources</h3>
+                <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a>:</p>
+                <ul>
+                    <li>Offshore Forecasts: High Seas and Offshore Waters forecasts</li>
+                    <li>NAVTEX: Navigation and meteorological warnings for coastal waters</li>
+                </ul>
+
+                <h3>Mobile Usage</h3>
+                <p>On mobile devices, use the floating button at the bottom right to toggle the forecast panel. The panel will automatically open when you tap on a zone.</p>
+            </div>
         </div>
     </div>
 
@@ -1010,6 +1196,25 @@
                     // Fallback for older browsers
                     prompt('Copy this link:', window.location.href);
                 });
+            });
+            
+            // About modal
+            var aboutModal = document.getElementById('aboutModal');
+            document.getElementById('aboutBtn').addEventListener('click', function() {
+                aboutModal.classList.add('open');
+            });
+            document.getElementById('modalClose').addEventListener('click', function() {
+                aboutModal.classList.remove('open');
+            });
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
+                    aboutModal.classList.remove('open');
+                }
             });
             
             // Mobile toggle

@@ -235,10 +235,9 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
             'forecast' => array()
         );
         
-        // Find zone section
-        $pattern = '/' . preg_quote($zone, '/') . '[^A-Z]*[-\d]+[-\s\n]+(.*?)(?=' . implode('|', array_map(function($z) use ($zone) {
-            return $z !== $zone ? preg_quote($z, '/') : '';
-        }, $zones)) . '|\$\$|ANZ\d|PZZ\d|$)/is';
+        // Find zone section - format is: ANZ800-220345-\n...content...\n$$
+        // Zone ID followed by -DDHHTT- then content until $$
+        $pattern = '/' . preg_quote($zone, '/') . '-\d{6}-\s*(.*?)\n\$\$/s';
         
         if (preg_match($pattern, $content, $zoneMatch)) {
             $zoneText = $zoneMatch[1];
@@ -248,17 +247,19 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
             ));
             
             // Debug: show what periods we're finding
-            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^$]*?)(?=\.[A-Z][A-Z\s]*?\.\.\.|$)/s', $zoneText, $debugPeriods, PREG_SET_ORDER);
+            // Periods are like: .TODAY...text .TONIGHT...text
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $debugPeriods, PREG_SET_ORDER);
             debugLog("Period matches for " . $zone, array(
                 'count' => count($debugPeriods),
-                'periods' => array_map(function($m) { return $m[1]; }, $debugPeriods)
+                'periods' => array_map(function($m) { return trim($m[1]); }, $debugPeriods)
             ));
             
             // Extract warning
             $zoneData['warning'] = extractWarning($zoneText);
             
-            // Parse forecast periods
-            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^$]*?)(?=\.[A-Z][A-Z\s]*?\.\.\.|$)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
+            // Parse forecast periods - format is .DAY...text until next .DAY... or end
+            // Example: .TODAY...W winds 15 to 25 kt. Seas 4 to 7 ft. 
+            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
             
             foreach ($periodMatches as $match) {
                 $periodName = trim($match[1]);

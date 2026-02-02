@@ -491,6 +491,7 @@ if ($type === 'diagnose') {
 if ($type === 'offshore') {
     $allForecasts = array();
     $fetchResults = array();
+    $liveDataFailed = false;
     
     foreach ($OFFSHORE_URLS as $product => $url) {
         debugLog("Fetching offshore product", array('product' => $product, 'url' => $url));
@@ -510,19 +511,48 @@ if ($type === 'offshore') {
             $allForecasts = array_merge($allForecasts, $forecasts);
         } else {
             debugLog("WARNING: Failed to fetch product " . $product);
+            $liveDataFailed = true;
         }
     }
     
     debugLog("All offshore data fetched", array(
         'total_forecasts' => count($allForecasts),
-        'fetch_results' => $fetchResults
+        'fetch_results' => $fetchResults,
+        'live_data_failed' => $liveDataFailed
     ));
+    
+    // If live fetch failed or returned no data, fall back to static JSON file
+    if (empty($allForecasts)) {
+        debugLog("Live data empty - falling back to static off.json file");
+        $staticFile = __DIR__ . '/off.json';
+        
+        if (file_exists($staticFile)) {
+            $staticContent = file_get_contents($staticFile);
+            if ($staticContent !== false) {
+                $staticData = json_decode($staticContent, true);
+                if (is_array($staticData) && !empty($staticData)) {
+                    $allForecasts = $staticData;
+                    debugLog("Static fallback successful", array(
+                        'source' => 'off.json',
+                        'forecasts_count' => count($allForecasts)
+                    ));
+                } else {
+                    debugLog("ERROR: Static file JSON decode failed or empty");
+                }
+            } else {
+                debugLog("ERROR: Could not read static file");
+            }
+        } else {
+            debugLog("ERROR: Static file not found", $staticFile);
+        }
+    }
     
     // If debug mode, include debug log in response
     if ($DEBUG) {
         echo json_encode(array(
             'debug' => $debugLog,
-            'data' => $allForecasts
+            'data' => $allForecasts,
+            'source' => empty($fetchResults) || $liveDataFailed ? 'static_fallback' : 'live_nws'
         ));
     } else {
         echo json_encode($allForecasts);

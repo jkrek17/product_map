@@ -4,6 +4,49 @@
  * Fetches and returns forecast data from NWS Ocean Prediction Center
  */
 
+// Enable error logging for debugging
+ini_set('display_errors', 0);
+ini_set('log_errors', 1);
+error_reporting(E_ALL);
+
+/**
+ * DEBUGGING INSTRUCTIONS:
+ * 
+ * 1. Add ?debug=1 to the API URL to get detailed debug info in the response:
+ *    Example: api.php?type=offshore&debug=1
+ * 
+ * 2. Check the browser console (F12 > Console) for [DEBUG] messages from the frontend
+ * 
+ * 3. Check the PHP error log for [OPC API DEBUG] messages
+ * 
+ * 4. The debug response will include:
+ *    - 'debug': Array of timestamped log entries
+ *    - 'data': The actual forecast data
+ */
+$DEBUG = isset($_GET['debug']) && $_GET['debug'] === '1';
+$debugLog = array();
+
+function debugLog($message, $data = null) {
+    global $DEBUG, $debugLog;
+    $entry = array(
+        'timestamp' => date('Y-m-d H:i:s'),
+        'message' => $message
+    );
+    if ($data !== null) {
+        $entry['data'] = $data;
+    }
+    $debugLog[] = $entry;
+    error_log("[OPC API DEBUG] " . $message . ($data !== null ? " | Data: " . json_encode($data) : ""));
+}
+
+debugLog("API request started", array(
+    'type' => isset($_GET['type']) ? $_GET['type'] : 'not set',
+    'debug' => $DEBUG,
+    'php_version' => PHP_VERSION,
+    'server_time' => date('Y-m-d H:i:s'),
+    'request_uri' => isset($_SERVER['REQUEST_URI']) ? $_SERVER['REQUEST_URI'] : 'N/A'
+));
+
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 header('Cache-Control: no-cache, must-revalidate');
@@ -87,15 +130,37 @@ $NAVTEX_ZONES = array(
  * Fetch content from URL
  */
 function fetchUrl($url) {
+    debugLog("Fetching URL", $url);
+    
     $context = stream_context_create(array(
         'http' => array(
             'timeout' => 30,
-            'user_agent' => 'OPCWeatherMap/1.0'
+            'user_agent' => 'OPCWeatherMap/1.0',
+            'ignore_errors' => true
         )
     ));
     
+    $startTime = microtime(true);
     $content = @file_get_contents($url, false, $context);
-    return $content !== false ? $content : null;
+    $elapsed = round((microtime(true) - $startTime) * 1000, 2);
+    
+    if ($content !== false) {
+        debugLog("URL fetch successful", array(
+            'url' => $url,
+            'elapsed_ms' => $elapsed,
+            'content_length' => strlen($content),
+            'content_preview' => substr($content, 0, 200)
+        ));
+        return $content;
+    } else {
+        $error = error_get_last();
+        debugLog("URL fetch FAILED", array(
+            'url' => $url,
+            'elapsed_ms' => $elapsed,
+            'error' => $error ? $error['message'] : 'Unknown error'
+        ));
+        return null;
+    }
 }
 
 /**
@@ -121,15 +186,29 @@ function extractWarning($text) {
 function parseOffshoreProduct($content, $zones, $zoneNames) {
     $results = array();
     
-    if (empty($content)) return $results;
+    debugLog("parseOffshoreProduct called", array(
+        'content_length' => $content ? strlen($content) : 0,
+        'zones_count' => count($zones),
+        'zones' => $zones
+    ));
+    
+    if (empty($content)) {
+        debugLog("WARNING: Empty content passed to parseOffshoreProduct");
+        return $results;
+    }
     
     // Extract issue time
     $issueTime = '';
     if (preg_match('/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i', $content, $timeMatch)) {
         $issueTime = trim($timeMatch[1]);
+        debugLog("Extracted issue time", $issueTime);
+    } else {
+        debugLog("WARNING: Could not extract issue time from content");
     }
     
     foreach ($zones as $zone) {
+        debugLog("Processing zone", $zone);
+        
         $zoneData = array(
             'zone' => $zone,
             'name' => isset($zoneNames[$zone]) ? $zoneNames[$zone] : $zone,
@@ -145,6 +224,10 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
         
         if (preg_match($pattern, $content, $zoneMatch)) {
             $zoneText = $zoneMatch[1];
+            debugLog("Zone text found for " . $zone, array(
+                'text_length' => strlen($zoneText),
+                'text_preview' => substr($zoneText, 0, 150)
+            ));
             
             // Extract warning
             $zoneData['warning'] = extractWarning($zoneText);
@@ -206,21 +289,30 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
                     'Weather' => $weather
                 );
             }
+        } else {
+            debugLog("WARNING: Zone " . $zone . " NOT FOUND in content", array(
+                'pattern_used' => $pattern,
+                'content_preview' => substr($content, 0, 500)
+            ));
         }
         
         // Ensure forecast data exists
         if (empty($zoneData['forecast'])) {
+            debugLog("WARNING: No forecast periods found for zone " . $zone . ", adding placeholder");
             $zoneData['forecast'][] = array(
                 'Day' => 'Today',
                 'Winds' => 'Data unavailable',
                 'Seas' => 'Data unavailable',
                 'Weather' => 'N/A'
             );
+        } else {
+            debugLog("Zone " . $zone . " has " . count($zoneData['forecast']) . " forecast periods");
         }
         
         $results[] = $zoneData;
     }
     
+    debugLog("parseOffshoreProduct complete", array('results_count' => count($results)));
     return $results;
 }
 
@@ -270,25 +362,63 @@ function generateNavtexData($navtexZones) {
 
 // Main execution
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
+debugLog("Processing request", array('type' => $type));
 
 if ($type === 'offshore') {
     $allForecasts = array();
+    $fetchResults = array();
     
     foreach ($OFFSHORE_URLS as $product => $url) {
+        debugLog("Fetching offshore product", array('product' => $product, 'url' => $url));
         $content = fetchUrl($url);
+        
+        $fetchResults[$product] = array(
+            'url' => $url,
+            'success' => $content !== null,
+            'content_length' => $content ? strlen($content) : 0
+        );
+        
         if ($content) {
             $zones = $ZONE_MAPPINGS[$product];
+            debugLog("Parsing product " . $product, array('zones' => $zones));
             $forecasts = parseOffshoreProduct($content, $zones, $ZONE_NAMES);
+            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
+        } else {
+            debugLog("WARNING: Failed to fetch product " . $product);
         }
     }
     
-    echo json_encode($allForecasts);
+    debugLog("All offshore data fetched", array(
+        'total_forecasts' => count($allForecasts),
+        'fetch_results' => $fetchResults
+    ));
+    
+    // If debug mode, include debug log in response
+    if ($DEBUG) {
+        echo json_encode(array(
+            'debug' => $debugLog,
+            'data' => $allForecasts
+        ));
+    } else {
+        echo json_encode($allForecasts);
+    }
     
 } elseif ($type === 'navtex') {
+    debugLog("Generating NAVTEX data");
     $navtexData = generateNavtexData($NAVTEX_ZONES);
-    echo json_encode($navtexData);
+    debugLog("NAVTEX data generated", array('count' => count($navtexData)));
+    
+    if ($DEBUG) {
+        echo json_encode(array(
+            'debug' => $debugLog,
+            'data' => $navtexData
+        ));
+    } else {
+        echo json_encode($navtexData);
+    }
     
 } else {
+    debugLog("ERROR: Invalid type requested", $type);
     echo json_encode(array('error' => 'Invalid type'));
 }

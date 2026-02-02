@@ -27,36 +27,56 @@
         }
 
         .header {
-            background: rgba(0, 0, 0, 0.4);
-            padding: 10px 20px;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 12px 24px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            border-bottom: 2px solid #0f3460;
+            border-bottom: 3px solid #e94560;
             flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .header-title {
             display: flex;
-            align-items: center;
-            gap: 15px;
+            flex-direction: column;
+            gap: 2px;
         }
 
         .header h1 {
-            font-size: 22px;
-            color: #e94560;
+            font-size: 24px;
+            color: #fff;
             margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header h1::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #e94560;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .header p {
             color: #94a3b8;
-            font-size: 12px;
+            font-size: 13px;
             margin: 0;
+            padding-left: 18px;
         }
 
         .controls {
             display: flex;
-            gap: 15px;
+            gap: 12px;
             align-items: center;
         }
 
@@ -67,40 +87,104 @@
         }
 
         .control-group label {
-            font-size: 12px;
+            font-size: 11px;
             color: #94a3b8;
             text-transform: uppercase;
             letter-spacing: 1px;
-        }
-
-        .control-group select {
-            padding: 8px 15px;
-            font-size: 13px;
-            background: #0f3460;
-            color: #fff;
-            border: 1px solid #1a1a4e;
-            border-radius: 6px;
-            cursor: pointer;
-            min-width: 160px;
-        }
-
-        .control-group select:hover {
-            background: #1a1a4e;
-        }
-
-        #refreshBtn {
-            padding: 8px 18px;
-            background: #e94560;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 13px;
             font-weight: 500;
         }
 
+        .control-group select {
+            padding: 10px 16px;
+            font-size: 13px;
+            background: #0f3460;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 170px;
+            transition: all 0.2s ease;
+        }
+
+        .control-group select option {
+            background: #0f3460;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .control-group select:hover {
+            background: #16213e;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #refreshBtn {
+            background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
         #refreshBtn:hover {
-            background: #d63050;
+            background: linear-gradient(135deg, #ff5a75 0%, #e94560 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(233,69,96,0.4);
+        }
+
+        #shareBtn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #shareBtn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        #aboutBtn {
+            background: transparent;
+            color: #94a3b8;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #aboutBtn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
         }
 
         .main-container {
@@ -116,100 +200,121 @@
         }
 
         .sidebar {
-            width: 480px;
+            width: 520px;
+            min-width: 520px;
             display: flex;
             flex-direction: column;
-            background: #16213e;
-            border-left: 2px solid #0f3460;
+            background: linear-gradient(180deg, #16213e 0%, #1a1a2e 100%);
+            border-left: 3px solid #0f3460;
             overflow: hidden;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
         }
 
         .forecast-panel {
             flex: 1;
-            background: rgba(255, 255, 255, 0.97);
-            padding: 20px;
+            background: #fff;
+            padding: 24px;
             color: #1a1a2e;
             overflow-y: auto;
         }
 
         .forecast-panel h3 {
             color: #0f3460;
-            margin-bottom: 12px;
-            font-size: 18px;
-            border-bottom: 2px solid #e94560;
-            padding-bottom: 8px;
+            margin-bottom: 16px;
+            font-size: 16px;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
+            font-weight: 700;
         }
 
         .forecast-header {
             font-size: 20px;
-            font-weight: bold;
+            font-weight: 700;
             color: #0f3460;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            line-height: 1.3;
         }
 
         .forecast-time {
             color: #64748b;
             font-size: 14px;
-            margin-bottom: 12px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: inline-block;
         }
 
         .warning-banner {
-            padding: 12px 15px;
-            border-radius: 6px;
-            font-weight: bold;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 700;
             text-align: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #000;
             font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
         .day-forecast {
             background: #f8fafc;
-            border-radius: 6px;
-            padding: 12px 15px;
-            margin-bottom: 10px;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
             border-left: 4px solid #0f3460;
+            transition: all 0.2s ease;
+        }
+
+        .day-forecast:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
         }
 
         .day-name {
-            font-weight: bold;
+            font-weight: 700;
             color: #fff;
-            background: #0f3460;
-            padding: 5px 12px;
-            border-radius: 4px;
-            margin-bottom: 8px;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 6px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
             display: inline-block;
             font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .forecast-detail {
             display: block;
             font-size: 15px;
             color: #475569;
-            margin-top: 6px;
-            line-height: 1.4;
+            margin-top: 8px;
+            line-height: 1.5;
         }
 
         .forecast-detail strong {
             color: #0f3460;
+            font-weight: 600;
         }
 
         .chart-panel {
-            height: 280px;
-            background: rgba(255, 255, 255, 0.97);
-            padding: 15px;
-            border-top: 2px solid #0f3460;
+            height: 320px;
+            background: #fff;
+            padding: 20px;
+            border-top: 3px solid #0f3460;
             flex-shrink: 0;
         }
 
         .chart-panel h3 {
             color: #0f3460;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 14px;
             text-transform: uppercase;
             letter-spacing: 1px;
+            font-weight: 700;
         }
 
         .chart-container {
@@ -225,29 +330,36 @@
         .legend {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
-            padding: 8px 15px;
-            background: rgba(0, 0, 0, 0.3);
+            gap: 10px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(15,52,96,0.9) 0%, rgba(26,26,46,0.9) 100%);
             justify-content: center;
             flex-shrink: 0;
-            border-top: 1px solid #0f3460;
+            border-top: 2px solid #0f3460;
         }
 
         .legend-item {
             display: flex;
             align-items: center;
-            gap: 6px;
-            padding: 4px 10px;
+            gap: 8px;
+            padding: 6px 14px;
             background: rgba(255, 255, 255, 0.1);
-            border-radius: 15px;
-            font-size: 11px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.2);
         }
 
         .legend-color {
-            width: 14px;
-            height: 14px;
+            width: 16px;
+            height: 16px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .legend-color-none { background: #808080; }
@@ -258,35 +370,46 @@
         .legend-color-hurricane { background: #ff0000; }
 
         .leaflet-popup-content-wrapper {
-            background: #0f3460;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
             color: #fff;
-            border-radius: 8px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
         }
 
         .leaflet-popup-tip {
-            background: #0f3460;
+            background: #16213e;
         }
 
         .leaflet-popup-content {
-            margin: 10px 12px;
-            font-size: 13px;
+            margin: 14px 16px;
+            font-size: 14px;
         }
 
         .zone-popup-title {
-            font-weight: bold;
+            font-weight: 700;
             color: #e94560;
+            font-size: 15px;
+            margin-bottom: 4px;
         }
 
         .zone-popup-id {
             color: #94a3b8;
-            font-size: 11px;
+            font-size: 12px;
         }
 
         .no-data {
             text-align: center;
-            padding: 40px 20px;
+            padding: 50px 25px;
             color: #64748b;
             font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .no-data::before {
+            content: "📍";
+            display: block;
+            font-size: 32px;
+            margin-bottom: 12px;
         }
 
         .forecast-panel::-webkit-scrollbar {
@@ -313,31 +436,166 @@
             bottom: 20px;
             right: 20px;
             z-index: 1000;
-            background: #e94560;
+            background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
             color: #fff;
             border: none;
             border-radius: 50%;
-            width: 56px;
-            height: 56px;
+            width: 60px;
+            height: 60px;
             font-size: 24px;
             cursor: pointer;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            box-shadow: 0 6px 20px rgba(233,69,96,0.4);
+            transition: all 0.3s ease;
         }
 
         .mobile-toggle:hover {
-            background: #d63050;
+            background: linear-gradient(135deg, #ff5a75 0%, #e94560 100%);
+            transform: scale(1.05);
         }
 
         /* Mobile responsive styles */
         @media (max-width: 900px) {
             .header {
                 flex-direction: column;
-                gap: 10px;
-                padding: 10px 15px;
+                gap: 12px;
+                padding: 12px 16px;
             }
 
             .header-title {
                 text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h1::before {
+                display: none;
+            }
+
+            .header p {
+                font-size: 12px;
+                padding-left: 0;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .control-group label {
+                font-size: 10px;
+            }
+
+            .control-group select {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+
+            #shareBtn {
+                grid-column: 1;
+            }
+
+            #aboutBtn {
+                grid-column: 2;
+            }
+
+            #refreshBtn {
+                grid-column: 1 / -1;
+                background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #map {
+                flex: 1;
+                min-height: 45vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: 280px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(calc(100% - 50px));
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-left: none;
+                border-top: 3px solid #e94560;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .sidebar::before {
+                content: "";
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+                margin: 12px auto 8px;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                bottom: 70px;
+            }
+
+            .legend {
+                display: none;
+            }
+
+            /* Hide forecast text on mobile, only show chart */
+            .forecast-panel {
+                display: none;
+            }
+
+            .chart-panel {
+                flex: 1;
+                height: auto;
+                min-height: 200px;
+                padding: 16px 20px;
+                border-top: none;
+            }
+
+            .chart-panel h3 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .chart-container {
+                height: calc(100% - 30px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 12px;
+                gap: 10px;
             }
 
             .header h1 {
@@ -349,111 +607,181 @@
             }
 
             .controls {
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
-            }
-
-            .control-group {
-                flex-direction: column;
-                gap: 4px;
+                gap: 8px;
             }
 
             .control-group select {
-                min-width: 140px;
-                padding: 6px 10px;
-                font-size: 12px;
+                padding: 8px 10px;
+                font-size: 13px;
             }
 
-            .main-container {
-                flex-direction: column;
-            }
-
-            #map {
-                height: 50vh;
-                min-height: 300px;
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 10px 12px;
+                font-size: 11px;
             }
 
             .sidebar {
-                width: 100%;
-                height: 50vh;
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                right: 0;
-                transform: translateY(100%);
-                transition: transform 0.3s ease;
-                z-index: 999;
-                border-left: none;
-                border-top: 2px solid #0f3460;
-            }
-
-            .sidebar.open {
-                transform: translateY(0);
-            }
-
-            .mobile-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .legend {
-                flex-wrap: wrap;
-                padding: 6px 10px;
-                gap: 6px;
-            }
-
-            .legend-item {
-                font-size: 10px;
-                padding: 3px 6px;
-            }
-
-            .legend-color {
-                width: 12px;
-                height: 12px;
-            }
-
-            .forecast-panel {
-                padding: 15px;
-            }
-
-            .forecast-panel h3 {
-                font-size: 16px;
-            }
-
-            .forecast-header {
-                font-size: 18px;
-            }
-
-            .forecast-detail {
-                font-size: 14px;
+                height: 240px;
             }
 
             .chart-panel {
-                height: 200px;
+                min-height: 160px;
             }
         }
 
-        @media (max-width: 480px) {
-            .header h1 {
-                font-size: 16px;
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15,52,96,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #fff;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 3px solid #e94560;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(233,69,96,0.8);
+        }
+
+        .modal-body {
+            padding: 30px;
+            color: #333;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .modal-body h3 {
+            color: #0f3460;
+            margin: 28px 0 14px 0;
+            font-size: 17px;
+            font-weight: 700;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 8px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin: 12px 0;
+        }
+
+        .modal-body ul {
+            margin: 14px 0;
+            padding-left: 28px;
+        }
+
+        .modal-body li {
+            margin: 10px 0;
+        }
+
+        .modal-body code {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            color: #e94560;
+        }
+
+        .modal-body .warning-example {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 3px;
+            font-weight: 600;
+        }
+
+        .warning-example-none { background: #808080; color: #fff; }
+        .warning-example-gale { background: #ffff00; color: #000; }
+        .warning-example-gale-possible { background: #ffc0cb; color: #000; }
+        .warning-example-storm { background: #ffa500; color: #fff; }
+        .warning-example-storm-possible { background: #800080; color: #fff; }
+        .warning-example-hurricane { background: #ff0000; color: #fff; }
+
+        .modal-body a {
+            color: #e94560;
+            font-weight: 500;
+        }
+
+        .modal-body a:hover {
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .modal {
+                max-height: 90vh;
             }
 
-            .controls {
-                width: 100%;
+            .modal-header {
+                padding: 15px 20px;
             }
 
-            .control-group {
-                flex: 1;
-            }
-
-            .control-group select {
-                width: 100%;
-            }
-
-            #refreshBtn {
-                width: 100%;
+            .modal-body {
+                padding: 20px;
             }
         }
     </style>
@@ -481,6 +809,7 @@
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
             <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
+            <button type="button" id="aboutBtn">About</button>
         </div>
     </div>
 
@@ -500,7 +829,7 @@
         </div>
     </div>
 
-    <button class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+    <button type="button" class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
         &#9650;
     </button>
 
@@ -528,6 +857,59 @@
         <div class="legend-item">
             <span class="legend-color legend-color-hurricane"></span>
             <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- About/Help Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>About OPC Weather Map</h2>
+                <button type="button" class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Overview</h3>
+                <p>This application visualizes marine weather forecasts from the NOAA Ocean Prediction Center (OPC). It displays offshore forecasts and NAVTEX broadcasts for the Western Atlantic and Eastern Pacific regions.</p>
+
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Select a Region:</strong> Use the "Region" dropdown to switch between Western Atlantic and Eastern Pacific.</li>
+                    <li><strong>Choose a Product:</strong> Select "Offshore Forecasts" for detailed marine forecasts or "NAVTEX" for navigational warnings.</li>
+                    <li><strong>View Forecasts:</strong> Click on any colored zone on the map to view the detailed forecast in the side panel.</li>
+                    <li><strong>Refresh Data:</strong> Click "Refresh Data" to fetch the latest forecasts from the server.</li>
+                    <li><strong>Share:</strong> Click "Share Link" to copy a URL that links directly to your current view and selected zone.</li>
+                </ul>
+
+                <h3>Warning Colors</h3>
+                <p>Zones are colored based on active warnings:</p>
+                <ul>
+                    <li><span class="warning-example warning-example-none">Gray</span> - No active warning</li>
+                    <li><span class="warning-example warning-example-gale">Yellow</span> - Gale Warning (34-47 kt winds)</li>
+                    <li><span class="warning-example warning-example-gale-possible">Pink</span> - Gale Force Possible</li>
+                    <li><span class="warning-example warning-example-storm">Orange</span> - Storm Warning (48-63 kt winds)</li>
+                    <li><span class="warning-example warning-example-storm-possible">Purple</span> - Storm Force Possible</li>
+                    <li><span class="warning-example warning-example-hurricane">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
+                </ul>
+
+                <h3>Bookmarkable URLs</h3>
+                <p>You can bookmark or share specific views using URL parameters:</p>
+                <ul>
+                    <li><code>?zone=ANZ800</code> - Open with a specific zone selected</li>
+                    <li><code>?product=navtex</code> - Open the NAVTEX product</li>
+                    <li><code>?basin=pacific</code> - Open the Pacific region</li>
+                </ul>
+                <p>Example: <code>?zone=ANZ800&amp;product=offshore&amp;basin=atlantic</code></p>
+
+                <h3>Data Sources</h3>
+                <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a>:</p>
+                <ul>
+                    <li>Offshore Forecasts: High Seas and Offshore Waters forecasts</li>
+                    <li>NAVTEX: Navigation and meteorological warnings for coastal waters</li>
+                </ul>
+
+                <h3>Mobile Usage</h3>
+                <p>On mobile devices, use the floating button at the bottom right to toggle the forecast panel. The panel will automatically open when you tap on a zone.</p>
+            </div>
         </div>
     </div>
 
@@ -1011,6 +1393,25 @@
                     // Fallback for older browsers
                     prompt('Copy this link:', window.location.href);
                 });
+            });
+            
+            // About modal
+            var aboutModal = document.getElementById('aboutModal');
+            document.getElementById('aboutBtn').addEventListener('click', function() {
+                aboutModal.classList.add('open');
+            });
+            document.getElementById('modalClose').addEventListener('click', function() {
+                aboutModal.classList.remove('open');
+            });
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
+                    aboutModal.classList.remove('open');
+                }
             });
             
             // Mobile toggle

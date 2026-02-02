@@ -41,23 +41,34 @@ python3 serve.py      # Start server
 
 Navigate to http://localhost:8000
 
-## API Endpoint
+## API Endpoints
 
-`api.php` provides live forecast data:
+`api.php` serves forecast data from static JSON files:
 
 - `api.php?type=offshore` - Offshore forecasts (37 zones)
 - `api.php?type=navtex` - NAVTEX forecasts (14 zones)
+- `api.php?type=diagnose` - Check data file status
+- Add `&debug=1` to any request for detailed debug info
 
-Data is fetched directly from NWS servers on each request.
+Data is loaded from `off.json` and `nav.json` files, which are updated by running `scraper.py`.
 
 ## Data Sources
 
-Live forecast data from NOAA Ocean Prediction Center:
+Forecast data from NOAA Ocean Prediction Center:
 
-- NT1: https://ocean.weather.gov/shtml/NFDOFFNT1.txt
-- NT2: https://ocean.weather.gov/shtml/NFDOFFNT2.txt
-- PZ5: https://ocean.weather.gov/shtml/NFDOFFPZ5.txt
-- PZ6: https://ocean.weather.gov/shtml/NFDOFFPZ6.txt
+**Offshore Forecasts:**
+- NT1: https://ocean.weather.gov/shtml/NFDOFFNT1.txt (Georges Bank, Gulf of Maine)
+- NT2: https://ocean.weather.gov/shtml/NFDOFFNT2.txt (Mid-Atlantic, South Atlantic)
+- PZ5: https://ocean.weather.gov/shtml/NFDOFFPZ5.txt (Northern California)
+- PZ6: https://ocean.weather.gov/shtml/NFDOFFPZ6.txt (Southern California, Pacific Northwest)
+
+**NAVTEX Forecasts:**
+- N01: https://ocean.weather.gov/shtml/NFDOFFN01.php (New England)
+- N02: https://ocean.weather.gov/shtml/NFDOFFN02.php (Mid-Atlantic)
+- N03: https://ocean.weather.gov/shtml/NFDOFFN03.php (South Atlantic)
+- N07: https://ocean.weather.gov/shtml/NFDOFFN07.php (Southern California)
+- N08: https://ocean.weather.gov/shtml/NFDOFFN08.php (Northern California)
+- N09: https://ocean.weather.gov/shtml/NFDOFFN09.php (Pacific Northwest)
 
 ## File Structure
 
@@ -75,13 +86,63 @@ Live forecast data from NOAA Ocean Prediction Center:
 └── README.md
 ```
 
-## Automation
+## Automation with Cron
 
-Set up a cron job to keep data current:
+The scraper should be run periodically to keep forecast data current. NWS updates forecasts approximately every 6 hours.
+
+### Setting Up the Cron Job
+
+1. **Open crontab editor:**
+   ```bash
+   crontab -e
+   ```
+
+2. **Add one of these schedules:**
+
+   ```bash
+   # Every 6 hours (recommended - matches NWS update schedule)
+   0 */6 * * * cd /path/to/project && /usr/bin/python3 scraper.py >> /path/to/project/scraper.log 2>&1
+
+   # Every 3 hours (more frequent updates)
+   0 */3 * * * cd /path/to/project && /usr/bin/python3 scraper.py >> /path/to/project/scraper.log 2>&1
+
+   # Twice daily (6 AM and 6 PM)
+   0 6,18 * * * cd /path/to/project && /usr/bin/python3 scraper.py >> /path/to/project/scraper.log 2>&1
+   ```
+
+3. **Save and exit** (`:wq` in vim, or Ctrl+X in nano)
+
+### Important Notes
+
+- **Use full paths**: Cron runs with minimal environment, so use full paths for `python3` (find with `which python3`)
+- **Logging**: The `>> scraper.log 2>&1` part saves output for debugging
+- **Permissions**: Ensure the script has execute permissions: `chmod +x scraper.py`
+
+### Verify Cron is Running
 
 ```bash
-# Run every 6 hours
-0 */6 * * * cd /path/to/project && python3 scraper.py
+# List your cron jobs
+crontab -l
+
+# Check cron logs (Linux)
+grep CRON /var/log/syslog
+
+# Check scraper output
+tail -f /path/to/project/scraper.log
+```
+
+### Remote Server Setup
+
+If your web server can't access external URLs (firewall), run the scraper elsewhere and sync files:
+
+```bash
+# On local machine with internet access
+0 */6 * * * cd /path/to/project && python3 scraper.py && scp off.json nav.json user@server:/var/www/html/project/
+```
+
+Or use rsync for more reliability:
+```bash
+0 */6 * * * cd /path/to/project && python3 scraper.py && rsync -avz off.json nav.json user@server:/var/www/html/project/
 ```
 
 ## Requirements

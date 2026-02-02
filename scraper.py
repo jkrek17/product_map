@@ -6,7 +6,6 @@ Fetches and parses NWS/OPC offshore forecast products
 
 import json
 import re
-import random
 from datetime import datetime
 from urllib.request import urlopen, Request
 from urllib.error import URLError, HTTPError
@@ -18,6 +17,26 @@ OFFSHORE_URLS = {
     "NT2": "https://ocean.weather.gov/shtml/NFDOFFNT2.txt",
     "PZ5": "https://ocean.weather.gov/shtml/NFDOFFPZ5.txt",
     "PZ6": "https://ocean.weather.gov/shtml/NFDOFFPZ6.txt"
+}
+
+# NAVTEX forecast URLs from OPC
+NAVTEX_URLS = {
+    "N01": "https://ocean.weather.gov/shtml/NFDOFFN01.php",
+    "N02": "https://ocean.weather.gov/shtml/NFDOFFN02.php",
+    "N03": "https://ocean.weather.gov/shtml/NFDOFFN03.php",
+    "N07": "https://ocean.weather.gov/shtml/NFDOFFN07.php",
+    "N08": "https://ocean.weather.gov/shtml/NFDOFFN08.php",
+    "N09": "https://ocean.weather.gov/shtml/NFDOFFN09.php"
+}
+
+# NAVTEX zone mappings by product
+NAVTEX_ZONE_MAPPINGS = {
+    "N01": ["OFFN01_NE", "OFFN01_SE", "OFFN01_SW"],
+    "N02": ["OFFN02_NE", "OFFN02_E", "OFFN02_SE"],
+    "N03": ["OFFN03_NE", "OFFN03_SE"],
+    "N07": ["OFFN07_NW", "OFFN07_SW"],
+    "N08": ["OFFN08_NW", "OFFN08_SW"],
+    "N09": ["OFFN09_NW", "OFFN09_SW"]
 }
 
 # Zone mappings by product
@@ -243,44 +262,126 @@ def scrape_forecasts():
     return all_forecasts
 
 
-def generate_navtex_data():
-    """Generate NAVTEX data matching navtex.geojson zones"""
-    # For now, generate sample data since we don't have live NAVTEX URLs
-    warnings = ["NONE", "NONE", "GALE WARNING", "NONE", "STORM WARNING", "NONE",
-                "NONE", "GALE FORCE POSSIBLE", "NONE", "NONE", "NONE", "NONE", "NONE", "NONE"]
-    days = ["Today", "Tonight", "Tomorrow", "Tomorrow Night", "Day 3"]
-    directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"]
-
+def parse_navtex_product(content, zones):
+    """Parse NAVTEX forecast product"""
     results = []
 
-    for i, (zone_id, zone_name) in enumerate(NAVTEX_ZONES.items()):
-        warning = warnings[i % len(warnings)]
+    if not content:
+        return results
 
-        forecasts = []
-        for day in days:
-            base_wind = random.randint(10, 30)
-            wind_high = base_wind + random.randint(5, 15)
-            sea_low = random.randint(3, 8)
-            sea_high = sea_low + random.randint(2, 6)
-            dir1 = random.choice(directions)
-            dir2 = random.choice(directions)
+    # Extract issue time
+    issue_time = ""
+    time_match = re.search(r'(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})', content, re.IGNORECASE)
+    if time_match:
+        issue_time = time_match.group(1).strip()
 
-            forecasts.append({
-                "Day": day,
-                "Winds": "{} to {} {} to {} kt".format(dir1, dir2, base_wind, wind_high),
-                "Seas": "Seas {} to {} ft".format(sea_low, sea_high),
+    # Process each zone
+    for zone in zones:
+        zone_data = {
+            "zone": zone,
+            "name": NAVTEX_ZONES.get(zone, zone),
+            "time": issue_time or datetime.now().strftime("%I:%M %p %Z %a %b %d %Y"),
+            "warning": "NONE",
+            "forecast": []
+        }
+
+        # Find zone section - NAVTEX uses zone names, look for the zone pattern
+        # Try to find content between zone markers
+        zone_pattern = r'{}[^A-Z]*[-\d]*[-\s\n]+(.*?)(?={}|\$\$|OFFN\d|$)'.format(
+            re.escape(zone),
+            "|".join(re.escape(z) for z in zones if z != zone)
+        )
+        zone_match = re.search(zone_pattern, content, re.IGNORECASE | re.DOTALL)
+
+        if zone_match:
+            zone_text = zone_match.group(1)
+
+            # Extract warning from zone text
+            zone_data["warning"] = extract_warning(zone_text)
+
+            # Parse forecast periods
+            period_pattern = r'\.([A-Z][A-Z\s]*?)\.\.\.([^$]*?)(?=\.[A-Z][A-Z\s]*?\.\.\.|$)'
+            period_matches = re.findall(period_pattern, zone_text, re.DOTALL)
+
+            for period_name, period_text in period_matches:
+                period_name = period_name.strip()
+
+                valid_starts = ["TODAY", "TONIGHT", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN", "REST"]
+                is_valid = any(period_name.upper().startswith(v) for v in valid_starts)
+
+                if not is_valid:
+                    continue
+
+                clean_text = re.sub(r'\s+', ' ', period_text).strip()
+
+                # Extract wind info
+                wind_match = re.search(r'([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:WINDS?\s+)?(\d+)\s*(?:TO\s*)?(\d+)?\s*KT)', clean_text, re.IGNORECASE)
+                if wind_match:
+                    winds = wind_match.group(0).strip()
+                else:
+                    wind_match2 = re.search(r'(\d+)\s*(?:TO\s*)?(\d+)?\s*KT', clean_text, re.IGNORECASE)
+                    winds = clean_text[:60] if not wind_match2 else "Winds {} KT".format(wind_match2.group(0))
+
+                # Extract seas info
+                seas_match = re.search(r'(?:SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s*(?:TO\s*)?(\d+)?\s*FT', clean_text, re.IGNORECASE)
+                if seas_match:
+                    low = seas_match.group(1)
+                    high = seas_match.group(2) or low
+                    seas = "Seas {} to {} ft".format(low, high)
+                else:
+                    seas_match2 = re.search(r'(\d+)\s+TO\s+(\d+)\s*FT', clean_text, re.IGNORECASE)
+                    if seas_match2:
+                        seas = "Seas {} to {} ft".format(seas_match2.group(1), seas_match2.group(2))
+                    else:
+                        seas = "Seas variable"
+
+                # Extract weather conditions
+                weather = "N/A"
+                weather_patterns = ['rain', 'snow', 'fog', 'tstms', 'thunderstorms', 'showers', 'freezing spray', 'drizzle']
+                for wp in weather_patterns:
+                    if wp in clean_text.lower():
+                        weather_match = re.search(r'((?:chance\s+of\s+|isolated\s+|scattered\s+)?(?:{})[^.]*?)(?:\.|$)'.format(wp), clean_text, re.IGNORECASE)
+                        if weather_match:
+                            weather = weather_match.group(1).strip().capitalize()
+                            break
+
+                zone_data["forecast"].append({
+                    "Day": period_name.title(),
+                    "Winds": winds.capitalize() if winds else "Variable winds",
+                    "Seas": seas,
+                    "Weather": weather
+                })
+
+        # Ensure at least some forecast data exists
+        if not zone_data["forecast"]:
+            zone_data["forecast"].append({
+                "Day": "Today",
+                "Winds": "Data unavailable",
+                "Seas": "Data unavailable",
                 "Weather": "N/A"
             })
 
-        results.append({
-            "zone": zone_id,
-            "name": zone_name,
-            "time": datetime.now().strftime("%I:%M %p %Z %a %b %d %Y"),
-            "warning": warning,
-            "forecast": forecasts
-        })
+        results.append(zone_data)
 
     return results
+
+
+def scrape_navtex_forecasts():
+    """Scrape NAVTEX forecasts from OPC"""
+    all_forecasts = []
+
+    for product, url in NAVTEX_URLS.items():
+        print("Fetching NAVTEX {}...".format(product))
+        content = fetch_text(url)
+        if content:
+            zones = NAVTEX_ZONE_MAPPINGS.get(product, [])
+            forecasts = parse_navtex_product(content, zones)
+            all_forecasts.extend(forecasts)
+            print("  Parsed {} zones".format(len(forecasts)))
+        else:
+            print("  Failed to fetch")
+
+    return all_forecasts
 
 
 def main():
@@ -295,23 +396,32 @@ def main():
     offshore_data = scrape_forecasts()
 
     if not offshore_data:
-        print("Warning: No live data retrieved")
+        print("Warning: No offshore data retrieved")
 
-    # Generate NAVTEX data
-    print("\nGenerating NAVTEX data...")
-    navtex_data = generate_navtex_data()
+    # Scrape live NAVTEX data
+    print("\nFetching live NAVTEX forecast data...")
+    navtex_data = scrape_navtex_forecasts()
+
+    if not navtex_data:
+        print("Warning: No NAVTEX data retrieved")
 
     # Save JSON files
     off_path = os.path.join(script_dir, 'off.json')
     nav_path = os.path.join(script_dir, 'nav.json')
 
-    with open(off_path, 'w') as f:
-        json.dump(offshore_data, f, indent=2)
-    print("\nSaved: {} ({} zones)".format(off_path, len(offshore_data)))
+    if offshore_data:
+        with open(off_path, 'w') as f:
+            json.dump(offshore_data, f, indent=2)
+        print("\nSaved: {} ({} zones)".format(off_path, len(offshore_data)))
+    else:
+        print("\nSkipped off.json - no data")
 
-    with open(nav_path, 'w') as f:
-        json.dump(navtex_data, f, indent=2)
-    print("Saved: {} ({} zones)".format(nav_path, len(navtex_data)))
+    if navtex_data:
+        with open(nav_path, 'w') as f:
+            json.dump(navtex_data, f, indent=2)
+        print("Saved: {} ({} zones)".format(nav_path, len(navtex_data)))
+    else:
+        print("Skipped nav.json - no data")
 
     print("\nDone!")
 

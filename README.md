@@ -20,7 +20,7 @@ Interactive marine weather forecast visualization from the NOAA Ocean Prediction
 
 ## Pages
 
-- `index.php` - Main offshore and NAVTEX forecast map
+- `index.html` - Main offshore and NAVTEX forecast map
 - `navy.html` - Navy OPAREA forecasts
 
 ## API Endpoints
@@ -53,7 +53,7 @@ Forecast data from NOAA Ocean Prediction Center:
 ## File Structure
 
 ```
-├── index.php               # Main application
+├── index.html              # Main application
 ├── api.php                 # API endpoint for forecast data
 ├── getText.php             # Text data fetcher
 ├── navy.html               # Navy forecasts page

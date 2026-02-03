@@ -1,0 +1,1435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OPC Weather Map</title>
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #e94560;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #fff;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header h1::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #e94560;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .control-group select {
+            padding: 10px 16px;
+            font-size: 13px;
+            background: #0f3460;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 170px;
+            transition: all 0.2s ease;
+        }
+
+        .control-group select option {
+            background: #0f3460;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .control-group select:hover {
+            background: #16213e;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #e94560;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #refreshBtn {
+            background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #refreshBtn:hover {
+            background: linear-gradient(135deg, #ff5a75 0%, #e94560 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(233,69,96,0.4);
+        }
+
+        #shareBtn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #shareBtn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        #aboutBtn {
+            background: transparent;
+            color: #94a3b8;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #aboutBtn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar {
+            width: 520px;
+            min-width: 520px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #16213e 0%, #1a1a2e 100%);
+            border-left: 3px solid #0f3460;
+            overflow: hidden;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+        }
+
+        .forecast-panel {
+            flex: 1;
+            background: #fff;
+            padding: 24px;
+            color: #1a1a2e;
+            overflow-y: auto;
+        }
+
+        .forecast-panel h3 {
+            color: #0f3460;
+            margin-bottom: 16px;
+            font-size: 16px;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .forecast-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0f3460;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .forecast-time {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .warning-banner {
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .day-forecast {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid #0f3460;
+            transition: all 0.2s ease;
+        }
+
+        .day-forecast:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .day-name {
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            padding: 6px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: inline-block;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .forecast-detail {
+            display: block;
+            font-size: 15px;
+            color: #475569;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .forecast-detail strong {
+            color: #0f3460;
+            font-weight: 600;
+        }
+
+        .chart-panel {
+            height: 320px;
+            background: #fff;
+            padding: 20px;
+            border-top: 3px solid #0f3460;
+            flex-shrink: 0;
+        }
+
+        .chart-panel h3 {
+            color: #0f3460;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            height: calc(100% - 25px);
+            position: relative;
+        }
+
+        #weatherChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(15,52,96,0.9) 0%, rgba(26,26,46,0.9) 100%);
+            justify-content: center;
+            flex-shrink: 0;
+            border-top: 2px solid #0f3460;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .legend-color-none { background: #808080; }
+        .legend-color-gale { background: #ffff00; }
+        .legend-color-gale-possible { background: #ffc0cb; }
+        .legend-color-storm { background: #ffa500; }
+        .legend-color-storm-possible { background: #800080; }
+        .legend-color-hurricane { background: #ff0000; }
+
+        .leaflet-popup-content-wrapper {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .leaflet-popup-tip {
+            background: #16213e;
+        }
+
+        .leaflet-popup-content {
+            margin: 14px 16px;
+            font-size: 14px;
+        }
+
+        .zone-popup-title {
+            font-weight: 700;
+            color: #e94560;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .zone-popup-id {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px 25px;
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .no-data::before {
+            content: "📍";
+            display: block;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .forecast-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Mobile toggle button */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(233,69,96,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: linear-gradient(135deg, #ff5a75 0%, #e94560 100%);
+            transform: scale(1.05);
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 900px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .header-title {
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h1::before {
+                display: none;
+            }
+
+            .header p {
+                font-size: 12px;
+                padding-left: 0;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .control-group label {
+                font-size: 10px;
+            }
+
+            .control-group select {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+
+            #shareBtn {
+                grid-column: 1;
+            }
+
+            #aboutBtn {
+                grid-column: 2;
+            }
+
+            #refreshBtn {
+                grid-column: 1 / -1;
+                background: linear-gradient(135deg, #e94560 0%, #d63050 100%);
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #map {
+                flex: 1;
+                min-height: 45vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: 280px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(calc(100% - 50px));
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-left: none;
+                border-top: 3px solid #e94560;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .sidebar::before {
+                content: "";
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+                margin: 12px auto 8px;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                bottom: 70px;
+            }
+
+            .legend {
+                display: none;
+            }
+
+            /* Hide forecast text on mobile, only show chart */
+            .forecast-panel {
+                display: none;
+            }
+
+            .chart-panel {
+                flex: 1;
+                height: auto;
+                min-height: 200px;
+                padding: 16px 20px;
+                border-top: none;
+            }
+
+            .chart-panel h3 {
+                font-size: 14px;
+                margin-bottom: 12px;
+            }
+
+            .chart-container {
+                height: calc(100% - 30px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header p {
+                font-size: 11px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            .control-group select {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            #refreshBtn, #shareBtn, #aboutBtn {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+
+            .sidebar {
+                height: 240px;
+            }
+
+            .chart-panel {
+                min-height: 160px;
+            }
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15,52,96,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
+            color: #fff;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 3px solid #e94560;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(233,69,96,0.8);
+        }
+
+        .modal-body {
+            padding: 30px;
+            color: #333;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .modal-body h3 {
+            color: #0f3460;
+            margin: 28px 0 14px 0;
+            font-size: 17px;
+            font-weight: 700;
+            border-bottom: 3px solid #e94560;
+            padding-bottom: 8px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin: 12px 0;
+        }
+
+        .modal-body ul {
+            margin: 14px 0;
+            padding-left: 28px;
+        }
+
+        .modal-body li {
+            margin: 10px 0;
+        }
+
+        .modal-body code {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            color: #e94560;
+        }
+
+        .modal-body .warning-example {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            margin: 3px;
+            font-weight: 600;
+        }
+
+        .warning-example-none { background: #808080; color: #fff; }
+        .warning-example-gale { background: #ffff00; color: #000; }
+        .warning-example-gale-possible { background: #ffc0cb; color: #000; }
+        .warning-example-storm { background: #ffa500; color: #fff; }
+        .warning-example-storm-possible { background: #800080; color: #fff; }
+        .warning-example-hurricane { background: #ff0000; color: #fff; }
+
+        .modal-body a {
+            color: #e94560;
+            font-weight: 500;
+        }
+
+        .modal-body a:hover {
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .modal {
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 15px 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>OPC Weather Map</h1>
+            <p>Ocean Prediction Center - Marine Forecast Visualization</p>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="basin">Region:</label>
+                <select id="basin">
+                    <option value="atlantic">Western Atlantic</option>
+                    <option value="pacific">Eastern Pacific</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="product">Product:</label>
+                <select id="product">
+                    <option value="offshore">Offshore Forecasts</option>
+                    <option value="navtex">NAVTEX</option>
+                </select>
+            </div>
+            <button type="button" id="refreshBtn">Refresh Data</button>
+            <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
+            <button type="button" id="aboutBtn">About</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="forecast-panel" id="forecastPanel">
+                <h3>Forecast Details</h3>
+                <div class="no-data">Click on a zone to view forecast details</div>
+            </div>
+            <div class="chart-panel">
+                <h3>Wind &amp; Wave Forecast</h3>
+                <div class="chart-container">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+        &#9650;
+    </button>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color legend-color-none"></span>
+            <span>No Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale"></span>
+            <span>Gale Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale-possible"></span>
+            <span>Gale Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm"></span>
+            <span>Storm Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm-possible"></span>
+            <span>Storm Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-hurricane"></span>
+            <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- About/Help Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>About OPC Weather Map</h2>
+                <button type="button" class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Overview</h3>
+                <p>This application visualizes marine weather forecasts from the NOAA Ocean Prediction Center (OPC). It displays offshore forecasts and NAVTEX broadcasts for the Western Atlantic and Eastern Pacific regions.</p>
+
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Select a Region:</strong> Use the "Region" dropdown to switch between Western Atlantic and Eastern Pacific.</li>
+                    <li><strong>Choose a Product:</strong> Select "Offshore Forecasts" for detailed marine forecasts or "NAVTEX" for navigational warnings.</li>
+                    <li><strong>View Forecasts:</strong> Click on any colored zone on the map to view the detailed forecast in the side panel.</li>
+                    <li><strong>Refresh Data:</strong> Click "Refresh Data" to fetch the latest forecasts from the server.</li>
+                    <li><strong>Share:</strong> Click "Share Link" to copy a URL that links directly to your current view and selected zone.</li>
+                </ul>
+
+                <h3>Warning Colors</h3>
+                <p>Zones are colored based on active warnings:</p>
+                <ul>
+                    <li><span class="warning-example warning-example-none">Gray</span> - No active warning</li>
+                    <li><span class="warning-example warning-example-gale">Yellow</span> - Gale Warning (34-47 kt winds)</li>
+                    <li><span class="warning-example warning-example-gale-possible">Pink</span> - Gale Force Possible</li>
+                    <li><span class="warning-example warning-example-storm">Orange</span> - Storm Warning (48-63 kt winds)</li>
+                    <li><span class="warning-example warning-example-storm-possible">Purple</span> - Storm Force Possible</li>
+                    <li><span class="warning-example warning-example-hurricane">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
+                </ul>
+
+                <h3>Bookmarkable URLs</h3>
+                <p>You can bookmark or share specific views using URL parameters:</p>
+                <ul>
+                    <li><code>?zone=ANZ800</code> - Open with a specific zone selected</li>
+                    <li><code>?product=navtex</code> - Open the NAVTEX product</li>
+                    <li><code>?basin=pacific</code> - Open the Pacific region</li>
+                </ul>
+                <p>Example: <code>?zone=ANZ800&amp;product=offshore&amp;basin=atlantic</code></p>
+
+                <h3>Data Sources</h3>
+                <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a>:</p>
+                <ul>
+                    <li>Offshore Forecasts: High Seas and Offshore Waters forecasts</li>
+                    <li>NAVTEX: Navigation and meteorological warnings for coastal waters</li>
+                </ul>
+
+                <h3>Mobile Usage</h3>
+                <p>On mobile devices, use the floating button at the bottom right to toggle the forecast panel. The panel will automatically open when you tap on a zone.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/leaflet/leaflet.js"></script>
+    <script src="libs/chartjs/chart.min.js"></script>
+
+    <script>
+        var map;
+        var zonesLayer;
+        var forecastData = [];
+        var weatherChart = null;
+        var currentZone = null;
+        var pendingZoneFromUrl = null;
+
+        // URL Parameter functions for bookmarkable URLs
+        function getUrlParams() {
+            var params = {};
+            var search = window.location.search.substring(1);
+            if (search) {
+                search.split('&').forEach(function(part) {
+                    var pair = part.split('=');
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+                });
+            }
+            return params;
+        }
+
+        function updateUrl(zone, product, basin) {
+            var params = [];
+            if (zone) params.push('zone=' + encodeURIComponent(zone));
+            if (product) params.push('product=' + encodeURIComponent(product));
+            if (basin) params.push('basin=' + encodeURIComponent(basin));
+            
+            var newUrl = window.location.pathname + (params.length ? '?' + params.join('&') : '');
+            history.replaceState({ zone: zone, product: product, basin: basin }, '', newUrl);
+        }
+
+        // Mobile sidebar toggle
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            sidebar.classList.toggle('open');
+            toggle.innerHTML = sidebar.classList.contains('open') ? '&#9660;' : '&#9650;';
+        }
+
+        var warningColors = {
+            'HURRICANE FORCE WIND WARNING': '#ff0000',
+            'HURRICANE WARNING': '#ff0000',
+            'STORM WARNING': '#ffa500',
+            'TROPICAL STORM WARNING': '#ffa500',
+            'GALE WARNING': '#ffff00',
+            'GALE FORCE POSSIBLE': '#ffc0cb',
+            'STORM FORCE POSSIBLE': '#800080',
+            'TROPICAL STORM CONDITIONS POSSIBLE': '#800080',
+            'NONE': '#808080'
+        };
+
+        function getWarningColor(warning) {
+            if (!warning) return '#808080';
+            var upperWarning = warning.toUpperCase();
+            for (var key in warningColors) {
+                if (warningColors.hasOwnProperty(key) && upperWarning.indexOf(key) !== -1) {
+                    return warningColors[key];
+                }
+            }
+            return '#808080';
+        }
+
+        function initMap() {
+            map = L.map('map', { zoomControl: true }).setView([38, -72], 5);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13,
+                attribution: 'Esri Ocean Basemap'
+            }).addTo(map);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13
+            }).addTo(map);
+
+            zonesLayer = L.layerGroup().addTo(map);
+
+            L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
+        }
+
+        function loadZones() {
+            var product = document.getElementById('product').value;
+            var geoJsonFile = (product === 'navtex') ? 'navtex.geojson' : 'offshores.geojson';
+            var idField = 'ID';
+
+            console.log('[DEBUG] loadZones() called');
+            console.log('[DEBUG] Product:', product);
+            console.log('[DEBUG] GeoJSON file:', geoJsonFile);
+            console.log('[DEBUG] ID field:', idField);
+            console.log('[DEBUG] Current forecastData length:', forecastData ? forecastData.length : 'null/undefined');
+
+            fetch(geoJsonFile)
+                .then(function(response) {
+                    console.log('[DEBUG] GeoJSON response status:', response.status);
+                    return response.text();
+                })
+                .then(function(text) {
+                    console.log('[DEBUG] GeoJSON text length:', text ? text.length : 0);
+                    console.log('[DEBUG] GeoJSON text starts with "var ":', text.indexOf('var ') === 0);
+                    if (text.indexOf('var ') === 0) {
+                        console.log('[DEBUG] Attempting to extract JSON from JavaScript variable...');
+                        var match = text.match(/var\s+\w+\s*=\s*(\{[\s\S]*\})/);
+                        if (match) {
+                            text = match[1];
+                            console.log('[DEBUG] Extracted JSON length:', text.length);
+                        } else {
+                            console.warn('[DEBUG] WARNING: Could not extract JSON from JavaScript variable');
+                        }
+                    }
+                    var geoJson = JSON.parse(text);
+                    console.log('[DEBUG] GeoJSON parsed successfully');
+                    console.log('[DEBUG] GeoJSON type:', geoJson.type);
+                    console.log('[DEBUG] GeoJSON features count:', geoJson.features ? geoJson.features.length : 'N/A');
+                    if (geoJson.features && geoJson.features.length > 0) {
+                        console.log('[DEBUG] First feature properties:', JSON.stringify(geoJson.features[0].properties));
+                        console.log('[DEBUG] All zone IDs in GeoJSON:', geoJson.features.map(function(f) { return f.properties.ID || f.properties.Name; }).join(', '));
+                    }
+                    displayZones(geoJson, idField);
+                })
+                .catch(function(error) {
+                    console.error('[DEBUG] Error loading zones:', error);
+                    console.error('[DEBUG] Error message:', error.message);
+                    console.error('[DEBUG] Error stack:', error.stack);
+                });
+        }
+
+        function displayZones(geoJson, idField) {
+            console.log('[DEBUG] displayZones() called');
+            console.log('[DEBUG] forecastData available:', forecastData ? forecastData.length + ' items' : 'null/undefined');
+            zonesLayer.clearLayers();
+
+            var matchedZones = [];
+            var unmatchedZones = [];
+
+            L.geoJSON(geoJson, {
+                style: function(feature) {
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var forecast = forecastData.find(function(f) {
+                        return f.zone === zoneId || f.zone === feature.properties.Name || f.name === feature.properties.Name;
+                    });
+                    var warning = forecast ? forecast.warning : 'NONE';
+                    
+                    // Track matched/unmatched for debugging
+                    if (forecast) {
+                        matchedZones.push({zoneId: zoneId, forecastZone: forecast.zone, warning: warning});
+                    } else {
+                        unmatchedZones.push({zoneId: zoneId, name: feature.properties.Name});
+                    }
+                    
+                    return {
+                        fillColor: getWarningColor(warning),
+                        weight: 1.5,
+                        opacity: 1,
+                        color: '#1a1a2e',
+                        fillOpacity: 0.55
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var zoneName = feature.properties.Name || feature.properties.name || zoneId;
+
+                    layer.bindPopup(
+                        '<div class="zone-popup-title">' + zoneName + '</div>' +
+                        '<div class="zone-popup-id">Zone: ' + zoneId + '</div>'
+                    );
+
+                    layer.on({
+                        mouseover: function(e) {
+                            e.target.setStyle({ weight: 3, color: '#e94560', fillOpacity: 0.75 });
+                            e.target.bringToFront();
+                        },
+                        mouseout: function(e) {
+                            var forecast = forecastData.find(function(f) {
+                                return f.zone === zoneId || f.zone === feature.properties.Name;
+                            });
+                            var warning = forecast ? forecast.warning : 'NONE';
+                            e.target.setStyle({
+                                fillColor: getWarningColor(warning),
+                                weight: 1.5,
+                                opacity: 1,
+                                color: '#1a1a2e',
+                                fillOpacity: 0.55
+                            });
+                        },
+                        click: function() { showForecast(zoneId, zoneName); }
+                    });
+                }
+            }).addTo(zonesLayer);
+            
+            // Log zone matching results
+            console.log('[DEBUG] Zone matching complete');
+            console.log('[DEBUG] Matched zones (' + matchedZones.length + '):', matchedZones.slice(0, 5), '...');
+            console.log('[DEBUG] Unmatched zones (' + unmatchedZones.length + '):', unmatchedZones.slice(0, 5), '...');
+            if (unmatchedZones.length > 0 && forecastData && forecastData.length > 0) {
+                console.log('[DEBUG] Sample forecast zone IDs:', forecastData.slice(0, 5).map(function(f) { return f.zone; }));
+                console.warn('[DEBUG] WARNING: Some zones have no forecast data!');
+            }
+            
+            // Handle pending zone from URL
+            if (pendingZoneFromUrl) {
+                console.log('[DEBUG] Showing pending zone from URL:', pendingZoneFromUrl);
+                var zoneToShow = pendingZoneFromUrl;
+                pendingZoneFromUrl = null;
+                
+                // Find the zone name from forecastData
+                var forecast = forecastData.find(function(f) { return f.zone === zoneToShow; });
+                var zoneName = forecast ? (forecast.name || zoneToShow) : zoneToShow;
+                showForecast(zoneToShow, zoneName);
+            }
+        }
+
+        function loadForecastData() {
+            var product = document.getElementById('product').value;
+            var apiUrl = 'api.php?type=' + product;
+
+            console.log('[DEBUG] loadForecastData() called');
+            console.log('[DEBUG] Product type:', product);
+            console.log('[DEBUG] API URL:', apiUrl);
+
+            // Show loading state
+            document.getElementById('forecastPanel').innerHTML =
+                '<h3>Forecast Details</h3><div class="no-data">Loading live data from NWS...</div>';
+
+            console.log('[DEBUG] Fetching from API...');
+            fetch(apiUrl)
+                .then(function(response) {
+                    console.log('[DEBUG] API Response status:', response.status);
+                    console.log('[DEBUG] API Response ok:', response.ok);
+                    console.log('[DEBUG] API Response headers:', JSON.stringify([...response.headers.entries()]));
+                    if (response.ok) return response.json();
+                    throw new Error('Failed to load - HTTP ' + response.status);
+                })
+                .then(function(data) {
+                    console.log('[DEBUG] API returned data successfully');
+                    console.log('[DEBUG] Data type:', typeof data);
+                    console.log('[DEBUG] Data is array:', Array.isArray(data));
+                    console.log('[DEBUG] Data length:', data ? data.length : 'null/undefined');
+                    if (data && data.length > 0) {
+                        console.log('[DEBUG] First item sample:', JSON.stringify(data[0], null, 2));
+                        console.log('[DEBUG] All zone IDs:', data.map(function(d) { return d.zone; }).join(', '));
+                    } else {
+                        console.warn('[DEBUG] WARNING: Data is empty or null!');
+                    }
+                    forecastData = data;
+                    console.log('[DEBUG] Calling loadZones()...');
+                    loadZones();
+                    document.getElementById('forecastPanel').innerHTML =
+                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
+                })
+                .catch(function(error) {
+                    console.error('[DEBUG] Error loading forecast data from API:', error);
+                    console.error('[DEBUG] Error message:', error.message);
+                    console.error('[DEBUG] Error stack:', error.stack);
+                    // Fallback to static JSON files
+                    var jsonFile = (product === 'navtex') ? 'navtex-forecasts.json' : 'offshore-forecasts.json';
+                    console.log('[DEBUG] Falling back to static JSON file:', jsonFile);
+                    fetch(jsonFile)
+                        .then(function(r) {
+                            console.log('[DEBUG] Static JSON response status:', r.status);
+                            return r.json();
+                        })
+                        .then(function(data) {
+                            console.log('[DEBUG] Static JSON loaded successfully');
+                            console.log('[DEBUG] Static data length:', data ? data.length : 'null/undefined');
+                            if (data && data.length > 0) {
+                                console.log('[DEBUG] Static data first item:', JSON.stringify(data[0], null, 2));
+                            }
+                            forecastData = data;
+                            loadZones();
+                        })
+                        .catch(function(staticError) {
+                            console.error('[DEBUG] Error loading static JSON:', staticError);
+                            forecastData = [];
+                            loadZones();
+                        });
+                    document.getElementById('forecastPanel').innerHTML =
+                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
+                });
+        }
+
+        function showForecast(zoneId, zoneName) {
+            console.log('[DEBUG] showForecast() called');
+            console.log('[DEBUG] Looking for zoneId:', zoneId, 'zoneName:', zoneName);
+            console.log('[DEBUG] forecastData has', forecastData ? forecastData.length : 0, 'items');
+            
+            // Store current zone and update URL
+            currentZone = zoneId;
+            var product = document.getElementById('product').value;
+            var basin = document.getElementById('basin').value;
+            updateUrl(zoneId, product, basin);
+            
+            // Open sidebar on mobile
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            if (window.innerWidth <= 900 && !sidebar.classList.contains('open')) {
+                sidebar.classList.add('open');
+                toggle.innerHTML = '&#9660;';
+            }
+            
+            var panel = document.getElementById('forecastPanel');
+            var forecast = forecastData.find(function(f) {
+                return f.zone === zoneId || f.zone === zoneName || f.name === zoneName;
+            });
+
+            if (!forecast) {
+                console.warn('[DEBUG] No forecast found for zone:', zoneId, zoneName);
+                console.log('[DEBUG] Available zones in forecastData:', forecastData ? forecastData.map(function(f) { return f.zone; }).join(', ') : 'none');
+                panel.innerHTML = '<h3>Forecast Details</h3><div class="no-data">No forecast data for ' + zoneName + '</div>';
+                return;
+            }
+            
+            console.log('[DEBUG] Forecast found:', forecast.zone, '- Warning:', forecast.warning);
+
+            var warningColor = getWarningColor(forecast.warning);
+            var textColor = (warningColor === '#ffff00' || warningColor === '#ffc0cb') ? '#000' : '#fff';
+
+            var html = '<h3>Forecast Details</h3>' +
+                '<div class="forecast-header">' + (forecast.name || zoneName) + '</div>' +
+                '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
+
+            if (forecast.warning && forecast.warning !== 'NONE') {
+                html += '<div class="warning-banner" style="background:' + warningColor + ';color:' + textColor + ';">' + forecast.warning + '</div>';
+            }
+
+            if (forecast.forecast && forecast.forecast.length > 0) {
+                forecast.forecast.forEach(function(day) {
+                    html += '<div class="day-forecast">' +
+                        '<span class="day-name">' + day.Day + '</span>' +
+                        '<span class="forecast-detail"><strong>Winds:</strong> ' + day.Winds + '</span>' +
+                        '<span class="forecast-detail"><strong>Seas:</strong> ' + day.Seas + '</span>';
+                    if (day.Weather && day.Weather !== 'N/A') {
+                        html += '<span class="forecast-detail"><strong>Weather:</strong> ' + day.Weather + '</span>';
+                    }
+                    html += '</div>';
+                });
+            }
+
+            panel.innerHTML = html;
+            updateChart(forecast);
+        }
+
+        function updateChart(forecast) {
+            var ctx = document.getElementById('weatherChart').getContext('2d');
+            if (weatherChart) weatherChart.destroy();
+            if (!forecast.forecast || forecast.forecast.length === 0) return;
+
+            var labels = [], windSpeeds = [], waveHeights = [];
+
+            forecast.forecast.forEach(function(day) {
+                labels.push(day.Day);
+                var windMatch = day.Winds.match(/(\d+)/g);
+                windSpeeds.push(windMatch ? Math.max.apply(null, windMatch.map(Number)) : 0);
+                var waveMatch = day.Seas.match(/(\d+)/g);
+                waveHeights.push(waveMatch ? Math.max.apply(null, waveMatch.map(Number)) : 0);
+            });
+
+            weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        { label: 'Wind (kt)', data: windSpeeds, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.15)', yAxisID: 'y', tension: 0.3, fill: true },
+                        { label: 'Waves (ft)', data: waveHeights, borderColor: '#e94560', backgroundColor: 'rgba(233,69,96,0.15)', yAxisID: 'y1', tension: 0.3, fill: true }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: { legend: { position: 'top', labels: { usePointStyle: true, padding: 10, font: { size: 11 } } } },
+                    scales: {
+                        y: { type: 'linear', position: 'left', title: { display: true, text: 'Wind (kt)', font: { size: 10 } }, beginAtZero: true },
+                        y1: { type: 'linear', position: 'right', title: { display: true, text: 'Waves (ft)', font: { size: 10 } }, beginAtZero: true, grid: { drawOnChartArea: false } }
+                    }
+                }
+            });
+        }
+
+        function changeBasin() {
+            var basin = document.getElementById('basin').value;
+            if (basin === 'atlantic') map.flyTo([38, -72], 5);
+            else if (basin === 'pacific') map.flyTo([38, -125], 5);
+            
+            // Update URL with new basin
+            updateUrl(currentZone, document.getElementById('product').value, basin);
+            loadForecastData();
+        }
+
+        function refreshData() {
+            console.log('[DEBUG] refreshData() called');
+            var btn = document.getElementById('refreshBtn');
+            btn.textContent = 'Fetching...';
+            btn.disabled = true;
+
+            var product = document.getElementById('product').value;
+            var apiUrl = 'api.php?type=' + product + '&t=' + Date.now();
+            console.log('[DEBUG] Refresh API URL:', apiUrl);
+
+            fetch(apiUrl)
+                .then(function(response) {
+                    console.log('[DEBUG] Refresh response status:', response.status);
+                    if (response.ok) return response.json();
+                    throw new Error('Failed to load - HTTP ' + response.status);
+                })
+                .then(function(data) {
+                    console.log('[DEBUG] Refresh data received');
+                    console.log('[DEBUG] Refresh data length:', data ? data.length : 'null/undefined');
+                    if (data && data.length > 0) {
+                        console.log('[DEBUG] Refresh first item:', JSON.stringify(data[0], null, 2));
+                    }
+                    forecastData = data;
+                    loadZones();
+                    btn.textContent = 'Refresh Data';
+                    btn.disabled = false;
+                })
+                .catch(function(error) {
+                    console.error('[DEBUG] Error refreshing data:', error);
+                    console.error('[DEBUG] Refresh error message:', error.message);
+                    btn.textContent = 'Refresh Data';
+                    btn.disabled = false;
+                    alert('Failed to fetch live data. Please try again.');
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('='.repeat(60));
+            console.log('[DEBUG] OPC Weather Map initializing...');
+            console.log('[DEBUG] Open browser console (F12) to see debug messages');
+            console.log('[DEBUG] Add ?debug=1 to API URL for server-side debugging');
+            console.log('[DEBUG] Bookmarkable URLs: ?zone=ANZ800&product=offshore&basin=atlantic');
+            console.log('='.repeat(60));
+            
+            // Parse URL parameters
+            var params = getUrlParams();
+            console.log('[DEBUG] URL parameters:', JSON.stringify(params));
+            
+            // Set product and basin from URL if provided
+            if (params.product && (params.product === 'offshore' || params.product === 'navtex')) {
+                document.getElementById('product').value = params.product;
+            }
+            if (params.basin && (params.basin === 'atlantic' || params.basin === 'pacific')) {
+                document.getElementById('basin').value = params.basin;
+            }
+            
+            // Store zone to show after data loads
+            if (params.zone) {
+                pendingZoneFromUrl = params.zone;
+                console.log('[DEBUG] Will show zone from URL after data loads:', pendingZoneFromUrl);
+            }
+            
+            initMap();
+            
+            // Set initial map view based on basin
+            var basin = document.getElementById('basin').value;
+            if (basin === 'pacific') {
+                map.setView([38, -125], 5);
+            }
+            
+            document.getElementById('basin').addEventListener('change', changeBasin);
+            document.getElementById('product').addEventListener('change', function() {
+                currentZone = null;
+                pendingZoneFromUrl = null;
+                updateUrl(null, document.getElementById('product').value, document.getElementById('basin').value);
+                loadForecastData();
+            });
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            
+            // Share button - copy URL to clipboard
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                var btn = this;
+                var originalText = btn.textContent;
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    btn.textContent = 'Link Copied!';
+                    setTimeout(function() { btn.textContent = originalText; }, 2000);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    prompt('Copy this link:', window.location.href);
+                });
+            });
+            
+            // About modal
+            var aboutModal = document.getElementById('aboutModal');
+            document.getElementById('aboutBtn').addEventListener('click', function() {
+                aboutModal.classList.add('open');
+            });
+            document.getElementById('modalClose').addEventListener('click', function() {
+                aboutModal.classList.remove('open');
+            });
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+            
+            // Mobile toggle
+            document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', function(event) {
+                if (event.state) {
+                    if (event.state.product) document.getElementById('product').value = event.state.product;
+                    if (event.state.basin) document.getElementById('basin').value = event.state.basin;
+                    pendingZoneFromUrl = event.state.zone || null;
+                    loadForecastData();
+                }
+            });
+            
+            console.log('[DEBUG] Map initialized, loading forecast data...');
+            loadForecastData();
+        });
+    </script>
+</body>
+</html>

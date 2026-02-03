@@ -14,7 +14,8 @@ var pendingZoneFromUrl = null;
 var forecastUrls = {
     WRKFWNX01: '/shtml/WRKFWNX01.txt',
     WRKFWNX02: '/shtml/WRKFWNX02.txt',
-    WRKFWNXPT: '/shtml/WRKFWNXPT.txt'
+    WRKFWNXPT: '/shtml/WRKFWNXPT.txt',
+    FWCSD: 'https://ocean.weather.gov/.cj/.monitor/.navy/gfe_navy_zones_fwcsc1_onp_latest.txt'
 };
 
 // Parsed forecast data storage
@@ -214,17 +215,17 @@ var opareaConfig = {
     },
     pacific: {
         socal: {
-            pil: 'WRKFWNXPT',
-            startPattern: 'SOCAL OPAREA:',
+            pil: 'FWCSD',
+            startPattern: 'SOCAL',
             endPattern: 'POINT MUGU'
         },
         point_mugu: {
-            pil: 'WRKFWNXPT',
-            startPattern: 'POINT MUGU OPAREA:',
+            pil: 'FWCSD',
+            startPattern: 'POINT MUGU',
             endPattern: 'SAN CLEMENTE'
         },
         san_clemente: {
-            pil: 'WRKFWNXPT',
+            pil: 'FWCSD',
             startPattern: 'SAN CLEMENTE',
             endPattern: 'FORECASTER'
         }
@@ -320,9 +321,9 @@ function parseOparea(text, startPattern, endPattern) {
 function getFullTextLinksHtml() {
     return '<div class="full-text-links">' +
         '<h4>Full Forecast Products</h4>' +
-        '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
-        '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
-        '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
+        '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01 (Atlantic South)</a>' +
+        '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02 (Atlantic North)</a>' +
+        '<a href="' + forecastUrls.FWCSD + '" target="_blank">FWC San Diego (Pacific)</a>' +
         '</div>';
 }
 

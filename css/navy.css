@@ -440,9 +440,11 @@ body {
     box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
-.legend-color-none { background: #205295; }
+.legend-color-none { background: #808080; }
 .legend-color-gale { background: #ffff00; }
+.legend-color-gale-possible { background: #ffc0cb; }
 .legend-color-storm { background: #ffa500; }
+.legend-color-storm-possible { background: #800080; }
 .legend-color-hurricane { background: #ff0000; }
 
 /* Leaflet Popup Overrides */

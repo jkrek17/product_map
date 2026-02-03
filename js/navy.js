@@ -27,13 +27,17 @@ var parsedForecasts = {
 // Raw text storage for each product
 var rawTexts = {};
 
-// Warning colors
+// Warning colors (matching index.html)
 var warningColors = {
     'HURRICANE FORCE WIND WARNING': '#ff0000',
     'HURRICANE WARNING': '#ff0000',
     'STORM WARNING': '#ffa500',
+    'TROPICAL STORM WARNING': '#ffa500',
     'GALE WARNING': '#ffff00',
-    'NONE': '#205295'
+    'GALE FORCE POSSIBLE': '#ffc0cb',
+    'STORM FORCE POSSIBLE': '#800080',
+    'TROPICAL STORM CONDITIONS POSSIBLE': '#800080',
+    'NONE': '#808080'
 };
 
 // Navy GeoJSON data (loaded dynamically)

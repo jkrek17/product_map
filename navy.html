@@ -152,6 +152,23 @@
             box-shadow: 0 4px 12px rgba(44,116,179,0.4);
         }
 
+        #shareBtn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #shareBtn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
         #backBtn {
             background: rgba(255,255,255,0.1);
             color: #fff;
@@ -555,21 +572,25 @@
                 font-size: 14px;
             }
 
-            #refreshBtn, #backBtn, #aboutBtn {
+            #refreshBtn, #shareBtn, #backBtn, #aboutBtn {
                 padding: 12px 16px;
                 font-size: 12px;
             }
 
-            #backBtn {
+            #shareBtn {
                 grid-column: 1;
             }
 
-            #aboutBtn {
+            #backBtn {
                 grid-column: 2;
             }
 
+            #aboutBtn {
+                grid-column: 1;
+            }
+
             #refreshBtn {
-                grid-column: 1 / -1;
+                grid-column: 2 / -1;
             }
 
             .main-container {
@@ -655,7 +676,7 @@
                 font-size: 13px;
             }
 
-            #refreshBtn, #backBtn, #aboutBtn {
+            #refreshBtn, #shareBtn, #backBtn, #aboutBtn {
                 padding: 10px 12px;
                 font-size: 11px;
             }
@@ -850,6 +871,7 @@
                 </select>
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
+            <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
             <a href="index.html" id="backBtn">&#8592; OPC Map</a>
             <button type="button" id="aboutBtn">About</button>
         </div>
@@ -935,8 +957,17 @@
                 <ul>
                     <li><strong>Select a Region:</strong> Use the dropdown to switch between Atlantic and Pacific.</li>
                     <li><strong>View Forecasts:</strong> Click on any zone on the map to view the detailed forecast.</li>
+                    <li><strong>Share:</strong> Click "Share Link" to copy a URL that links directly to your current view and selected zone.</li>
                     <li><strong>Full Products:</strong> Links to complete forecast text files are available in the sidebar.</li>
                 </ul>
+
+                <h3>Bookmarkable URLs</h3>
+                <p>You can bookmark or share specific views using URL parameters:</p>
+                <ul>
+                    <li><code>?zone=vacapes</code> - Open with a specific OPAREA selected</li>
+                    <li><code>?basin=pacific</code> - Open the Pacific region</li>
+                </ul>
+                <p>Example: <code>?zone=vacapes&amp;basin=atlantic</code></p>
 
                 <h3>Data Sources</h3>
                 <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a> in coordination with Fleet Weather Centers.</p>
@@ -953,6 +984,29 @@
         var forecastData = {};
         var weatherChart = null;
         var currentZone = null;
+        var pendingZoneFromUrl = null;
+
+        // URL Parameter functions for bookmarkable URLs
+        function getUrlParams() {
+            var params = {};
+            var search = window.location.search.substring(1);
+            if (search) {
+                search.split('&').forEach(function(part) {
+                    var pair = part.split('=');
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '');
+                });
+            }
+            return params;
+        }
+
+        function updateUrl(zone, basin) {
+            var params = [];
+            if (zone) params.push('zone=' + encodeURIComponent(zone));
+            if (basin) params.push('basin=' + encodeURIComponent(basin));
+            
+            var newUrl = window.location.pathname + (params.length ? '?' + params.join('&') : '');
+            history.replaceState({ zone: zone, basin: basin }, '', newUrl);
+        }
 
         // Navy OPAREA definitions with approximate coordinates
         var navyOpareas = {
@@ -1271,6 +1325,10 @@
 
         function showForecast(zoneId, zoneName) {
             currentZone = zoneId;
+            
+            // Update URL with current zone
+            var basin = document.getElementById('basin').value;
+            updateUrl(zoneId, basin);
 
             // Open sidebar on mobile
             var sidebar = document.getElementById('sidebar');
@@ -1421,6 +1479,11 @@
             var center = basin === 'atlantic' ? [33, -75] : [33, -119];
             var zoom = basin === 'atlantic' ? 5 : 6;
             map.flyTo(center, zoom);
+            
+            // Update URL with new basin
+            currentZone = null;
+            updateUrl(null, basin);
+            
             loadZones();
 
             // Reset forecast panel
@@ -1456,12 +1519,57 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // Parse URL parameters
+            var params = getUrlParams();
+            console.log('[DEBUG] URL parameters:', JSON.stringify(params));
+            
+            // Set basin from URL if provided
+            if (params.basin && (params.basin === 'atlantic' || params.basin === 'pacific')) {
+                document.getElementById('basin').value = params.basin;
+            }
+            
+            // Store zone to show after data loads
+            if (params.zone) {
+                pendingZoneFromUrl = params.zone;
+                console.log('[DEBUG] Will show zone from URL after load:', pendingZoneFromUrl);
+            }
+            
             initMap();
+            
+            // Set initial map view based on basin
+            var basin = document.getElementById('basin').value;
+            if (basin === 'pacific') {
+                map.setView([33, -119], 6);
+            }
+            
             loadZones();
+            
+            // Show pending zone from URL
+            if (pendingZoneFromUrl) {
+                var opareas = navyOpareas[basin];
+                if (opareas && opareas[pendingZoneFromUrl]) {
+                    var zone = opareas[pendingZoneFromUrl];
+                    showForecast(pendingZoneFromUrl, zone.longName);
+                }
+                pendingZoneFromUrl = null;
+            }
 
             document.getElementById('basin').addEventListener('change', changeBasin);
             document.getElementById('refreshBtn').addEventListener('click', refreshData);
             document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+            
+            // Share button - copy URL to clipboard
+            document.getElementById('shareBtn').addEventListener('click', function() {
+                var btn = this;
+                var originalText = btn.textContent;
+                navigator.clipboard.writeText(window.location.href).then(function() {
+                    btn.textContent = 'Link Copied!';
+                    setTimeout(function() { btn.textContent = originalText; }, 2000);
+                }).catch(function() {
+                    // Fallback for older browsers
+                    prompt('Copy this link:', window.location.href);
+                });
+            });
 
             // About modal
             var aboutModal = document.getElementById('aboutModal');
@@ -1479,6 +1587,22 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
                     aboutModal.classList.remove('open');
+                }
+            });
+            
+            // Handle browser back/forward
+            window.addEventListener('popstate', function(event) {
+                if (event.state) {
+                    if (event.state.basin) {
+                        document.getElementById('basin').value = event.state.basin;
+                        changeBasin();
+                    }
+                    if (event.state.zone) {
+                        var opareas = navyOpareas[document.getElementById('basin').value];
+                        if (opareas && opareas[event.state.zone]) {
+                            showForecast(event.state.zone, opareas[event.state.zone].longName);
+                        }
+                    }
                 }
             });
         });

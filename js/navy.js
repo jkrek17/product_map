@@ -43,6 +43,9 @@ var warningColors = {
 // Navy GeoJSON data (loaded dynamically)
 var navyGeoJson = null;
 
+// Currently selected polygon for highlighting
+var selectedPolygon = null;
+
 // OPAREA parsing configuration
 var opareaConfig = {
     atlantic: {
@@ -373,6 +376,7 @@ function loadZones() {
     var basin = document.getElementById('basin').value;
 
     zonesLayer.clearLayers();
+    selectedPolygon = null; // Reset selection when reloading zones
 
     if (!navyGeoJson) {
         console.warn('[DEBUG] Navy GeoJSON not loaded yet');
@@ -414,10 +418,16 @@ function loadZones() {
 
         polygon.on({
             mouseover: function(e) {
-                e.target.setStyle({ weight: 3, color: '#2c74b3', fillOpacity: 0.75 });
+                if (selectedPolygon !== e.target) {
+                    e.target.setStyle({ weight: 3, color: '#2c74b3', fillOpacity: 0.75 });
+                }
                 e.target.bringToFront();
             },
             mouseout: function(e) {
+                // Don't reset style if this is the selected polygon
+                if (selectedPolygon === e.target) {
+                    return;
+                }
                 var zId = e.target.zoneId;
                 var currentBasin = document.getElementById('basin').value;
                 var fcst = parsedForecasts[currentBasin];
@@ -431,6 +441,30 @@ function loadZones() {
                 });
             },
             click: function(e) {
+                // Reset previous selection
+                if (selectedPolygon && selectedPolygon !== e.target) {
+                    var prevZoneId = selectedPolygon.zoneId;
+                    var currentBasin = document.getElementById('basin').value;
+                    var fcst = parsedForecasts[currentBasin];
+                    var w = fcst && fcst[prevZoneId] ? fcst[prevZoneId].warning : 'NONE';
+                    selectedPolygon.setStyle({
+                        fillColor: getWarningColor(w),
+                        weight: 2,
+                        opacity: 1,
+                        color: '#0a2647',
+                        fillOpacity: 0.55
+                    });
+                }
+                
+                // Highlight selected polygon with red outline
+                selectedPolygon = e.target;
+                e.target.setStyle({
+                    weight: 4,
+                    color: '#ff0000',
+                    fillOpacity: 0.75
+                });
+                e.target.bringToFront();
+                
                 showForecast(e.target.zoneId, e.target.longName);
             }
         });

@@ -492,13 +492,222 @@ function showForecast(zoneId, zoneName) {
         '<p>' + forecast.synopsis + '</p>' +
         '</div>';
 
+    // Format forecast as table
     html += '<div class="forecast-content">' +
         '<h4>Area Forecast</h4>' +
-        '<pre>' + forecast.forecast + '</pre>' +
+        formatForecastTable(forecast.forecast) +
         '</div>';
 
     panel.innerHTML = html;
     updateChart(forecast);
+}
+
+// Format forecast text as a nice table
+function formatForecastTable(text) {
+    if (!text) return '<p>No forecast data</p>';
+    
+    var rows = [];
+    
+    // Parse each section
+    var sections = {
+        hazards: '',
+        sky: [],
+        visibility: [],
+        wind: [],
+        seas: [],
+        temps: '',
+        sst: '',
+        outlookWind: [],
+        outlookSeas: [],
+        comments: ''
+    };
+    
+    // Extract hazards (A section)
+    var hazardsMatch = text.match(/A\.\s*(?:NATIONAL WEATHER SERVICE\s*)?HAZARDS?[^:]*:([\s\S]*?)(?=\s*B\.\s|$)/i);
+    if (hazardsMatch) {
+        sections.hazards = hazardsMatch[1].replace(/\.\.\./g, '').trim();
+    }
+    
+    // Extract sky/weather (B section)
+    var skyMatch = text.match(/B\.\s*SKY[^:]*:([\s\S]*?)(?=\s*C\.\s|$)/i);
+    if (skyMatch) {
+        var skyPattern = /(\d{2}\/\d{2}Z):\s*([^,\n]+)/gi;
+        var match;
+        while ((match = skyPattern.exec(skyMatch[1])) !== null) {
+            sections.sky.push({ time: match[1], value: match[2].trim().replace(/[,.]$/, '') });
+        }
+    }
+    
+    // Extract visibility (C section)
+    var visMatch = text.match(/C\.\s*V[SI][SB][BY][^:]*:([\s\S]*?)(?=\s*D\.\s|$)/i);
+    if (visMatch) {
+        var visPattern = /(\d{2}\/\d{2}Z):\s*([^,\n]+)/gi;
+        var match;
+        while ((match = visPattern.exec(visMatch[1])) !== null) {
+            sections.visibility.push({ time: match[1], value: match[2].trim().replace(/[,.]$/, '') });
+        }
+    }
+    
+    // Extract wind (D section)
+    var windMatch = text.match(/D\.\s*SURFACE WIND[^:]*:([\s\S]*?)(?=\s*E\.\s|$)/i);
+    if (windMatch) {
+        var windPattern = /(\d{2}\/\d{2}Z):\s*([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)(G\d+)?/gi;
+        var match;
+        while ((match = windPattern.exec(windMatch[1])) !== null) {
+            var gust = match[5] ? match[5] : '';
+            sections.wind.push({ 
+                time: match[1], 
+                dir: match[2], 
+                low: match[3], 
+                high: match[4],
+                gust: gust
+            });
+        }
+    }
+    
+    // Extract seas (E section)
+    var seasMatch = text.match(/E\.\s*COMBINED SEAS[^:]*:([\s\S]*?)(?=\s*F\.\s|$)/i);
+    if (seasMatch) {
+        var seasPattern = /(\d{2}\/\d{2}Z):\s*([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)/gi;
+        var match;
+        while ((match = seasPattern.exec(seasMatch[1])) !== null) {
+            sections.seas.push({ 
+                time: match[1], 
+                dir: match[2], 
+                low: match[3], 
+                high: match[4]
+            });
+        }
+    }
+    
+    // Extract temps (F section)
+    var tempsMatch = text.match(/F\.\s*MAX\/MIN TEMPS[^:]*:([\s\S]*?)(?=\s*G\.\s|$)/i);
+    if (tempsMatch) {
+        var tempVal = tempsMatch[1].match(/(\d+)\/(\d+)/);
+        if (tempVal) {
+            sections.temps = tempVal[1] + '°F / ' + tempVal[2] + '°F';
+        }
+    }
+    
+    // Extract SST (G section)
+    var sstMatch = text.match(/G\.\s*SST[^:]*:([\s\S]*?)(?=\s*H\.\s|$)/i);
+    if (sstMatch) {
+        var sstVal = sstMatch[1].match(/(\d+)/);
+        if (sstVal) {
+            sections.sst = sstVal[1] + '°F';
+        }
+    }
+    
+    // Extract outlook winds (H.1 section)
+    var outlookMatch = text.match(/H\.\s*OUTLOOK[^:]*:([\s\S]*?)(?=\s*I\.\s|$)/i);
+    if (outlookMatch) {
+        var outlookWindMatch = outlookMatch[1].match(/\(1\)\s*WINDS[^:]*:([\s\S]*?)(?=\s*\(2\)|$)/i);
+        if (outlookWindMatch) {
+            var windPattern = /(\d{2}\/\d{2}Z):\s*([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)(G\d+)?/gi;
+            var match;
+            while ((match = windPattern.exec(outlookWindMatch[1])) !== null) {
+                var gust = match[5] ? match[5] : '';
+                sections.outlookWind.push({ 
+                    time: match[1], 
+                    dir: match[2], 
+                    low: match[3], 
+                    high: match[4],
+                    gust: gust
+                });
+            }
+        }
+        
+        var outlookSeasMatch = outlookMatch[1].match(/\(2\)\s*COMBINED SEAS[^:]*:([\s\S]*?)(?=\s*\(\d\)|I\.\s|$)/i);
+        if (outlookSeasMatch) {
+            var seasPattern = /(\d{2}\/\d{2}Z):\s*([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)/gi;
+            var match;
+            while ((match = seasPattern.exec(outlookSeasMatch[1])) !== null) {
+                sections.outlookSeas.push({ 
+                    time: match[1], 
+                    dir: match[2], 
+                    low: match[3], 
+                    high: match[4]
+                });
+            }
+        }
+    }
+    
+    // Extract comments (I section)
+    var commentsMatch = text.match(/I\.\s*OTHER COMMENTS[^:]*:([\s\S]*?)$/i);
+    if (commentsMatch) {
+        sections.comments = commentsMatch[1].replace(/\(\d+\)/g, '•').trim();
+    }
+    
+    // Build HTML table
+    var html = '<div class="forecast-table-container">';
+    
+    // Hazards row
+    if (sections.hazards) {
+        html += '<div class="forecast-row hazards-row"><span class="row-label">Hazards:</span> ' + sections.hazards + '</div>';
+    }
+    
+    // 24-Hour Forecast Table
+    html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Sky</th><th>Wind (kt)</th><th>Seas (ft)</th></tr></thead><tbody>';
+    
+    // Combine all times
+    var allTimes = [];
+    sections.wind.forEach(function(w) { if (allTimes.indexOf(w.time) === -1) allTimes.push(w.time); });
+    sections.seas.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
+    sections.sky.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
+    allTimes.sort();
+    
+    allTimes.forEach(function(time) {
+        var sky = sections.sky.find(function(s) { return s.time === time; });
+        var wind = sections.wind.find(function(w) { return w.time === time; });
+        var seas = sections.seas.find(function(s) { return s.time === time; });
+        
+        var skyVal = sky ? sky.value : '-';
+        var windVal = wind ? wind.dir + ' ' + wind.low + '-' + wind.high + (wind.gust || '') : '-';
+        var seasVal = seas ? seas.dir + ' ' + seas.low + '-' + seas.high : '-';
+        
+        html += '<tr><td>' + time + '</td><td>' + skyVal + '</td><td>' + windVal + '</td><td>' + seasVal + '</td></tr>';
+    });
+    
+    html += '</tbody></table>';
+    
+    // Temps and SST
+    if (sections.temps || sections.sst) {
+        html += '<div class="forecast-row temps-row">';
+        if (sections.temps) html += '<span><strong>Max/Min Temp:</strong> ' + sections.temps + '</span>';
+        if (sections.sst) html += '<span style="margin-left:20px;"><strong>SST:</strong> ' + sections.sst + '</span>';
+        html += '</div>';
+    }
+    
+    // 48-Hour Outlook Table
+    if (sections.outlookWind.length > 0 || sections.outlookSeas.length > 0) {
+        html += '<h5 style="margin-top:15px;margin-bottom:5px;">48-Hour Outlook</h5>';
+        html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Wind (kt)</th><th>Seas (ft)</th></tr></thead><tbody>';
+        
+        var outlookTimes = [];
+        sections.outlookWind.forEach(function(w) { if (outlookTimes.indexOf(w.time) === -1) outlookTimes.push(w.time); });
+        sections.outlookSeas.forEach(function(s) { if (outlookTimes.indexOf(s.time) === -1) outlookTimes.push(s.time); });
+        outlookTimes.sort();
+        
+        outlookTimes.forEach(function(time) {
+            var wind = sections.outlookWind.find(function(w) { return w.time === time; });
+            var seas = sections.outlookSeas.find(function(s) { return s.time === time; });
+            
+            var windVal = wind ? wind.dir + ' ' + wind.low + '-' + wind.high + (wind.gust || '') : '-';
+            var seasVal = seas ? seas.dir + ' ' + seas.low + '-' + seas.high : '-';
+            
+            html += '<tr><td>' + time + '</td><td>' + windVal + '</td><td>' + seasVal + '</td></tr>';
+        });
+        
+        html += '</tbody></table>';
+    }
+    
+    // Comments
+    if (sections.comments) {
+        html += '<div class="forecast-row comments-row"><strong>Notes:</strong><br>' + sections.comments + '</div>';
+    }
+    
+    html += '</div>';
+    return html;
 }
 
 // Update wind/wave chart
@@ -536,7 +745,7 @@ function updateChart(forecast) {
         }
     }
 
-    // Extract seas section
+    // Extract seas section (E)
     var seasSectionMatch = text.match(/E\.\s*COMBINED SEAS[^:]*:([\s\S]*?)(?=\s*F\.\s|$)/i);
     if (seasSectionMatch) {
         var seasContent = seasSectionMatch[1];
@@ -548,10 +757,40 @@ function updateChart(forecast) {
             waveHeights.push(Math.max(seaLow, seaHigh));
         }
     }
+    
+    // Extract outlook section (H) for 48-hour data
+    var outlookMatch = text.match(/H\.\s*OUTLOOK[^:]*:([\s\S]*?)(?=\s*I\.\s|$)/i);
+    if (outlookMatch) {
+        // Outlook winds (H.1)
+        var outlookWindMatch = outlookMatch[1].match(/\(1\)\s*WINDS[^:]*:([\s\S]*?)(?=\s*\(2\)|$)/i);
+        if (outlookWindMatch) {
+            var windPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
+            var match;
+            while ((match = windPattern.exec(outlookWindMatch[1])) !== null) {
+                var day = match[1];
+                var hour = match[2];
+                var windLow = parseInt(match[3]);
+                var windHigh = parseInt(match[4]);
+                windSpeeds.push(Math.max(windLow, windHigh));
+                labels.push(day + '/' + hour + 'Z');
+            }
+        }
+        
+        // Outlook seas (H.2)
+        var outlookSeasMatch = outlookMatch[1].match(/\(2\)\s*COMBINED SEAS[^:]*:([\s\S]*?)(?=\s*\(\d\)|I\.\s|$)/i);
+        if (outlookSeasMatch) {
+            var seasPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
+            var match;
+            while ((match = seasPattern.exec(outlookSeasMatch[1])) !== null) {
+                var seaLow = parseInt(match[3]);
+                var seaHigh = parseInt(match[4]);
+                waveHeights.push(Math.max(seaLow, seaHigh));
+            }
+        }
+    }
 
     // Fallback: try generic patterns if Navy format didn't work
     if (windSpeeds.length === 0) {
-        // Try any "DD/HHZ: DIRECTION ## TO ##" pattern in the text
         var genericWindPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
         var match;
         while ((match = genericWindPattern.exec(text)) !== null) {
@@ -573,8 +812,8 @@ function updateChart(forecast) {
     while (windSpeeds.length < labels.length) windSpeeds.push(windSpeeds[windSpeeds.length - 1] || 0);
     while (waveHeights.length < labels.length) waveHeights.push(waveHeights[waveHeights.length - 1] || 0);
     
-    // Trim to label count (max 6 for readability)
-    var maxPoints = Math.min(labels.length, 6);
+    // Trim arrays to same length, max 8 for readability
+    var maxPoints = Math.min(labels.length, windSpeeds.length, 8);
     labels = labels.slice(0, maxPoints);
     windSpeeds = windSpeeds.slice(0, maxPoints);
     waveHeights = waveHeights.slice(0, maxPoints);
@@ -586,7 +825,7 @@ function updateChart(forecast) {
             datasets: [
                 {
                     label: 'Wind (kt)',
-                    data: windSpeeds.slice(0, 3),
+                    data: windSpeeds,
                     borderColor: '#2c74b3',
                     backgroundColor: 'rgba(44,116,179,0.15)',
                     yAxisID: 'y',
@@ -595,7 +834,7 @@ function updateChart(forecast) {
                 },
                 {
                     label: 'Waves (ft)',
-                    data: waveHeights.slice(0, 3),
+                    data: waveHeights,
                     borderColor: '#205295',
                     backgroundColor: 'rgba(32,82,149,0.15)',
                     yAxisID: 'y1',

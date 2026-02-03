@@ -335,6 +335,82 @@ body {
     margin: 0;
 }
 
+/* Forecast Table */
+.forecast-table-container {
+    font-size: 13px;
+    color: #475569;
+}
+
+.forecast-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 10px 0;
+    font-size: 12px;
+}
+
+.forecast-table th {
+    background: #0a2647;
+    color: #fff;
+    padding: 8px 10px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.forecast-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid #e2e8f0;
+    vertical-align: top;
+}
+
+.forecast-table tr:nth-child(even) {
+    background: #f1f5f9;
+}
+
+.forecast-table tr:hover {
+    background: #e2e8f0;
+}
+
+.forecast-row {
+    padding: 8px 0;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.forecast-row:last-child {
+    border-bottom: none;
+}
+
+.hazards-row {
+    color: #dc2626;
+    font-weight: 600;
+    background: #fef2f2;
+    padding: 10px 12px;
+    border-radius: 6px;
+    margin-bottom: 10px;
+}
+
+.temps-row {
+    font-size: 12px;
+    color: #64748b;
+    padding-top: 10px;
+}
+
+.comments-row {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #e2e8f0;
+    line-height: 1.5;
+}
+
+.row-label {
+    font-weight: 600;
+    color: #0a2647;
+}
+
 /* Day Forecast */
 .day-forecast {
     background: #f8fafc;

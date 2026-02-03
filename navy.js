@@ -47,11 +47,6 @@ var opareaConfig = {
             startPattern: 'BOSTON OPAREA:',
             endPattern: 'NARRAGANSETT BAY'
         },
-        race_rock: {
-            pil: 'WRKFWNX02',
-            startPattern: 'RACE ROCK',
-            endPattern: 'BOSTON'
-        },
         narrabay: {
             pil: 'WRKFWNX02',
             startPattern: 'NARRAGANSETT BAY OPAREA:',

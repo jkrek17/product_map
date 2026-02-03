@@ -612,12 +612,13 @@ function formatPacificForecast(text) {
     }
     
     // Build table with same format as Atlantic
-    html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Wind Dir</th><th>Wind (kt)</th><th>Gust</th><th>Wave Dir</th><th>Waves (ft)</th></tr></thead><tbody>';
+    html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Sky</th><th>Wind Dir</th><th>Wind (kt)</th><th>Gust</th><th>Wave Dir</th><th>Waves (ft)</th></tr></thead><tbody>';
     
     // Combine wind and seas data by time
     var allTimes = [];
     windData.forEach(function(w) { if (allTimes.indexOf(w.time) === -1) allTimes.push(w.time); });
     seasData.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
+    skyData.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
     
     // Sort times (handle '-' as first)
     allTimes.sort(function(a, b) {
@@ -626,12 +627,16 @@ function formatPacificForecast(text) {
         return a.localeCompare(b);
     });
     
+    // Get sky value (often just one general description for Pacific)
+    var generalSky = skyData.length > 0 ? skyData[0].value : '-';
+    
     // If we only have '-' times, create rows for each data point
     if (allTimes.length === 1 && allTimes[0] === '-') {
         var maxRows = Math.max(windData.length, seasData.length);
         for (var i = 0; i < maxRows; i++) {
             var wind = windData[i];
             var seas = seasData[i];
+            var skyVal = i === 0 ? generalSky : '-';
             
             var windDir = wind ? abbreviateDirection(wind.dir) : '-';
             var windSpd = wind ? wind.low + '-' + wind.high : '-';
@@ -639,29 +644,27 @@ function formatPacificForecast(text) {
             var waveDir = seas ? abbreviateDirection(seas.dir) : '-';
             var waveHt = seas ? seas.low + '-' + seas.high : '-';
             
-            html += '<tr><td>-</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
+            html += '<tr><td>-</td><td>' + skyVal + '</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
         }
     } else {
-        allTimes.forEach(function(time) {
+        allTimes.forEach(function(time, idx) {
+            var sky = skyData.find(function(s) { return s.time === time; });
             var wind = windData.find(function(w) { return w.time === time; });
             var seas = seasData.find(function(s) { return s.time === time; });
             
+            // For Pacific, sky is often general - show on first row or if matched
+            var skyVal = sky ? sky.value : (idx === 0 && skyData.length > 0 ? generalSky : '-');
             var windDir = wind ? abbreviateDirection(wind.dir) : '-';
             var windSpd = wind ? wind.low + '-' + wind.high : '-';
             var gustVal = wind && wind.gust ? wind.gust.replace('G', '') : '-';
             var waveDir = seas ? abbreviateDirection(seas.dir) : '-';
             var waveHt = seas ? seas.low + '-' + seas.high : '-';
             
-            html += '<tr><td>' + time + '</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
+            html += '<tr><td>' + time + '</td><td>' + skyVal + '</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
         });
     }
     
     html += '</tbody></table>';
-    
-    // Sky/Weather info
-    if (skyData.length > 0) {
-        html += '<div class="forecast-row"><strong>Sky/Weather:</strong> ' + skyData.map(function(s) { return s.value; }).join(', ') + '</div>';
-    }
     
     // Show raw text in collapsible section if parsing didn't get much
     if (windData.length === 0 && seasData.length === 0) {
@@ -745,12 +748,12 @@ function formatAtlanticForecast(text) {
         }
     }
     
-    // Extract temps (F section)
+    // Extract temps (F section) - format is DD/HHZ: MAX/MIN
     var tempsMatch = text.match(/F\.\s*MAX\/MIN TEMPS[^:]*:([\s\S]*?)(?=\s*G\.\s|$)/i);
     if (tempsMatch) {
         var tempVal = tempsMatch[1].match(/(\d+)\/(\d+)/);
         if (tempVal) {
-            sections.temps = tempVal[1] + '°F / ' + tempVal[2] + '°F';
+            sections.temps = 'Max: ' + tempVal[1] + '°F, Min: ' + tempVal[2] + '°F';
         }
     }
     
@@ -812,25 +815,28 @@ function formatAtlanticForecast(text) {
     }
     
     // 24-Hour Forecast Table
-    html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Wind Dir</th><th>Wind (kt)</th><th>Gust</th><th>Wave Dir</th><th>Waves (ft)</th></tr></thead><tbody>';
+    html += '<table class="forecast-table"><thead><tr><th>Time</th><th>Sky</th><th>Wind Dir</th><th>Wind (kt)</th><th>Gust</th><th>Wave Dir</th><th>Waves (ft)</th></tr></thead><tbody>';
     
     // Combine all times
     var allTimes = [];
     sections.wind.forEach(function(w) { if (allTimes.indexOf(w.time) === -1) allTimes.push(w.time); });
     sections.seas.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
+    sections.sky.forEach(function(s) { if (allTimes.indexOf(s.time) === -1) allTimes.push(s.time); });
     allTimes.sort();
     
     allTimes.forEach(function(time) {
+        var sky = sections.sky.find(function(s) { return s.time === time; });
         var wind = sections.wind.find(function(w) { return w.time === time; });
         var seas = sections.seas.find(function(s) { return s.time === time; });
         
+        var skyVal = sky ? sky.value : '-';
         var windDir = wind ? abbreviateDirection(wind.dir) : '-';
         var windSpd = wind ? wind.low + '-' + wind.high : '-';
         var gustVal = wind && wind.gust ? wind.gust.replace('G', '') : '-';
         var waveDir = seas ? abbreviateDirection(seas.dir) : '-';
         var waveHt = seas ? seas.low + '-' + seas.high : '-';
         
-        html += '<tr><td>' + time + '</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
+        html += '<tr><td>' + time + '</td><td>' + skyVal + '</td><td>' + windDir + '</td><td>' + windSpd + '</td><td>' + gustVal + '</td><td>' + waveDir + '</td><td>' + waveHt + '</td></tr>';
     });
     
     html += '</tbody></table>';

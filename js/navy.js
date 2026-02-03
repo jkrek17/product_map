@@ -411,11 +411,6 @@ function loadZones() {
         polygon.zoneName = displayName;
         polygon.longName = displayName;
 
-        polygon.bindPopup(
-            '<div class="zone-popup-title">' + displayName + '</div>' +
-            '<div class="zone-popup-id">Click to view forecast</div>'
-        );
-
         polygon.on({
             mouseover: function(e) {
                 if (selectedPolygon !== e.target) {

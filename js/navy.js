@@ -748,19 +748,21 @@ function formatAtlanticForecast(text) {
         }
     }
     
-    // Extract temps (F section) - format is DD/HHZ: MAX/MIN
+    // Extract temps (F section) - format is DD/HHZ: MAX/MIN (e.g., 04/00Z: 49/25)
     var tempsMatch = text.match(/F\.\s*MAX\/MIN TEMPS[^:]*:([\s\S]*?)(?=\s*G\.\s|$)/i);
     if (tempsMatch) {
-        var tempVal = tempsMatch[1].match(/(\d+)\/(\d+)/);
+        // Match pattern after timestamp: "04/00Z: 49/25" - we want 49 and 25
+        var tempVal = tempsMatch[1].match(/\d{2}\/\d{2}Z:\s*(\d+)\/(\d+)/);
         if (tempVal) {
             sections.temps = 'Max: ' + tempVal[1] + '°F, Min: ' + tempVal[2] + '°F';
         }
     }
     
-    // Extract SST (G section)
+    // Extract SST (G section) - format is DD/HHZ: TEMP (e.g., 02/00Z: 48)
     var sstMatch = text.match(/G\.\s*SST[^:]*:([\s\S]*?)(?=\s*H\.\s|$)/i);
     if (sstMatch) {
-        var sstVal = sstMatch[1].match(/(\d+)/);
+        // Match pattern after timestamp: "02/00Z: 48" - we want 48
+        var sstVal = sstMatch[1].match(/\d{2}\/\d{2}Z:\s*(\d+)/);
         if (sstVal) {
             sections.sst = sstVal[1] + '°F';
         }

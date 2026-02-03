@@ -511,63 +511,56 @@ function updateChart(forecast) {
     var waveHeights = [];
 
     var text = forecast.forecast || '';
-
-    // Try Navy format first: "03/12Z: NORTH 5 TO 10G15" or "NORTH-NORTHWEST 6 TO 9"
-    // Extract wind section
-    var windSection = text.match(/SURFACE WIND[^]*?(?=\s*[A-Z]\.\s|$)/i);
-    if (windSection) {
-        // Match patterns like "03/12Z: NORTH 5 TO 10" or "NORTH 10 TO 15G20"
-        var windLines = windSection[0].match(/\d{2}\/\d{2}Z[^,\n]*(\d+)\s+TO\s+(\d+)/gi);
-        if (windLines) {
-            windLines.forEach(function(line, idx) {
-                var nums = line.match(/(\d+)\s+TO\s+(\d+)/i);
-                if (nums) {
-                    windSpeeds.push(Math.max(parseInt(nums[1]), parseInt(nums[2])));
-                    if (idx === 0) labels.push('Now');
-                    else if (idx === 1) labels.push('+6h');
-                    else if (idx === 2) labels.push('+12h');
-                    else labels.push('+' + (idx * 6) + 'h');
-                }
-            });
+    
+    // Navy forecast format parsing
+    // D. SURFACE WIND (KTS): 
+    //    04/00Z: SOUTHWEST 15 TO 20G25,
+    //    04/06Z: WEST-SOUTHWEST 15 TO 20G25,
+    // E. COMBINED SEAS (FT): 
+    //    04/00Z: SOUTH-SOUTHEAST 2 TO 4,
+    
+    // Extract wind section - find content between "SURFACE WIND" and next section letter
+    var windSectionMatch = text.match(/D\.\s*SURFACE WIND[^:]*:([\s\S]*?)(?=\s*E\.\s|$)/i);
+    if (windSectionMatch) {
+        var windContent = windSectionMatch[1];
+        // Match "04/00Z: DIRECTION 15 TO 20" patterns
+        var windPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
+        var match;
+        while ((match = windPattern.exec(windContent)) !== null) {
+            var day = match[1];
+            var hour = match[2];
+            var windLow = parseInt(match[3]);
+            var windHigh = parseInt(match[4]);
+            windSpeeds.push(Math.max(windLow, windHigh));
+            labels.push(day + '/' + hour + 'Z');
         }
     }
 
     // Extract seas section
-    var seasSection = text.match(/COMBINED SEAS[^]*?(?=\s*[A-Z]\.\s|$)/i);
-    if (seasSection) {
-        var seaLines = seasSection[0].match(/\d{2}\/\d{2}Z[^,\n]*(\d+)\s+TO\s+(\d+)/gi);
-        if (seaLines) {
-            seaLines.forEach(function(line) {
-                var nums = line.match(/(\d+)\s+TO\s+(\d+)/i);
-                if (nums) {
-                    waveHeights.push(Math.max(parseInt(nums[1]), parseInt(nums[2])));
-                }
-            });
+    var seasSectionMatch = text.match(/E\.\s*COMBINED SEAS[^:]*:([\s\S]*?)(?=\s*F\.\s|$)/i);
+    if (seasSectionMatch) {
+        var seasContent = seasSectionMatch[1];
+        var seasPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
+        var match;
+        while ((match = seasPattern.exec(seasContent)) !== null) {
+            var seaLow = parseInt(match[3]);
+            var seaHigh = parseInt(match[4]);
+            waveHeights.push(Math.max(seaLow, seaHigh));
         }
     }
 
     // Fallback: try generic patterns if Navy format didn't work
     if (windSpeeds.length === 0) {
-        var genericWindMatches = text.match(/(?:WINDS?|WIND)\s+(?:[A-Z-]+\s+)?(\d+)\s+TO\s+(\d+)/gi);
-        if (genericWindMatches) {
-            genericWindMatches.forEach(function(match) {
-                var nums = match.match(/(\d+)\s+TO\s+(\d+)/i);
-                if (nums) {
-                    windSpeeds.push(Math.max(parseInt(nums[1]), parseInt(nums[2])));
-                }
-            });
-        }
-    }
-
-    if (waveHeights.length === 0) {
-        var genericSeaMatches = text.match(/(?:SEAS?|COMBINED SEAS)\s+(?:[A-Z-]+\s+)?(\d+)\s+TO\s+(\d+)/gi);
-        if (genericSeaMatches) {
-            genericSeaMatches.forEach(function(match) {
-                var nums = match.match(/(\d+)\s+TO\s+(\d+)/i);
-                if (nums) {
-                    waveHeights.push(Math.max(parseInt(nums[1]), parseInt(nums[2])));
-                }
-            });
+        // Try any "DD/HHZ: DIRECTION ## TO ##" pattern in the text
+        var genericWindPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
+        var match;
+        while ((match = genericWindPattern.exec(text)) !== null) {
+            var windLow = parseInt(match[3]);
+            var windHigh = parseInt(match[4]);
+            windSpeeds.push(Math.max(windLow, windHigh));
+            if (labels.length < windSpeeds.length) {
+                labels.push(match[1] + '/' + match[2] + 'Z');
+            }
         }
     }
 
@@ -576,13 +569,15 @@ function updateChart(forecast) {
         labels = ['Today', 'Tonight', 'Tomorrow'];
     }
 
-    // Ensure we have at least 3 data points
+    // Ensure we have data points matching labels
     while (windSpeeds.length < labels.length) windSpeeds.push(windSpeeds[windSpeeds.length - 1] || 0);
     while (waveHeights.length < labels.length) waveHeights.push(waveHeights[waveHeights.length - 1] || 0);
     
-    // Trim to label count
-    windSpeeds = windSpeeds.slice(0, labels.length);
-    waveHeights = waveHeights.slice(0, labels.length);
+    // Trim to label count (max 6 for readability)
+    var maxPoints = Math.min(labels.length, 6);
+    labels = labels.slice(0, maxPoints);
+    windSpeeds = windSpeeds.slice(0, maxPoints);
+    waveHeights = waveHeights.slice(0, maxPoints);
 
     weatherChart = new Chart(ctx, {
         type: 'line',

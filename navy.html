@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navy Forecast Areas - OPC Weather Map</title>
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 3px solid #2c74b3;
+            flex-shrink: 0;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        .header-title {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            color: #fff;
+            margin: 0;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .header h1::before {
+            content: "";
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #2c74b3;
+            border-radius: 50%;
+            margin-right: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .header p {
+            color: #94a3b8;
+            font-size: 13px;
+            margin: 0;
+            padding-left: 18px;
+        }
+
+        .controls {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .control-group label {
+            font-size: 11px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 500;
+        }
+
+        .control-group select {
+            padding: 10px 16px;
+            font-size: 13px;
+            background: #0a2647;
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            min-width: 170px;
+            transition: all 0.2s ease;
+        }
+
+        .control-group select option {
+            background: #0a2647;
+            color: #fff;
+            padding: 10px;
+        }
+
+        .control-group select:hover {
+            background: #144272;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .control-group select:focus {
+            outline: none;
+            border-color: #2c74b3;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        #refreshBtn {
+            background: linear-gradient(135deg, #2c74b3 0%, #205295 100%);
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #refreshBtn:hover {
+            background: linear-gradient(135deg, #3d8fd1 0%, #2c74b3 100%);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(44,116,179,0.4);
+        }
+
+        #backBtn {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            padding: 10px 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #backBtn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.4);
+        }
+
+        #aboutBtn {
+            background: transparent;
+            color: #94a3b8;
+            padding: 10px 16px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        #aboutBtn:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+
+        .main-container {
+            display: flex;
+            flex: 1;
+            min-height: 0;
+            overflow: hidden;
+        }
+
+        #map {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .sidebar {
+            width: 520px;
+            min-width: 520px;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #144272 0%, #0a2647 100%);
+            border-left: 3px solid #0a2647;
+            overflow: hidden;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.3);
+        }
+
+        .forecast-panel {
+            flex: 1;
+            background: #fff;
+            padding: 24px;
+            color: #1a1a2e;
+            overflow-y: auto;
+        }
+
+        .forecast-panel h3 {
+            color: #0a2647;
+            margin-bottom: 16px;
+            font-size: 16px;
+            border-bottom: 3px solid #2c74b3;
+            padding-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            font-weight: 700;
+        }
+
+        .forecast-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #0a2647;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+
+        .forecast-time {
+            color: #64748b;
+            font-size: 14px;
+            margin-bottom: 16px;
+            padding: 8px 12px;
+            background: #f1f5f9;
+            border-radius: 6px;
+            display: inline-block;
+        }
+
+        .warning-banner {
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            color: #000;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        }
+
+        .synopsis-section {
+            background: #e8f4fc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 16px;
+            border-left: 4px solid #2c74b3;
+        }
+
+        .synopsis-section h4 {
+            font-weight: 700;
+            color: #0a2647;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .synopsis-section p {
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            font-family: 'Consolas', 'Monaco', monospace;
+        }
+
+        .forecast-content {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid #0a2647;
+        }
+
+        .forecast-content h4 {
+            font-weight: 700;
+            color: #0a2647;
+            margin-bottom: 10px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .forecast-content pre {
+            font-size: 13px;
+            color: #475569;
+            line-height: 1.6;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-family: 'Consolas', 'Monaco', monospace;
+            margin: 0;
+        }
+
+        .day-forecast {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            border-left: 4px solid #0a2647;
+            transition: all 0.2s ease;
+        }
+
+        .day-forecast:hover {
+            background: #f1f5f9;
+            transform: translateX(4px);
+        }
+
+        .day-name {
+            font-weight: 700;
+            color: #fff;
+            background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+            padding: 6px 14px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            display: inline-block;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .forecast-detail {
+            display: block;
+            font-size: 15px;
+            color: #475569;
+            margin-top: 8px;
+            line-height: 1.5;
+        }
+
+        .forecast-detail strong {
+            color: #0a2647;
+            font-weight: 600;
+        }
+
+        .chart-panel {
+            height: 320px;
+            background: #fff;
+            padding: 20px;
+            border-top: 3px solid #0a2647;
+            flex-shrink: 0;
+        }
+
+        .chart-panel h3 {
+            color: #0a2647;
+            margin-bottom: 12px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 700;
+        }
+
+        .chart-container {
+            height: calc(100% - 25px);
+            position: relative;
+        }
+
+        #weatherChart {
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 12px 20px;
+            background: linear-gradient(135deg, rgba(10,38,71,0.9) 0%, rgba(20,66,114,0.9) 100%);
+            justify-content: center;
+            flex-shrink: 0;
+            border-top: 2px solid #0a2647;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .legend-item:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .legend-color-none { background: #205295; }
+        .legend-color-gale { background: #ffff00; }
+        .legend-color-storm { background: #ffa500; }
+        .legend-color-hurricane { background: #ff0000; }
+
+        .leaflet-popup-content-wrapper {
+            background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+            color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        }
+
+        .leaflet-popup-tip {
+            background: #144272;
+        }
+
+        .leaflet-popup-content {
+            margin: 14px 16px;
+            font-size: 14px;
+        }
+
+        .zone-popup-title {
+            font-weight: 700;
+            color: #2c74b3;
+            font-size: 15px;
+            margin-bottom: 4px;
+        }
+
+        .zone-popup-id {
+            color: #94a3b8;
+            font-size: 12px;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 50px 25px;
+            color: #64748b;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        .no-data::before {
+            content: "⚓";
+            display: block;
+            font-size: 32px;
+            margin-bottom: 12px;
+        }
+
+        .forecast-panel::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-track {
+            background: #e2e8f0;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb {
+            background: #94a3b8;
+            border-radius: 3px;
+        }
+
+        .forecast-panel::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+
+        /* Mobile toggle button */
+        .mobile-toggle {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: linear-gradient(135deg, #2c74b3 0%, #205295 100%);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(44,116,179,0.4);
+            transition: all 0.3s ease;
+        }
+
+        .mobile-toggle:hover {
+            background: linear-gradient(135deg, #3d8fd1 0%, #2c74b3 100%);
+            transform: scale(1.05);
+        }
+
+        /* Mobile responsive styles */
+        @media (max-width: 900px) {
+            .header {
+                flex-direction: column;
+                gap: 12px;
+                padding: 12px 16px;
+            }
+
+            .header-title {
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 20px;
+            }
+
+            .header h1::before {
+                display: none;
+            }
+
+            .header p {
+                font-size: 12px;
+                padding-left: 0;
+            }
+
+            .controls {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+                width: 100%;
+            }
+
+            .control-group {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .control-group label {
+                font-size: 10px;
+            }
+
+            .control-group select {
+                width: 100%;
+                min-width: unset;
+                padding: 10px 12px;
+                font-size: 14px;
+            }
+
+            #refreshBtn, #backBtn, #aboutBtn {
+                padding: 12px 16px;
+                font-size: 12px;
+            }
+
+            #backBtn {
+                grid-column: 1;
+            }
+
+            #aboutBtn {
+                grid-column: 2;
+            }
+
+            #refreshBtn {
+                grid-column: 1 / -1;
+            }
+
+            .main-container {
+                flex-direction: column;
+            }
+
+            #map {
+                flex: 1;
+                min-height: 45vh;
+            }
+
+            .sidebar {
+                width: 100%;
+                min-width: unset;
+                height: 280px;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                transform: translateY(calc(100% - 50px));
+                transition: transform 0.3s ease;
+                z-index: 999;
+                border-left: none;
+                border-top: 3px solid #2c74b3;
+                border-radius: 20px 20px 0 0;
+            }
+
+            .sidebar::before {
+                content: "";
+                display: block;
+                width: 40px;
+                height: 4px;
+                background: rgba(255,255,255,0.3);
+                border-radius: 2px;
+                margin: 12px auto 8px;
+            }
+
+            .sidebar.open {
+                transform: translateY(0);
+            }
+
+            .mobile-toggle {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                bottom: 70px;
+            }
+
+            .legend {
+                display: none;
+            }
+
+            .chart-panel {
+                display: none;
+            }
+
+            .forecast-panel {
+                flex: 1;
+                padding: 16px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 10px 12px;
+                gap: 10px;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header p {
+                font-size: 11px;
+            }
+
+            .controls {
+                gap: 8px;
+            }
+
+            .control-group select {
+                padding: 8px 10px;
+                font-size: 13px;
+            }
+
+            #refreshBtn, #backBtn, #aboutBtn {
+                padding: 10px 12px;
+                font-size: 11px;
+            }
+
+            .sidebar {
+                height: 240px;
+            }
+        }
+
+        /* Full text links */
+        .full-text-links {
+            background: #f1f5f9;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 16px;
+        }
+
+        .full-text-links h4 {
+            color: #0a2647;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .full-text-links a {
+            display: inline-block;
+            color: #2c74b3;
+            text-decoration: none;
+            font-size: 13px;
+            margin-right: 16px;
+            font-weight: 500;
+        }
+
+        .full-text-links a:hover {
+            text-decoration: underline;
+        }
+
+        /* Modal styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(10,38,71,0.85);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.open {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 16px;
+            max-width: 640px;
+            width: 100%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+            animation: modalSlideIn 0.3s ease;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+            color: #fff;
+            padding: 24px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-radius: 16px 16px 0 0;
+            border-bottom: 3px solid #2c74b3;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 700;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: #fff;
+            font-size: 24px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(44,116,179,0.8);
+        }
+
+        .modal-body {
+            padding: 30px;
+            color: #333;
+            line-height: 1.7;
+            font-size: 15px;
+        }
+
+        .modal-body h3 {
+            color: #0a2647;
+            margin: 28px 0 14px 0;
+            font-size: 17px;
+            font-weight: 700;
+            border-bottom: 3px solid #2c74b3;
+            padding-bottom: 8px;
+        }
+
+        .modal-body h3:first-child {
+            margin-top: 0;
+        }
+
+        .modal-body p {
+            margin: 12px 0;
+        }
+
+        .modal-body ul {
+            margin: 14px 0;
+            padding-left: 28px;
+        }
+
+        .modal-body li {
+            margin: 10px 0;
+        }
+
+        .modal-body code {
+            background: #f1f5f9;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 13px;
+            color: #2c74b3;
+        }
+
+        .modal-body a {
+            color: #2c74b3;
+            font-weight: 500;
+        }
+
+        .modal-body a:hover {
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            .modal {
+                max-height: 90vh;
+            }
+
+            .modal-header {
+                padding: 15px 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>Navy Forecast Areas</h1>
+            <p>U.S. Navy Operations Areas (OPAREAs) - Marine Forecast Visualization</p>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="basin">Region:</label>
+                <select id="basin">
+                    <option value="atlantic">Atlantic</option>
+                    <option value="pacific">Pacific</option>
+                </select>
+            </div>
+            <button type="button" id="refreshBtn">Refresh Data</button>
+            <a href="index.html" id="backBtn">&#8592; OPC Map</a>
+            <button type="button" id="aboutBtn">About</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="forecast-panel" id="forecastPanel">
+                <h3>OPAREA Forecast</h3>
+                <div class="full-text-links">
+                    <h4>Full Forecast Products</h4>
+                    <a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>
+                    <a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>
+                    <a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>
+                </div>
+                <div class="no-data">Click on an OPAREA zone to view forecast details</div>
+            </div>
+            <div class="chart-panel">
+                <h3>Wind &amp; Wave Forecast</h3>
+                <div class="chart-container">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+        &#9650;
+    </button>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color legend-color-none"></span>
+            <span>OPAREA Zone</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale"></span>
+            <span>Gale Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm"></span>
+            <span>Storm Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-hurricane"></span>
+            <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- About/Help Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>About Navy Forecast Areas</h2>
+                <button type="button" class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Overview</h3>
+                <p>This application displays marine weather forecasts for U.S. Navy Operations Areas (OPAREAs). These areas are used by the Navy for training and operational activities, with dedicated weather forecasts provided by the Ocean Prediction Center.</p>
+
+                <h3>Atlantic OPAREAs</h3>
+                <ul>
+                    <li><strong>Boston:</strong> Waters off the coast of Massachusetts</li>
+                    <li><strong>Race Rock:</strong> Long Island Sound area</li>
+                    <li><strong>Narragansett Bay:</strong> Rhode Island coastal waters</li>
+                    <li><strong>VACAPES:</strong> Virginia Capes operating area</li>
+                    <li><strong>Cherry Point:</strong> North Carolina coastal waters</li>
+                    <li><strong>Charleston:</strong> South Carolina coastal waters</li>
+                    <li><strong>Jacksonville:</strong> Northeast Florida coastal waters</li>
+                    <li><strong>Port Canaveral:</strong> Central Florida coastal waters</li>
+                    <li><strong>TOTO:</strong> Tongue of the Ocean (Bahamas)</li>
+                </ul>
+
+                <h3>Pacific OPAREAs</h3>
+                <ul>
+                    <li><strong>SOCAL:</strong> Southern California operating area</li>
+                    <li><strong>Point Mugu:</strong> Southern California coastal range</li>
+                    <li><strong>San Clemente Island:</strong> Island range complex</li>
+                </ul>
+
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Select a Region:</strong> Use the dropdown to switch between Atlantic and Pacific.</li>
+                    <li><strong>View Forecasts:</strong> Click on any zone on the map to view the detailed forecast.</li>
+                    <li><strong>Full Products:</strong> Links to complete forecast text files are available in the sidebar.</li>
+                </ul>
+
+                <h3>Data Sources</h3>
+                <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a> in coordination with Fleet Weather Centers.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/leaflet/leaflet.js"></script>
+    <script src="libs/chartjs/chart.min.js"></script>
+
+    <script>
+        var map;
+        var zonesLayer;
+        var forecastData = {};
+        var weatherChart = null;
+        var currentZone = null;
+
+        // Navy OPAREA definitions with approximate coordinates
+        var navyOpareas = {
+            atlantic: {
+                boston: {
+                    name: "Boston OPAREA",
+                    longName: "Boston",
+                    coords: [
+                        [42.8, -70.0], [42.8, -69.0], [42.0, -69.0], [42.0, -69.5],
+                        [41.5, -69.5], [41.5, -70.5], [42.3, -70.5], [42.8, -70.0]
+                    ],
+                    center: [42.15, -69.75],
+                    pil: "WRKFWNX02"
+                },
+                race_rock: {
+                    name: "Race Rock OPAREA",
+                    longName: "Race Rock",
+                    coords: [
+                        [41.4, -72.5], [41.4, -71.5], [41.0, -71.5], [41.0, -72.0],
+                        [40.8, -72.0], [40.8, -72.5], [41.4, -72.5]
+                    ],
+                    center: [41.1, -72.0],
+                    pil: "WRKFWNX02"
+                },
+                narrabay: {
+                    name: "Narragansett Bay OPAREA",
+                    longName: "Narragansett Bay",
+                    coords: [
+                        [41.6, -71.5], [41.6, -70.5], [41.0, -70.5], [41.0, -71.0],
+                        [40.5, -71.0], [40.5, -71.5], [41.6, -71.5]
+                    ],
+                    center: [41.05, -71.0],
+                    pil: "WRKFWNX02"
+                },
+                vacapes: {
+                    name: "VACAPES OPAREA",
+                    longName: "Virginia Capes",
+                    coords: [
+                        [37.5, -75.0], [37.5, -74.0], [37.0, -74.0], [37.0, -74.5],
+                        [36.5, -74.5], [36.5, -75.5], [37.0, -75.5], [37.5, -75.0]
+                    ],
+                    center: [37.0, -74.75],
+                    pil: "WRKFWNX01"
+                },
+                cherry_point: {
+                    name: "Cherry Point OPAREA",
+                    longName: "Cherry Point",
+                    coords: [
+                        [35.5, -75.5], [35.5, -74.5], [34.5, -74.5], [34.5, -75.0],
+                        [34.0, -75.0], [34.0, -76.0], [35.0, -76.0], [35.5, -75.5]
+                    ],
+                    center: [34.75, -75.25],
+                    pil: "WRKFWNX01"
+                },
+                charleston: {
+                    name: "Charleston OPAREA",
+                    longName: "Charleston",
+                    coords: [
+                        [33.5, -78.5], [33.5, -77.5], [32.5, -77.5], [32.5, -78.0],
+                        [32.0, -78.0], [32.0, -79.0], [33.0, -79.0], [33.5, -78.5]
+                    ],
+                    center: [32.75, -78.25],
+                    pil: "WRKFWNX01"
+                },
+                jacksonville: {
+                    name: "Jacksonville OPAREA",
+                    longName: "Jacksonville",
+                    coords: [
+                        [31.5, -80.0], [31.5, -79.0], [30.5, -79.0], [30.5, -79.5],
+                        [29.5, -79.5], [29.5, -80.5], [30.5, -80.5], [31.5, -80.0]
+                    ],
+                    center: [30.5, -79.75],
+                    pil: "WRKFWNX01"
+                },
+                port_canaveral: {
+                    name: "Port Canaveral OPAREA",
+                    longName: "Port Canaveral",
+                    coords: [
+                        [29.0, -79.5], [29.0, -78.5], [28.0, -78.5], [28.0, -79.0],
+                        [27.5, -79.0], [27.5, -80.0], [28.5, -80.0], [29.0, -79.5]
+                    ],
+                    center: [28.25, -79.25],
+                    pil: "WRKFWNX01"
+                },
+                toto: {
+                    name: "Tongue of the Ocean OPAREA",
+                    longName: "Tongue of the Ocean",
+                    coords: [
+                        [25.0, -77.5], [25.0, -76.5], [24.0, -76.5], [24.0, -77.0],
+                        [23.5, -77.0], [23.5, -78.0], [24.5, -78.0], [25.0, -77.5]
+                    ],
+                    center: [24.25, -77.25],
+                    pil: "WRKFWNX01"
+                }
+            },
+            pacific: {
+                socal: {
+                    name: "SOCAL OPAREA",
+                    longName: "Southern California",
+                    coords: [
+                        [34.0, -120.5], [34.0, -117.5], [32.5, -117.5], [32.5, -118.5],
+                        [32.0, -118.5], [32.0, -120.5], [33.0, -120.5], [34.0, -120.5]
+                    ],
+                    center: [33.0, -119.0],
+                    pil: "WRKFWNXPT"
+                },
+                point_mugu: {
+                    name: "Point Mugu OPAREA",
+                    longName: "Point Mugu",
+                    coords: [
+                        [34.5, -120.0], [34.5, -119.0], [34.0, -119.0], [34.0, -119.5],
+                        [33.5, -119.5], [33.5, -120.5], [34.0, -120.5], [34.5, -120.0]
+                    ],
+                    center: [34.0, -119.5],
+                    pil: "WRKFWNXPT"
+                },
+                san_clemente: {
+                    name: "San Clemente Island OPAREA",
+                    longName: "San Clemente Island",
+                    coords: [
+                        [33.5, -119.0], [33.5, -118.0], [32.5, -118.0], [32.5, -118.5],
+                        [32.0, -118.5], [32.0, -119.5], [33.0, -119.5], [33.5, -119.0]
+                    ],
+                    center: [32.75, -118.5],
+                    pil: "WRKFWNXPT"
+                }
+            }
+        };
+
+        // Sample forecast data (would be loaded from API in production)
+        var sampleForecasts = {
+            atlantic: {
+                boston: {
+                    synopsis: "A LOW PRESSURE SYSTEM LOCATED OVER THE GULF OF MAINE WILL MOVE NORTHEAST AND WEAKEN. HIGH PRESSURE WILL BUILD IN FROM THE WEST THROUGH MIDWEEK.",
+                    forecast: "BOSTON OPAREA:\nTODAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.\nTONIGHT...W WINDS 10 TO 20 KT. SEAS 4 TO 6 FT.\nTUESDAY...SW WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                race_rock: {
+                    synopsis: "HIGH PRESSURE OVER THE MID-ATLANTIC STATES WILL MAINTAIN LIGHT TO MODERATE WINDS THROUGH THE PERIOD.",
+                    forecast: "RACE ROCK OPAREA:\nTODAY...W WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTONIGHT...NW WINDS 5 TO 15 KT. SEAS 2 TO 4 FT.\nTUESDAY...N WINDS 5 TO 10 KT. SEAS 2 TO 3 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                narrabay: {
+                    synopsis: "A WEAK COLD FRONT WILL PASS THROUGH THE AREA THIS EVENING. HIGH PRESSURE WILL BUILD IN BEHIND THE FRONT.",
+                    forecast: "NARRAGANSETT BAY OPAREA:\nTODAY...SW WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...NW WINDS 10 TO 20 KT. SEAS 3 TO 5 FT.\nTUESDAY...N WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                vacapes: {
+                    synopsis: "A STRONG LOW PRESSURE SYSTEM WILL MOVE UP THE COAST BRINGING GALE CONDITIONS TO THE AREA.",
+                    forecast: "VACAPES OPAREA:\nTODAY...NE WINDS 25 TO 35 KT. SEAS 8 TO 12 FT.\nTONIGHT...N WINDS 20 TO 30 KT. SEAS 6 TO 10 FT.\nTUESDAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.",
+                    warning: "GALE WARNING",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                cherry_point: {
+                    synopsis: "THE COASTAL LOW WILL BRING UNSETTLED WEATHER AND ELEVATED SEAS TO THE AREA THROUGH TUESDAY.",
+                    forecast: "CHERRY POINT OPAREA:\nTODAY...NE WINDS 20 TO 30 KT. SEAS 7 TO 11 FT.\nTONIGHT...N WINDS 15 TO 25 KT. SEAS 6 TO 9 FT.\nTUESDAY...NW WINDS 10 TO 20 KT. SEAS 4 TO 7 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                charleston: {
+                    synopsis: "A RIDGE OF HIGH PRESSURE WILL MAINTAIN FAIR WEATHER THROUGH THE PERIOD.",
+                    forecast: "CHARLESTON OPAREA:\nTODAY...N WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...NE WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...E WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                jacksonville: {
+                    synopsis: "HIGH PRESSURE WILL DOMINATE THE AREA WITH GENERALLY LIGHT WINDS AND SEAS.",
+                    forecast: "JAX OPAREA:\nTODAY...NE WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTONIGHT...E WINDS 5 TO 15 KT. SEAS 2 TO 4 FT.\nTUESDAY...SE WINDS 5 TO 10 KT. SEAS 2 TO 3 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                port_canaveral: {
+                    synopsis: "NORTHEAST WINDS WILL PERSIST THROUGH THE PERIOD AS HIGH PRESSURE REMAINS TO THE NORTH.",
+                    forecast: "PORT CANAVERAL OPAREA:\nTODAY...NE WINDS 10 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...E WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...SE WINDS 5 TO 15 KT. SEAS 3 TO 4 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                },
+                toto: {
+                    synopsis: "TRADE WINDS WILL CONTINUE MODERATE TO FRESH THROUGH THE FORECAST PERIOD.",
+                    forecast: "TONGUE OF THE OCEAN OPAREA:\nTODAY...E WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...E WINDS 10 TO 20 KT. SEAS 3 TO 5 FT.\nTUESDAY...E WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
+                    warning: "NONE",
+                    time: "10:00 AM EST Mon Feb 3 2026"
+                }
+            },
+            pacific: {
+                socal: {
+                    synopsis: "A TROUGH OF LOW PRESSURE WILL BRING INCREASED WINDS AND SEAS TO THE REGION THROUGH WEDNESDAY.",
+                    forecast: "SOCAL OPAREA:\nTODAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.\nTONIGHT...W WINDS 10 TO 20 KT. SEAS 4 TO 7 FT.\nTUESDAY...SW WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.",
+                    warning: "NONE",
+                    time: "7:00 AM PST Mon Feb 3 2026"
+                },
+                point_mugu: {
+                    synopsis: "NORTHWEST WINDS WILL CONTINUE AS A SURFACE TROUGH REMAINS OFFSHORE.",
+                    forecast: "POINT MUGU OPAREA:\nTODAY...NW WINDS 15 TO 20 KT. SEAS 4 TO 7 FT.\nTONIGHT...NW WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.\nTUESDAY...W WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.",
+                    warning: "NONE",
+                    time: "7:00 AM PST Mon Feb 3 2026"
+                },
+                san_clemente: {
+                    synopsis: "CONDITIONS WILL REMAIN FAVORABLE FOR OPERATIONS WITH LIGHT TO MODERATE WINDS AND SEAS.",
+                    forecast: "SAN CLEMENTE ISLAND OPAREA:\nTODAY...W WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.\nTONIGHT...NW WINDS 5 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...W WINDS 5 TO 10 KT. SEAS 3 TO 4 FT.",
+                    warning: "NONE",
+                    time: "7:00 AM PST Mon Feb 3 2026"
+                }
+            }
+        };
+
+        var warningColors = {
+            'HURRICANE FORCE WIND WARNING': '#ff0000',
+            'HURRICANE WARNING': '#ff0000',
+            'STORM WARNING': '#ffa500',
+            'GALE WARNING': '#ffff00',
+            'NONE': '#205295'
+        };
+
+        function getWarningColor(warning) {
+            if (!warning) return '#205295';
+            var upperWarning = warning.toUpperCase();
+            for (var key in warningColors) {
+                if (warningColors.hasOwnProperty(key) && upperWarning.indexOf(key) !== -1) {
+                    return warningColors[key];
+                }
+            }
+            return '#205295';
+        }
+
+        function initMap() {
+            var basin = document.getElementById('basin').value;
+            var center = basin === 'atlantic' ? [33, -75] : [33, -119];
+            var zoom = basin === 'atlantic' ? 5 : 6;
+
+            map = L.map('map', { zoomControl: true }).setView(center, zoom);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13,
+                attribution: 'Esri Ocean Basemap'
+            }).addTo(map);
+
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Reference/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 13
+            }).addTo(map);
+
+            zonesLayer = L.layerGroup().addTo(map);
+
+            L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
+        }
+
+        function loadZones() {
+            var basin = document.getElementById('basin').value;
+            var opareas = navyOpareas[basin];
+
+            zonesLayer.clearLayers();
+
+            for (var zoneId in opareas) {
+                if (opareas.hasOwnProperty(zoneId)) {
+                    var zone = opareas[zoneId];
+                    var forecast = sampleForecasts[basin] && sampleForecasts[basin][zoneId];
+                    var warning = forecast ? forecast.warning : 'NONE';
+                    var color = getWarningColor(warning);
+
+                    var polygon = L.polygon(zone.coords, {
+                        fillColor: color,
+                        weight: 2,
+                        opacity: 1,
+                        color: '#0a2647',
+                        fillOpacity: 0.55
+                    });
+
+                    polygon.zoneId = zoneId;
+                    polygon.zoneName = zone.name;
+                    polygon.longName = zone.longName;
+
+                    polygon.bindPopup(
+                        '<div class="zone-popup-title">' + zone.name + '</div>' +
+                        '<div class="zone-popup-id">Click to view forecast</div>'
+                    );
+
+                    polygon.on({
+                        mouseover: function(e) {
+                            e.target.setStyle({ weight: 3, color: '#2c74b3', fillOpacity: 0.75 });
+                            e.target.bringToFront();
+                        },
+                        mouseout: function(e) {
+                            var zId = e.target.zoneId;
+                            var fcst = sampleForecasts[document.getElementById('basin').value];
+                            var w = fcst && fcst[zId] ? fcst[zId].warning : 'NONE';
+                            e.target.setStyle({
+                                fillColor: getWarningColor(w),
+                                weight: 2,
+                                opacity: 1,
+                                color: '#0a2647',
+                                fillOpacity: 0.55
+                            });
+                        },
+                        click: function(e) {
+                            showForecast(e.target.zoneId, e.target.longName);
+                        }
+                    });
+
+                    polygon.addTo(zonesLayer);
+
+                    // Add label
+                    var label = L.marker(zone.center, {
+                        icon: L.divIcon({
+                            className: 'zone-label',
+                            html: '<div style="background: rgba(10,38,71,0.9); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid #2c74b3;">' + zone.longName + '</div>',
+                            iconSize: null
+                        })
+                    });
+                    label.addTo(zonesLayer);
+                }
+            }
+        }
+
+        function showForecast(zoneId, zoneName) {
+            currentZone = zoneId;
+
+            // Open sidebar on mobile
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            if (window.innerWidth <= 900 && !sidebar.classList.contains('open')) {
+                sidebar.classList.add('open');
+                toggle.innerHTML = '&#9660;';
+            }
+
+            var panel = document.getElementById('forecastPanel');
+            var basin = document.getElementById('basin').value;
+            var forecast = sampleForecasts[basin] && sampleForecasts[basin][zoneId];
+
+            if (!forecast) {
+                panel.innerHTML = '<h3>OPAREA Forecast</h3>' +
+                    '<div class="full-text-links">' +
+                    '<h4>Full Forecast Products</h4>' +
+                    '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
+                    '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
+                    '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                    '</div>' +
+                    '<div class="no-data">No forecast data available for ' + zoneName + '</div>';
+                return;
+            }
+
+            var warningColor = getWarningColor(forecast.warning);
+            var textColor = (warningColor === '#ffff00') ? '#000' : '#fff';
+
+            var html = '<h3>OPAREA Forecast</h3>' +
+                '<div class="full-text-links">' +
+                '<h4>Full Forecast Products</h4>' +
+                '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
+                '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
+                '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                '</div>' +
+                '<div class="forecast-header">' + zoneName + ' OPAREA</div>' +
+                '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
+
+            if (forecast.warning && forecast.warning !== 'NONE') {
+                html += '<div class="warning-banner" style="background:' + warningColor + ';color:' + textColor + ';">' + forecast.warning + '</div>';
+            }
+
+            html += '<div class="synopsis-section">' +
+                '<h4>Meteorological Situation</h4>' +
+                '<p>' + forecast.synopsis + '</p>' +
+                '</div>';
+
+            html += '<div class="forecast-content">' +
+                '<h4>Area Forecast</h4>' +
+                '<pre>' + forecast.forecast + '</pre>' +
+                '</div>';
+
+            panel.innerHTML = html;
+            updateChart(forecast);
+        }
+
+        function updateChart(forecast) {
+            var ctx = document.getElementById('weatherChart').getContext('2d');
+            if (weatherChart) weatherChart.destroy();
+
+            // Parse simple forecast data for chart
+            var labels = ['Today', 'Tonight', 'Tomorrow'];
+            var windSpeeds = [];
+            var waveHeights = [];
+
+            // Extract wind and wave data from forecast text
+            var windMatches = forecast.forecast.match(/WINDS?\s+(\d+)\s+TO\s+(\d+)/gi);
+            var seaMatches = forecast.forecast.match(/SEAS?\s+(\d+)\s+TO\s+(\d+)/gi);
+
+            if (windMatches) {
+                windMatches.forEach(function(match) {
+                    var nums = match.match(/(\d+)/g);
+                    if (nums && nums.length >= 2) {
+                        windSpeeds.push(Math.max(parseInt(nums[0]), parseInt(nums[1])));
+                    }
+                });
+            }
+
+            if (seaMatches) {
+                seaMatches.forEach(function(match) {
+                    var nums = match.match(/(\d+)/g);
+                    if (nums && nums.length >= 2) {
+                        waveHeights.push(Math.max(parseInt(nums[0]), parseInt(nums[1])));
+                    }
+                });
+            }
+
+            // Ensure we have at least 3 data points
+            while (windSpeeds.length < 3) windSpeeds.push(windSpeeds[windSpeeds.length - 1] || 10);
+            while (waveHeights.length < 3) waveHeights.push(waveHeights[waveHeights.length - 1] || 4);
+
+            weatherChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Wind (kt)',
+                            data: windSpeeds.slice(0, 3),
+                            borderColor: '#2c74b3',
+                            backgroundColor: 'rgba(44,116,179,0.15)',
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Waves (ft)',
+                            data: waveHeights.slice(0, 3),
+                            borderColor: '#205295',
+                            backgroundColor: 'rgba(32,82,149,0.15)',
+                            yAxisID: 'y1',
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: { usePointStyle: true, padding: 10, font: { size: 11 } }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            type: 'linear',
+                            position: 'left',
+                            title: { display: true, text: 'Wind (kt)', font: { size: 10 } },
+                            beginAtZero: true
+                        },
+                        y1: {
+                            type: 'linear',
+                            position: 'right',
+                            title: { display: true, text: 'Waves (ft)', font: { size: 10 } },
+                            beginAtZero: true,
+                            grid: { drawOnChartArea: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function changeBasin() {
+            var basin = document.getElementById('basin').value;
+            var center = basin === 'atlantic' ? [33, -75] : [33, -119];
+            var zoom = basin === 'atlantic' ? 5 : 6;
+            map.flyTo(center, zoom);
+            loadZones();
+
+            // Reset forecast panel
+            document.getElementById('forecastPanel').innerHTML =
+                '<h3>OPAREA Forecast</h3>' +
+                '<div class="full-text-links">' +
+                '<h4>Full Forecast Products</h4>' +
+                '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
+                '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
+                '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                '</div>' +
+                '<div class="no-data">Click on an OPAREA zone to view forecast details</div>';
+        }
+
+        function toggleSidebar() {
+            var sidebar = document.getElementById('sidebar');
+            var toggle = document.getElementById('mobileToggle');
+            sidebar.classList.toggle('open');
+            toggle.innerHTML = sidebar.classList.contains('open') ? '&#9660;' : '&#9650;';
+        }
+
+        function refreshData() {
+            var btn = document.getElementById('refreshBtn');
+            btn.textContent = 'Refreshing...';
+            btn.disabled = true;
+
+            // Simulate refresh
+            setTimeout(function() {
+                loadZones();
+                btn.textContent = 'Refresh Data';
+                btn.disabled = false;
+            }, 1000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initMap();
+            loadZones();
+
+            document.getElementById('basin').addEventListener('change', changeBasin);
+            document.getElementById('refreshBtn').addEventListener('click', refreshData);
+            document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+
+            // About modal
+            var aboutModal = document.getElementById('aboutModal');
+            document.getElementById('aboutBtn').addEventListener('click', function() {
+                aboutModal.classList.add('open');
+            });
+            document.getElementById('modalClose').addEventListener('click', function() {
+                aboutModal.classList.remove('open');
+            });
+            aboutModal.addEventListener('click', function(e) {
+                if (e.target === aboutModal) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
+                    aboutModal.classList.remove('open');
+                }
+            });
+        });
+    </script>
+</body>
+</html>

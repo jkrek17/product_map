@@ -138,6 +138,10 @@ function updateUrl(zone, basin) {
 
 // Extract issue time from text
 function extractIssueTime(text) {
+    // Try "ISSUED AT MM/DD/YYYY HH:MMZ" format
+    var issuedAtMatch = text.match(/ISSUED\s+AT\s+(\d{2}\/\d{2}\/\d{4}\s+\d{2}:\d{2}Z)/i);
+    if (issuedAtMatch) return issuedAtMatch[1];
+    
     // Try standard NWS format: "1030 AM EST TUE FEB 26 2024"
     var timeMatch = text.match(/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i);
     if (timeMatch) return timeMatch[1];

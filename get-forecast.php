@@ -11,13 +11,15 @@ if (!in_array($pil, $allowed)) {
     exit('Invalid PIL');
 }
 
-// Map PILs to file paths
+$docRoot = $_SERVER['DOCUMENT_ROOT'];
+
+// Map PILs to file paths (relative to document root)
 $files = [
-    'WRKFWNX01' => '/home/people/opc/www/htdocs/shtml/WRKFWNX01.txt',
-    'WRKFWNX02' => '/home/people/opc/www/htdocs/shtml/WRKFWNX02.txt',
-    'WRKFWNX03' => '/home/people/opc/www/htdocs/shtml/WRKFWNX03.txt',
-    'WRKFWNXPT' => '/home/people/opc/www/htdocs/shtml/WRKFWNXPT.txt',
-    'FWCSD' => '/home/people/opc/www/htdocs/.cj/.monitor/.navy/gfe_navy_zones_fwcsc1_onp_latest.txt'
+    'WRKFWNX01' => $docRoot . '/shtml/WRKFWNX01.txt',
+    'WRKFWNX02' => $docRoot . '/shtml/WRKFWNX02.txt',
+    'WRKFWNX03' => $docRoot . '/shtml/WRKFWNX03.txt',
+    'WRKFWNXPT' => $docRoot . '/shtml/WRKFWNXPT.txt',
+    'FWCSD' => $docRoot . '/.cj/.monitor/.navy/gfe_navy_zones_fwcsc1_onp_latest.txt'
 ];
 
 $file = $files[$pil] ?? null;

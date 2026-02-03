@@ -63,7 +63,7 @@ Forecast data from NOAA Ocean Prediction Center:
 ├── navtex-forecasts.json   # NAVTEX forecast data
 ├── offshores.geojson       # Offshore zone polygons
 ├── navtex.geojson          # NAVTEX zone polygons
-├── navy-san-diego.geojson  # Navy San Diego OPAREA polygons
+├── navy.geojson            # Navy OPAREA polygons (Atlantic & Pacific)
 ├── libs/
 │   ├── leaflet/            # Leaflet 1.9.4
 │   └── chartjs/            # Chart.js 4.4.1

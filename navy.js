@@ -36,133 +36,8 @@ var warningColors = {
     'NONE': '#205295'
 };
 
-// Navy OPAREA definitions with approximate coordinates
-var navyOpareas = {
-    atlantic: {
-        boston: {
-            name: "Boston OPAREA",
-            longName: "Boston",
-            coords: [
-                [42.8, -70.0], [42.8, -69.0], [42.0, -69.0], [42.0, -69.5],
-                [41.5, -69.5], [41.5, -70.5], [42.3, -70.5], [42.8, -70.0]
-            ],
-            center: [42.15, -69.75],
-            pil: "WRKFWNX02"
-        },
-        race_rock: {
-            name: "Race Rock OPAREA",
-            longName: "Race Rock",
-            coords: [
-                [41.4, -72.5], [41.4, -71.5], [41.0, -71.5], [41.0, -72.0],
-                [40.8, -72.0], [40.8, -72.5], [41.4, -72.5]
-            ],
-            center: [41.1, -72.0],
-            pil: "WRKFWNX02"
-        },
-        narrabay: {
-            name: "Narragansett Bay OPAREA",
-            longName: "Narragansett Bay",
-            coords: [
-                [41.6, -71.5], [41.6, -70.5], [41.0, -70.5], [41.0, -71.0],
-                [40.5, -71.0], [40.5, -71.5], [41.6, -71.5]
-            ],
-            center: [41.05, -71.0],
-            pil: "WRKFWNX02"
-        },
-        vacapes: {
-            name: "VACAPES OPAREA",
-            longName: "Virginia Capes",
-            coords: [
-                [37.5, -75.0], [37.5, -74.0], [37.0, -74.0], [37.0, -74.5],
-                [36.5, -74.5], [36.5, -75.5], [37.0, -75.5], [37.5, -75.0]
-            ],
-            center: [37.0, -74.75],
-            pil: "WRKFWNX01"
-        },
-        cherry_point: {
-            name: "Cherry Point OPAREA",
-            longName: "Cherry Point",
-            coords: [
-                [35.5, -75.5], [35.5, -74.5], [34.5, -74.5], [34.5, -75.0],
-                [34.0, -75.0], [34.0, -76.0], [35.0, -76.0], [35.5, -75.5]
-            ],
-            center: [34.75, -75.25],
-            pil: "WRKFWNX01"
-        },
-        charleston: {
-            name: "Charleston OPAREA",
-            longName: "Charleston",
-            coords: [
-                [33.5, -78.5], [33.5, -77.5], [32.5, -77.5], [32.5, -78.0],
-                [32.0, -78.0], [32.0, -79.0], [33.0, -79.0], [33.5, -78.5]
-            ],
-            center: [32.75, -78.25],
-            pil: "WRKFWNX01"
-        },
-        jacksonville: {
-            name: "Jacksonville OPAREA",
-            longName: "Jacksonville",
-            coords: [
-                [31.5, -80.0], [31.5, -79.0], [30.5, -79.0], [30.5, -79.5],
-                [29.5, -79.5], [29.5, -80.5], [30.5, -80.5], [31.5, -80.0]
-            ],
-            center: [30.5, -79.75],
-            pil: "WRKFWNX01"
-        },
-        port_canaveral: {
-            name: "Port Canaveral OPAREA",
-            longName: "Port Canaveral",
-            coords: [
-                [29.0, -79.5], [29.0, -78.5], [28.0, -78.5], [28.0, -79.0],
-                [27.5, -79.0], [27.5, -80.0], [28.5, -80.0], [29.0, -79.5]
-            ],
-            center: [28.25, -79.25],
-            pil: "WRKFWNX01"
-        },
-        toto: {
-            name: "Tongue of the Ocean OPAREA",
-            longName: "Tongue of the Ocean",
-            coords: [
-                [25.0, -77.5], [25.0, -76.5], [24.0, -76.5], [24.0, -77.0],
-                [23.5, -77.0], [23.5, -78.0], [24.5, -78.0], [25.0, -77.5]
-            ],
-            center: [24.25, -77.25],
-            pil: "WRKFWNX01"
-        }
-    },
-    pacific: {
-        socal: {
-            name: "SOCAL OPAREA",
-            longName: "Southern California",
-            coords: [
-                [34.0, -120.5], [34.0, -117.5], [32.5, -117.5], [32.5, -118.5],
-                [32.0, -118.5], [32.0, -120.5], [33.0, -120.5], [34.0, -120.5]
-            ],
-            center: [33.0, -119.0],
-            pil: "WRKFWNXPT"
-        },
-        point_mugu: {
-            name: "Point Mugu OPAREA",
-            longName: "Point Mugu",
-            coords: [
-                [34.5, -120.0], [34.5, -119.0], [34.0, -119.0], [34.0, -119.5],
-                [33.5, -119.5], [33.5, -120.5], [34.0, -120.5], [34.5, -120.0]
-            ],
-            center: [34.0, -119.5],
-            pil: "WRKFWNXPT"
-        },
-        san_clemente: {
-            name: "San Clemente Island OPAREA",
-            longName: "San Clemente Island",
-            coords: [
-                [33.5, -119.0], [33.5, -118.0], [32.5, -118.0], [32.5, -118.5],
-                [32.0, -118.5], [32.0, -119.5], [33.0, -119.5], [33.5, -119.0]
-            ],
-            center: [32.75, -118.5],
-            pil: "WRKFWNXPT"
-        }
-    }
-};
+// Navy GeoJSON data (loaded dynamically)
+var navyGeoJson = null;
 
 // OPAREA parsing configuration
 var opareaConfig = {
@@ -214,20 +89,25 @@ var opareaConfig = {
         }
     },
     pacific: {
-        socal: {
+        area_a: {
             pil: 'FWCSD',
-            startPattern: 'SOCAL',
-            endPattern: 'POINT MUGU'
+            startPattern: '4. AREA A:',
+            endPattern: '5. AREA B:'
         },
-        point_mugu: {
+        area_b: {
             pil: 'FWCSD',
-            startPattern: 'POINT MUGU',
-            endPattern: 'SAN CLEMENTE'
+            startPattern: '5. AREA B:',
+            endPattern: '6. AREA C:'
         },
-        san_clemente: {
+        area_c: {
             pil: 'FWCSD',
-            startPattern: 'SAN CLEMENTE',
-            endPattern: 'FORECASTER'
+            startPattern: '6. AREA C:',
+            endPattern: '7. AREA D:'
+        },
+        area_d: {
+            pil: 'FWCSD',
+            startPattern: '7. AREA D:',
+            endPattern: '8.'
         }
     }
 };
@@ -294,6 +174,19 @@ function getWarningColor(warning) {
     return '#205295';
 }
 
+// Get display name for a zone from GeoJSON
+function getZoneDisplayName(zoneId, basin) {
+    if (!navyGeoJson) return null;
+    
+    for (var i = 0; i < navyGeoJson.features.length; i++) {
+        var feature = navyGeoJson.features[i];
+        if (feature.properties.id === zoneId && feature.properties.basin === basin) {
+            return feature.properties.name;
+        }
+    }
+    return null;
+}
+
 // Parse OPAREA forecast from raw text
 function parseOparea(text, startPattern, endPattern) {
     if (!text) return null;
@@ -301,6 +194,16 @@ function parseOparea(text, startPattern, endPattern) {
     // Create regex to find the section
     var escapedStart = startPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     var escapedEnd = endPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    
+    // For Pacific format (4. AREA A: ... 5. AREA B:)
+    if (startPattern.match(/^\d+\.\s*AREA/)) {
+        var pattern = new RegExp(escapedStart + '([\\s\\S]*?)(?=' + escapedEnd + '|$)', 'i');
+        var match = text.match(pattern);
+        if (match) {
+            return (startPattern + match[1]).trim();
+        }
+        return null;
+    }
     
     // Match from start pattern to before end pattern (which starts a new section)
     var pattern = new RegExp('\\d+\\.\\s*(' + escapedStart + '[^]*?)(?=\\n\\s*\\d+\\.\\s*' + escapedEnd + '|$)', 'i');
@@ -315,6 +218,43 @@ function parseOparea(text, startPattern, endPattern) {
     var simpleMatch = text.match(simplePattern);
     
     return simpleMatch ? simpleMatch[1].trim() : null;
+}
+
+// Load Navy GeoJSON (all zones)
+function loadNavyGeoJson() {
+    return fetch('navy.geojson')
+        .then(function(response) {
+            if (!response.ok) throw new Error('Failed to load GeoJSON');
+            return response.json();
+        })
+        .then(function(data) {
+            navyGeoJson = data;
+            console.log('[DEBUG] Loaded Navy GeoJSON with', data.features.length, 'features');
+            return data;
+        })
+        .catch(function(error) {
+            console.error('[DEBUG] Error loading Navy GeoJSON:', error);
+            return null;
+        });
+}
+
+// Convert GeoJSON coordinates to Leaflet format [lat, lng]
+function geoJsonCoordsToLeaflet(coords) {
+    // GeoJSON is [lng, lat], Leaflet needs [lat, lng]
+    return coords[0].map(function(coord) {
+        return [coord[1], coord[0]];
+    });
+}
+
+// Calculate center of polygon
+function calculateCenter(coords) {
+    var latSum = 0, lngSum = 0;
+    var points = coords[0];
+    for (var i = 0; i < points.length; i++) {
+        lngSum += points[i][0];
+        latSum += points[i][1];
+    }
+    return [latSum / points.length, lngSum / points.length];
 }
 
 // Generate full text links HTML
@@ -398,9 +338,9 @@ function loadForecastData() {
         // Show pending zone from URL if any
         if (pendingZoneFromUrl) {
             var currentBasin = document.getElementById('basin').value;
-            var opareas = navyOpareas[currentBasin];
-            if (opareas && opareas[pendingZoneFromUrl]) {
-                showForecast(pendingZoneFromUrl, opareas[pendingZoneFromUrl].longName);
+            var zoneName = getZoneDisplayName(pendingZoneFromUrl, currentBasin);
+            if (zoneName) {
+                showForecast(pendingZoneFromUrl, zoneName);
             }
             pendingZoneFromUrl = null;
         }
@@ -429,72 +369,85 @@ function initMap() {
     L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
 }
 
-// Load zones onto map
+// Load zones onto map from GeoJSON
 function loadZones() {
     var basin = document.getElementById('basin').value;
-    var opareas = navyOpareas[basin];
 
     zonesLayer.clearLayers();
 
-    for (var zoneId in opareas) {
-        if (opareas.hasOwnProperty(zoneId)) {
-            var zone = opareas[zoneId];
-            var forecast = parsedForecasts[basin] && parsedForecasts[basin][zoneId];
-            var warning = forecast ? forecast.warning : 'NONE';
-            var color = getWarningColor(warning);
-
-            var polygon = L.polygon(zone.coords, {
-                fillColor: color,
-                weight: 2,
-                opacity: 1,
-                color: '#0a2647',
-                fillOpacity: 0.55
-            });
-
-            polygon.zoneId = zoneId;
-            polygon.zoneName = zone.name;
-            polygon.longName = zone.longName;
-
-            polygon.bindPopup(
-                '<div class="zone-popup-title">' + zone.name + '</div>' +
-                '<div class="zone-popup-id">Click to view forecast</div>'
-            );
-
-            polygon.on({
-                mouseover: function(e) {
-                    e.target.setStyle({ weight: 3, color: '#2c74b3', fillOpacity: 0.75 });
-                    e.target.bringToFront();
-                },
-                mouseout: function(e) {
-                    var zId = e.target.zoneId;
-                    var fcst = parsedForecasts[document.getElementById('basin').value];
-                    var w = fcst && fcst[zId] ? fcst[zId].warning : 'NONE';
-                    e.target.setStyle({
-                        fillColor: getWarningColor(w),
-                        weight: 2,
-                        opacity: 1,
-                        color: '#0a2647',
-                        fillOpacity: 0.55
-                    });
-                },
-                click: function(e) {
-                    showForecast(e.target.zoneId, e.target.longName);
-                }
-            });
-
-            polygon.addTo(zonesLayer);
-
-            // Add label
-            var label = L.marker(zone.center, {
-                icon: L.divIcon({
-                    className: 'zone-label',
-                    html: '<div style="background: rgba(10,38,71,0.9); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid #2c74b3;">' + zone.longName + '</div>',
-                    iconSize: null
-                })
-            });
-            label.addTo(zonesLayer);
-        }
+    if (!navyGeoJson) {
+        console.warn('[DEBUG] Navy GeoJSON not loaded yet');
+        return;
     }
+
+    navyGeoJson.features.forEach(function(feature) {
+        // Only show zones for the selected basin
+        if (feature.properties.basin !== basin) {
+            return;
+        }
+
+        var zoneId = feature.properties.id;
+        var displayName = feature.properties.name;
+
+        var forecast = parsedForecasts[basin] && parsedForecasts[basin][zoneId];
+        var warning = forecast ? forecast.warning : 'NONE';
+        var color = getWarningColor(warning);
+
+        var coords = geoJsonCoordsToLeaflet(feature.geometry.coordinates);
+        var center = calculateCenter(feature.geometry.coordinates);
+
+        var polygon = L.polygon(coords, {
+            fillColor: color,
+            weight: 2,
+            opacity: 1,
+            color: '#0a2647',
+            fillOpacity: 0.55
+        });
+
+        polygon.zoneId = zoneId;
+        polygon.zoneName = displayName;
+        polygon.longName = displayName;
+
+        polygon.bindPopup(
+            '<div class="zone-popup-title">' + displayName + '</div>' +
+            '<div class="zone-popup-id">Click to view forecast</div>'
+        );
+
+        polygon.on({
+            mouseover: function(e) {
+                e.target.setStyle({ weight: 3, color: '#2c74b3', fillOpacity: 0.75 });
+                e.target.bringToFront();
+            },
+            mouseout: function(e) {
+                var zId = e.target.zoneId;
+                var currentBasin = document.getElementById('basin').value;
+                var fcst = parsedForecasts[currentBasin];
+                var w = fcst && fcst[zId] ? fcst[zId].warning : 'NONE';
+                e.target.setStyle({
+                    fillColor: getWarningColor(w),
+                    weight: 2,
+                    opacity: 1,
+                    color: '#0a2647',
+                    fillOpacity: 0.55
+                });
+            },
+            click: function(e) {
+                showForecast(e.target.zoneId, e.target.longName);
+            }
+        });
+
+        polygon.addTo(zonesLayer);
+
+        // Add label
+        var label = L.marker([center[0], center[1]], {
+            icon: L.divIcon({
+                className: 'zone-label',
+                html: '<div style="background: rgba(10,38,71,0.9); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; white-space: nowrap; border: 1px solid #2c74b3;">' + displayName + '</div>',
+                iconSize: null
+            })
+        });
+        label.addTo(zonesLayer);
+    });
 }
 
 // Show forecast for a zone
@@ -642,8 +595,8 @@ function updateChart(forecast) {
 // Change basin
 function changeBasin() {
     var basin = document.getElementById('basin').value;
-    var center = basin === 'atlantic' ? [33, -75] : [33, -119];
-    var zoom = basin === 'atlantic' ? 5 : 6;
+    var center = basin === 'atlantic' ? [33, -75] : [32, -118];
+    var zoom = basin === 'atlantic' ? 5 : 7;
     map.flyTo(center, zoom);
     
     // Update URL with new basin
@@ -708,11 +661,14 @@ document.addEventListener('DOMContentLoaded', function() {
     // Set initial map view based on basin
     var basin = document.getElementById('basin').value;
     if (basin === 'pacific') {
-        map.setView([33, -119], 6);
+        map.setView([32, -118], 7);
     }
     
-    // Load forecast data from NWS (this will also call loadZones and handle pendingZoneFromUrl)
-    loadForecastData();
+    // Load Navy GeoJSON first, then forecast data
+    loadNavyGeoJson().then(function() {
+        // Load forecast data from NWS (this will also call loadZones and handle pendingZoneFromUrl)
+        loadForecastData();
+    });
 
     // Event listeners
     document.getElementById('basin').addEventListener('change', changeBasin);

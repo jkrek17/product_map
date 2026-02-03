@@ -506,9 +506,135 @@ function showForecast(zoneId, zoneName) {
 function formatForecastTable(text) {
     if (!text) return '<p>No forecast data</p>';
     
-    var rows = [];
+    // Check if this is Pacific format (starts with "4. AREA" or similar)
+    var isPacific = /^\d+\.\s*AREA\s+[A-D]:/i.test(text.trim());
     
-    // Parse each section
+    if (isPacific) {
+        return formatPacificForecast(text);
+    }
+    
+    return formatAtlanticForecast(text);
+}
+
+// Format Pacific (FWC San Diego) forecast
+function formatPacificForecast(text) {
+    var html = '<div class="forecast-table-container">';
+    
+    // Pacific format parsing
+    // Look for WIND and SEAS patterns
+    var windData = [];
+    var seasData = [];
+    var skyData = [];
+    
+    // Parse wind: "DD/HHZ: DIRECTION ## TO ##" or "WINDS...DIRECTION ## TO ## KT"
+    var windPattern = /(\d{2}\/\d{2}Z):\s*([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)(G\d+)?/gi;
+    var match;
+    while ((match = windPattern.exec(text)) !== null) {
+        windData.push({
+            time: match[1],
+            dir: match[2],
+            low: match[3],
+            high: match[4],
+            gust: match[5] || ''
+        });
+    }
+    
+    // Also try "WINDS...N 10 TO 15 KT" pattern
+    if (windData.length === 0) {
+        var altWindPattern = /WINDS?[^.]*?([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)\s*(?:KT|KNOTS)?/gi;
+        while ((match = altWindPattern.exec(text)) !== null) {
+            windData.push({
+                time: '-',
+                dir: match[1],
+                low: match[2],
+                high: match[3],
+                gust: ''
+            });
+        }
+    }
+    
+    // Parse seas: "COMBINED SEAS...DIRECTION ## TO ## FT" or similar
+    var seasPattern = /COMBINED\s+SEAS[^.]*?([A-Z-]+)\s+(\d+)\s+TO\s+(\d+)\s*(?:FT|FEET)?/gi;
+    while ((match = seasPattern.exec(text)) !== null) {
+        seasData.push({
+            time: '-',
+            dir: match[1],
+            low: match[2],
+            high: match[3]
+        });
+    }
+    
+    // Also try timestamped seas
+    if (seasData.length === 0) {
+        var altSeasPattern = /(\d{2}\/\d{2}Z):[^,\n]*?(\d+)\s+TO\s+(\d+)\s*(?:FT|FEET)/gi;
+        while ((match = altSeasPattern.exec(text)) !== null) {
+            seasData.push({
+                time: match[1],
+                dir: '-',
+                low: match[2],
+                high: match[3]
+            });
+        }
+    }
+    
+    // Try generic seas pattern "SEAS ## TO ## FT"
+    if (seasData.length === 0) {
+        var genericSeasPattern = /SEAS[^.]*?(\d+)\s+TO\s+(\d+)\s*(?:FT|FEET)?/gi;
+        while ((match = genericSeasPattern.exec(text)) !== null) {
+            seasData.push({
+                time: '-',
+                dir: '-',
+                low: match[1],
+                high: match[2]
+            });
+        }
+    }
+    
+    // Parse sky/weather
+    var skyPattern = /SKY\/(?:WX|WEATHER)[^.]*?\.\.\.([^.]+)/gi;
+    while ((match = skyPattern.exec(text)) !== null) {
+        skyData.push({ time: '-', value: match[1].trim() });
+    }
+    
+    // Build table
+    html += '<table class="forecast-table"><thead><tr><th>Parameter</th><th>Forecast</th></tr></thead><tbody>';
+    
+    // Sky
+    if (skyData.length > 0) {
+        html += '<tr><td><strong>Sky/Weather</strong></td><td>' + skyData.map(function(s) { return s.value; }).join(', ') + '</td></tr>';
+    }
+    
+    // Wind
+    if (windData.length > 0) {
+        var windStr = windData.map(function(w) {
+            var val = w.dir + ' ' + w.low + '-' + w.high + (w.gust || '') + ' kt';
+            return w.time !== '-' ? w.time + ': ' + val : val;
+        }).join('<br>');
+        html += '<tr><td><strong>Winds</strong></td><td>' + windStr + '</td></tr>';
+    }
+    
+    // Seas
+    if (seasData.length > 0) {
+        var seasStr = seasData.map(function(s) {
+            var val = (s.dir !== '-' ? s.dir + ' ' : '') + s.low + '-' + s.high + ' ft';
+            return s.time !== '-' ? s.time + ': ' + val : val;
+        }).join('<br>');
+        html += '<tr><td><strong>Combined Seas</strong></td><td>' + seasStr + '</td></tr>';
+    }
+    
+    html += '</tbody></table>';
+    
+    // Show raw text in collapsible section if parsing didn't get much
+    if (windData.length === 0 && seasData.length === 0) {
+        html += '<pre style="font-size:12px;margin-top:10px;white-space:pre-wrap;">' + text + '</pre>';
+    }
+    
+    html += '</div>';
+    return html;
+}
+
+// Format Atlantic (OPAREA) forecast
+function formatAtlanticForecast(text) {
     var sections = {
         hazards: '',
         sky: [],
@@ -789,8 +915,9 @@ function updateChart(forecast) {
         }
     }
 
-    // Fallback: try generic patterns if Navy format didn't work
+    // Fallback: try generic patterns if Atlantic format didn't work (e.g., Pacific format)
     if (windSpeeds.length === 0) {
+        // Try timestamped pattern first
         var genericWindPattern = /(\d{2})\/(\d{2})Z:\s*[A-Z-]+\s+(\d+)\s+TO\s+(\d+)/gi;
         var match;
         while ((match = genericWindPattern.exec(text)) !== null) {
@@ -801,11 +928,43 @@ function updateChart(forecast) {
                 labels.push(match[1] + '/' + match[2] + 'Z');
             }
         }
+        
+        // Try Pacific "WINDS...DIRECTION ## TO ## KT" pattern
+        if (windSpeeds.length === 0) {
+            var pacificWindPattern = /WINDS?[^.]*?[A-Z-]+\s+(\d+)\s+TO\s+(\d+)\s*(?:KT|KNOTS)?/gi;
+            while ((match = pacificWindPattern.exec(text)) !== null) {
+                windSpeeds.push(Math.max(parseInt(match[1]), parseInt(match[2])));
+            }
+        }
+    }
+    
+    // Fallback for seas if not found
+    if (waveHeights.length === 0) {
+        // Try "COMBINED SEAS...DIRECTION ## TO ## FT" pattern
+        var pacificSeasPattern = /COMBINED\s+SEAS[^.]*?[A-Z-]*\s*(\d+)\s+TO\s+(\d+)\s*(?:FT|FEET)?/gi;
+        var match;
+        while ((match = pacificSeasPattern.exec(text)) !== null) {
+            waveHeights.push(Math.max(parseInt(match[1]), parseInt(match[2])));
+        }
+        
+        // Try generic "SEAS ## TO ## FT" pattern
+        if (waveHeights.length === 0) {
+            var genericSeasPattern = /SEAS[^.]*?(\d+)\s+TO\s+(\d+)\s*(?:FT|FEET)?/gi;
+            while ((match = genericSeasPattern.exec(text)) !== null) {
+                waveHeights.push(Math.max(parseInt(match[1]), parseInt(match[2])));
+            }
+        }
     }
 
     // Default labels if none set
     if (labels.length === 0) {
-        labels = ['Today', 'Tonight', 'Tomorrow'];
+        if (windSpeeds.length > 0) {
+            for (var i = 0; i < windSpeeds.length; i++) {
+                labels.push('Period ' + (i + 1));
+            }
+        } else {
+            labels = ['Current'];
+        }
     }
 
     // Ensure we have data points matching labels

@@ -220,8 +220,8 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 520px;
-    min-width: 520px;
+    width: 620px;
+    min-width: 620px;
     display: flex;
     flex-direction: column;
     background: linear-gradient(180deg, #144272 0%, #0a2647 100%);

@@ -1073,8 +1073,8 @@ function updateChart(forecast) {
                 {
                     label: 'Waves (ft)',
                     data: waveHeights,
-                    borderColor: '#205295',
-                    backgroundColor: 'rgba(32,82,149,0.15)',
+                    borderColor: '#e67e22',
+                    backgroundColor: 'rgba(230,126,34,0.15)',
                     yAxisID: 'y1',
                     tension: 0.3,
                     fill: true

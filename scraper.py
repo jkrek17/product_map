@@ -406,22 +406,22 @@ def main():
         print("Warning: No NAVTEX data retrieved")
 
     # Save JSON files
-    off_path = os.path.join(script_dir, 'off.json')
-    nav_path = os.path.join(script_dir, 'nav.json')
+    off_path = os.path.join(script_dir, 'offshore-forecasts.json')
+    nav_path = os.path.join(script_dir, 'navtex-forecasts.json')
 
     if offshore_data:
         with open(off_path, 'w') as f:
             json.dump(offshore_data, f, indent=2)
         print("\nSaved: {} ({} zones)".format(off_path, len(offshore_data)))
     else:
-        print("\nSkipped off.json - no data")
+        print("\nSkipped offshore-forecasts.json - no data")
 
     if navtex_data:
         with open(nav_path, 'w') as f:
             json.dump(navtex_data, f, indent=2)
         print("Saved: {} ({} zones)".format(nav_path, len(navtex_data)))
     else:
-        print("Skipped nav.json - no data")
+        print("Skipped navtex-forecasts.json - no data")
 
     print("\nDone!")
 

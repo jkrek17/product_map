@@ -1169,7 +1169,7 @@
                     console.error('[DEBUG] Error message:', error.message);
                     console.error('[DEBUG] Error stack:', error.stack);
                     // Fallback to static JSON files
-                    var jsonFile = (product === 'navtex') ? 'nav.json' : 'off.json';
+                    var jsonFile = (product === 'navtex') ? 'navtex-forecasts.json' : 'offshore-forecasts.json';
                     console.log('[DEBUG] Falling back to static JSON file:', jsonFile);
                     fetch(jsonFile)
                         .then(function(r) {

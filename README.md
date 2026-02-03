@@ -50,7 +50,7 @@ Navigate to http://localhost:8000
 - `api.php?type=diagnose` - Check data file status
 - Add `&debug=1` to any request for detailed debug info
 
-Data is loaded from `off.json` and `nav.json` files, which are updated by running `scraper.py`.
+Data is loaded from `offshore-forecasts.json` and `navtex-forecasts.json` files, which are updated by running `scraper.py`.
 
 ## Data Sources
 
@@ -73,16 +73,20 @@ Forecast data from NOAA Ocean Prediction Center:
 ## File Structure
 
 ```
-├── index.html          # Main application
-├── scraper.py          # Forecast data scraper
-├── serve.py            # Local test server
-├── off.json            # Offshore forecast data
-├── nav.json            # NAVTEX forecast data
-├── offshores.geojson   # Offshore zone polygons
-├── navtex.geojson      # NAVTEX zone polygons
+├── index.html              # Main application
+├── navy.html               # Navy forecasts page
+├── scraper.py              # Forecast data scraper
+├── serve.py                # Local test server
+├── offshore-forecasts.json # Offshore forecast data
+├── navtex-forecasts.json   # NAVTEX forecast data
+├── offshores.geojson       # Offshore zone polygons
+├── navtex.geojson          # NAVTEX zone polygons
+├── navy-san-diego.geojson  # Navy San Diego OPAREA polygons
+├── navy.css                # Navy page styles
+├── navy.js                 # Navy page JavaScript
 ├── libs/
-│   ├── leaflet/        # Leaflet 1.9.4
-│   └── chartjs/        # Chart.js 4.4.1
+│   ├── leaflet/            # Leaflet 1.9.4
+│   └── chartjs/            # Chart.js 4.4.1
 └── README.md
 ```
 
@@ -137,12 +141,12 @@ If your web server can't access external URLs (firewall), run the scraper elsewh
 
 ```bash
 # On local machine with internet access
-0 */6 * * * cd /path/to/project && python3 scraper.py && scp off.json nav.json user@server:/var/www/html/project/
+0 */6 * * * cd /path/to/project && python3 scraper.py && scp offshore-forecasts.json navtex-forecasts.json user@server:/var/www/html/project/
 ```
 
 Or use rsync for more reliability:
 ```bash
-0 */6 * * * cd /path/to/project && python3 scraper.py && rsync -avz off.json nav.json user@server:/var/www/html/project/
+0 */6 * * * cd /path/to/project && python3 scraper.py && rsync -avz offshore-forecasts.json navtex-forecasts.json user@server:/var/www/html/project/
 ```
 
 ## Requirements

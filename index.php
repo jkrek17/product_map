@@ -367,13 +367,13 @@ function paint_warning(warning, layer){
 
 
 async function loadOff(zone, name) {
-	const response = await fetch('./off.json');
+	const response = await fetch('./offshore-forecasts.json');
 	const off_text = await response.json();
 	//console.log(off_text); 
 	updateForecast(zone, off_text, name);
 }
 async function loadNav(zone, name) {
-	const response = await fetch('./nav.json');
+	const response = await fetch('./navtex-forecasts.json');
 	const off_text = await response.json();
 	//console.log(off_text); 
 	updateForecast(zone, off_text, name);
@@ -389,8 +389,8 @@ async function loadVob(zone, name) {
 async function check_warnings() {
 
   let products = [
-    { layerGroup: off, jsonFile: './off.json', identifyer: 'ID' },
-    { layerGroup: navtex_js, jsonFile: './nav.json', identifyer: 'Name' },
+    { layerGroup: off, jsonFile: './offshore-forecasts.json', identifyer: 'ID' },
+    { layerGroup: navtex_js, jsonFile: './navtex-forecasts.json', identifyer: 'Name' },
     { layerGroup: vobras_js, jsonFile: './vob.json', identifyer: 'ID' }
   ];
 

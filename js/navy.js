@@ -10,12 +10,12 @@ var weatherChart = null;
 var currentZone = null;
 var pendingZoneFromUrl = null;
 
-// Forecast data URLs (local shtml directory)
+// Forecast data URLs (via PHP proxy)
 var forecastUrls = {
-    WRKFWNX01: '/shtml/WRKFWNX01.txt',
-    WRKFWNX02: '/shtml/WRKFWNX02.txt',
-    WRKFWNXPT: '/shtml/WRKFWNXPT.txt',
-    FWCSD: 'https://ocean.weather.gov/.cj/.monitor/.navy/gfe_navy_zones_fwcsc1_onp_latest.txt'
+    WRKFWNX01: 'get-forecast.php?pil=WRKFWNX01',
+    WRKFWNX02: 'get-forecast.php?pil=WRKFWNX02',
+    WRKFWNXPT: 'get-forecast.php?pil=WRKFWNXPT',
+    FWCSD: 'get-forecast.php?pil=FWCSD'
 };
 
 // Parsed forecast data storage

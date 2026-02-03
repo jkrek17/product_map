@@ -138,8 +138,19 @@ function updateUrl(zone, basin) {
 
 // Extract issue time from text
 function extractIssueTime(text) {
+    // Try standard NWS format: "1030 AM EST TUE FEB 26 2024"
     var timeMatch = text.match(/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i);
-    return timeMatch ? timeMatch[1] : 'Time unavailable';
+    if (timeMatch) return timeMatch[1];
+    
+    // Try Navy format: "COMMENCING 040000Z FEB 26" or "24 HOUR FORECAST COMMENCING 040000Z FEB 26"
+    var navyMatch = text.match(/COMMENCING\s+(\d{6}Z\s+\w+\s+\d+)/i);
+    if (navyMatch) return navyMatch[1];
+    
+    // Try standalone Zulu time: "040000Z FEB 26"
+    var zuluMatch = text.match(/(\d{6}Z\s+\w+\s+\d+)/i);
+    if (zuluMatch) return zuluMatch[1];
+    
+    return 'Time unavailable';
 }
 
 // Extract synopsis from text

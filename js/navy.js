@@ -272,7 +272,7 @@ function loadForecastData() {
     
     // Show loading state
     document.getElementById('forecastPanel').innerHTML =
-        '<h3>OPAREA Forecast</h3>' +
+        '<h3>Area Forecast</h3>' +
         getFullTextLinksHtml() +
         '<div class="no-data">Loading forecast data from NWS...</div>';
 
@@ -330,9 +330,9 @@ function loadForecastData() {
         
         // Reset panel
         document.getElementById('forecastPanel').innerHTML =
-            '<h3>OPAREA Forecast</h3>' +
+            '<h3>Area Forecast</h3>' +
             getFullTextLinksHtml() +
-            '<div class="no-data">Click on an OPAREA zone to view forecast details</div>';
+            '<div class="no-data">Click on an area to view forecast details</div>';
         
         // Show pending zone from URL if any
         if (pendingZoneFromUrl) {
@@ -469,7 +469,7 @@ function showForecast(zoneId, zoneName) {
     var forecast = parsedForecasts[basin] && parsedForecasts[basin][zoneId];
 
     if (!forecast) {
-        panel.innerHTML = '<h3>OPAREA Forecast</h3>' +
+        panel.innerHTML = '<h3>Area Forecast</h3>' +
             getFullTextLinksHtml() +
             '<div class="no-data">No forecast data available for ' + zoneName + '</div>';
         return;
@@ -478,9 +478,9 @@ function showForecast(zoneId, zoneName) {
     var warningColor = getWarningColor(forecast.warning);
     var textColor = (warningColor === '#ffff00') ? '#000' : '#fff';
 
-    var html = '<h3>OPAREA Forecast</h3>' +
+    var html = '<h3>Area Forecast</h3>' +
         getFullTextLinksHtml() +
-        '<div class="forecast-header">' + zoneName + ' OPAREA</div>' +
+        '<div class="forecast-header">' + zoneName + '</div>' +
         '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
 
     if (forecast.warning && forecast.warning !== 'NONE') {
@@ -1096,9 +1096,9 @@ function changeBasin() {
 
     // Reset forecast panel
     document.getElementById('forecastPanel').innerHTML =
-        '<h3>OPAREA Forecast</h3>' +
+        '<h3>Area Forecast</h3>' +
         getFullTextLinksHtml() +
-        '<div class="no-data">Click on an OPAREA zone to view forecast details</div>';
+        '<div class="no-data">Click on an area to view forecast details</div>';
 }
 
 // Toggle sidebar (mobile)

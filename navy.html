@@ -884,9 +884,9 @@
                 <h3>OPAREA Forecast</h3>
                 <div class="full-text-links">
                     <h4>Full Forecast Products</h4>
-                    <a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>
-                    <a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>
-                    <a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>
+                    <a href="https://ocean.weather.gov/shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>
+                    <a href="https://ocean.weather.gov/shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>
+                    <a href="https://ocean.weather.gov/shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>
                 </div>
                 <div class="no-data">Click on an OPAREA zone to view forecast details</div>
             </div>
@@ -1136,85 +1136,230 @@
             }
         };
 
-        // Sample forecast data (would be loaded from API in production)
-        var sampleForecasts = {
+        // Forecast data URLs
+        var forecastUrls = {
+            WRKFWNX01: 'https://ocean.weather.gov/shtml/WRKFWNX01.txt',
+            WRKFWNX02: 'https://ocean.weather.gov/shtml/WRKFWNX02.txt',
+            WRKFWNXPT: 'https://ocean.weather.gov/shtml/WRKFWNXPT.txt'
+        };
+
+        // Parsed forecast data storage
+        var parsedForecasts = {
+            atlantic: {},
+            pacific: {}
+        };
+
+        // OPAREA parsing configuration
+        var opareaConfig = {
             atlantic: {
                 boston: {
-                    synopsis: "A LOW PRESSURE SYSTEM LOCATED OVER THE GULF OF MAINE WILL MOVE NORTHEAST AND WEAKEN. HIGH PRESSURE WILL BUILD IN FROM THE WEST THROUGH MIDWEEK.",
-                    forecast: "BOSTON OPAREA:\nTODAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.\nTONIGHT...W WINDS 10 TO 20 KT. SEAS 4 TO 6 FT.\nTUESDAY...SW WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX02',
+                    startPattern: 'BOSTON OPAREA:',
+                    endPattern: 'NARRAGANSETT BAY'
                 },
                 race_rock: {
-                    synopsis: "HIGH PRESSURE OVER THE MID-ATLANTIC STATES WILL MAINTAIN LIGHT TO MODERATE WINDS THROUGH THE PERIOD.",
-                    forecast: "RACE ROCK OPAREA:\nTODAY...W WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTONIGHT...NW WINDS 5 TO 15 KT. SEAS 2 TO 4 FT.\nTUESDAY...N WINDS 5 TO 10 KT. SEAS 2 TO 3 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX02',
+                    startPattern: 'RACE ROCK',
+                    endPattern: 'BOSTON'
                 },
                 narrabay: {
-                    synopsis: "A WEAK COLD FRONT WILL PASS THROUGH THE AREA THIS EVENING. HIGH PRESSURE WILL BUILD IN BEHIND THE FRONT.",
-                    forecast: "NARRAGANSETT BAY OPAREA:\nTODAY...SW WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...NW WINDS 10 TO 20 KT. SEAS 3 TO 5 FT.\nTUESDAY...N WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX02',
+                    startPattern: 'NARRAGANSETT BAY OPAREA:',
+                    endPattern: 'FORECASTER'
                 },
                 vacapes: {
-                    synopsis: "A STRONG LOW PRESSURE SYSTEM WILL MOVE UP THE COAST BRINGING GALE CONDITIONS TO THE AREA.",
-                    forecast: "VACAPES OPAREA:\nTODAY...NE WINDS 25 TO 35 KT. SEAS 8 TO 12 FT.\nTONIGHT...N WINDS 20 TO 30 KT. SEAS 6 TO 10 FT.\nTUESDAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.",
-                    warning: "GALE WARNING",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'VACAPES OPAREA:',
+                    endPattern: 'CHERRY POINT'
                 },
                 cherry_point: {
-                    synopsis: "THE COASTAL LOW WILL BRING UNSETTLED WEATHER AND ELEVATED SEAS TO THE AREA THROUGH TUESDAY.",
-                    forecast: "CHERRY POINT OPAREA:\nTODAY...NE WINDS 20 TO 30 KT. SEAS 7 TO 11 FT.\nTONIGHT...N WINDS 15 TO 25 KT. SEAS 6 TO 9 FT.\nTUESDAY...NW WINDS 10 TO 20 KT. SEAS 4 TO 7 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'CHERRY POINT OPAREA:',
+                    endPattern: 'CHARLESTON'
                 },
                 charleston: {
-                    synopsis: "A RIDGE OF HIGH PRESSURE WILL MAINTAIN FAIR WEATHER THROUGH THE PERIOD.",
-                    forecast: "CHARLESTON OPAREA:\nTODAY...N WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...NE WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...E WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'CHARLESTON OPAREA:',
+                    endPattern: 'JAX'
                 },
                 jacksonville: {
-                    synopsis: "HIGH PRESSURE WILL DOMINATE THE AREA WITH GENERALLY LIGHT WINDS AND SEAS.",
-                    forecast: "JAX OPAREA:\nTODAY...NE WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTONIGHT...E WINDS 5 TO 15 KT. SEAS 2 TO 4 FT.\nTUESDAY...SE WINDS 5 TO 10 KT. SEAS 2 TO 3 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'JAX OPAREA:',
+                    endPattern: 'PORT CANAVERAL'
                 },
                 port_canaveral: {
-                    synopsis: "NORTHEAST WINDS WILL PERSIST THROUGH THE PERIOD AS HIGH PRESSURE REMAINS TO THE NORTH.",
-                    forecast: "PORT CANAVERAL OPAREA:\nTODAY...NE WINDS 10 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...E WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...SE WINDS 5 TO 15 KT. SEAS 3 TO 4 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'PORT CANAVERAL OPAREA:',
+                    endPattern: 'TONGUE'
                 },
                 toto: {
-                    synopsis: "TRADE WINDS WILL CONTINUE MODERATE TO FRESH THROUGH THE FORECAST PERIOD.",
-                    forecast: "TONGUE OF THE OCEAN OPAREA:\nTODAY...E WINDS 15 TO 20 KT. SEAS 4 TO 6 FT.\nTONIGHT...E WINDS 10 TO 20 KT. SEAS 3 TO 5 FT.\nTUESDAY...E WINDS 10 TO 15 KT. SEAS 3 TO 4 FT.",
-                    warning: "NONE",
-                    time: "10:00 AM EST Mon Feb 3 2026"
+                    pil: 'WRKFWNX01',
+                    startPattern: 'TONGUE OF THE OCEAN OPAREA:',
+                    endPattern: 'FORECASTER'
                 }
             },
             pacific: {
                 socal: {
-                    synopsis: "A TROUGH OF LOW PRESSURE WILL BRING INCREASED WINDS AND SEAS TO THE REGION THROUGH WEDNESDAY.",
-                    forecast: "SOCAL OPAREA:\nTODAY...NW WINDS 15 TO 25 KT. SEAS 5 TO 8 FT.\nTONIGHT...W WINDS 10 TO 20 KT. SEAS 4 TO 7 FT.\nTUESDAY...SW WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.",
-                    warning: "NONE",
-                    time: "7:00 AM PST Mon Feb 3 2026"
+                    pil: 'WRKFWNXPT',
+                    startPattern: 'SOCAL OPAREA:',
+                    endPattern: 'POINT MUGU'
                 },
                 point_mugu: {
-                    synopsis: "NORTHWEST WINDS WILL CONTINUE AS A SURFACE TROUGH REMAINS OFFSHORE.",
-                    forecast: "POINT MUGU OPAREA:\nTODAY...NW WINDS 15 TO 20 KT. SEAS 4 TO 7 FT.\nTONIGHT...NW WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.\nTUESDAY...W WINDS 10 TO 15 KT. SEAS 3 TO 5 FT.",
-                    warning: "NONE",
-                    time: "7:00 AM PST Mon Feb 3 2026"
+                    pil: 'WRKFWNXPT',
+                    startPattern: 'POINT MUGU OPAREA:',
+                    endPattern: 'SAN CLEMENTE'
                 },
                 san_clemente: {
-                    synopsis: "CONDITIONS WILL REMAIN FAVORABLE FOR OPERATIONS WITH LIGHT TO MODERATE WINDS AND SEAS.",
-                    forecast: "SAN CLEMENTE ISLAND OPAREA:\nTODAY...W WINDS 10 TO 15 KT. SEAS 4 TO 6 FT.\nTONIGHT...NW WINDS 5 TO 15 KT. SEAS 3 TO 5 FT.\nTUESDAY...W WINDS 5 TO 10 KT. SEAS 3 TO 4 FT.",
-                    warning: "NONE",
-                    time: "7:00 AM PST Mon Feb 3 2026"
+                    pil: 'WRKFWNXPT',
+                    startPattern: 'SAN CLEMENTE',
+                    endPattern: 'FORECASTER'
                 }
             }
         };
+
+        // Raw text storage for each product
+        var rawTexts = {};
+
+        // Extract issue time from text
+        function extractIssueTime(text) {
+            var timeMatch = text.match(/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i);
+            return timeMatch ? timeMatch[1] : 'Time unavailable';
+        }
+
+        // Extract synopsis from text
+        function extractSynopsis(text) {
+            var synopsisMatch = text.match(/\d+\.\s*(METEOROLOGICAL SITUATION[^]*?)(?=\n\s*\d+\.\s*[A-Z])/i);
+            if (synopsisMatch) {
+                return synopsisMatch[1].replace(/\s+/g, ' ').trim();
+            }
+            return 'Synopsis unavailable';
+        }
+
+        // Extract warning from text
+        function extractWarning(text) {
+            var upperText = text.toUpperCase();
+            if (upperText.indexOf('HURRICANE FORCE WIND WARNING') !== -1) return 'HURRICANE FORCE WIND WARNING';
+            if (upperText.indexOf('HURRICANE WARNING') !== -1) return 'HURRICANE WARNING';
+            if (upperText.indexOf('STORM WARNING') !== -1) return 'STORM WARNING';
+            if (upperText.indexOf('TROPICAL STORM WARNING') !== -1) return 'TROPICAL STORM WARNING';
+            if (upperText.indexOf('GALE WARNING') !== -1) return 'GALE WARNING';
+            if (upperText.indexOf('GALE FORCE') !== -1) return 'GALE FORCE POSSIBLE';
+            if (upperText.indexOf('STORM FORCE') !== -1) return 'STORM FORCE POSSIBLE';
+            return 'NONE';
+        }
+
+        // Parse OPAREA forecast from raw text
+        function parseOparea(text, startPattern, endPattern) {
+            if (!text) return null;
+            
+            // Create regex to find the section
+            var escapedStart = startPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            var escapedEnd = endPattern.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            
+            // Match from start pattern to before end pattern (which starts a new section)
+            var pattern = new RegExp('\\d+\\.\\s*(' + escapedStart + '[^]*?)(?=\\n\\s*\\d+\\.\\s*' + escapedEnd + '|$)', 'i');
+            var match = text.match(pattern);
+            
+            if (match) {
+                return match[1].trim();
+            }
+            
+            // Fallback: try simpler pattern
+            var simplePattern = new RegExp('(' + escapedStart + '[^]*?)(?=\\n\\s*\\d+\\.)', 'i');
+            var simpleMatch = text.match(simplePattern);
+            
+            return simpleMatch ? simpleMatch[1].trim() : null;
+        }
+
+        // Load forecast data from URLs
+        function loadForecastData() {
+            console.log('[DEBUG] Loading forecast data from NWS...');
+            
+            // Show loading state
+            document.getElementById('forecastPanel').innerHTML =
+                '<h3>OPAREA Forecast</h3>' +
+                '<div class="full-text-links">' +
+                '<h4>Full Forecast Products</h4>' +
+                '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
+                '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
+                '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
+                '</div>' +
+                '<div class="no-data">Loading forecast data from NWS...</div>';
+
+            var promises = Object.keys(forecastUrls).map(function(pil) {
+                return fetch(forecastUrls[pil])
+                    .then(function(response) {
+                        if (!response.ok) throw new Error('HTTP ' + response.status);
+                        return response.text();
+                    })
+                    .then(function(text) {
+                        console.log('[DEBUG] Loaded ' + pil + ', length: ' + text.length);
+                        rawTexts[pil] = text;
+                        return { pil: pil, text: text };
+                    })
+                    .catch(function(error) {
+                        console.error('[DEBUG] Error loading ' + pil + ':', error);
+                        return { pil: pil, text: null, error: error };
+                    });
+            });
+
+            Promise.all(promises).then(function(results) {
+                console.log('[DEBUG] All forecasts loaded, parsing...');
+                
+                // Parse each OPAREA
+                ['atlantic', 'pacific'].forEach(function(basin) {
+                    var config = opareaConfig[basin];
+                    for (var zoneId in config) {
+                        if (config.hasOwnProperty(zoneId)) {
+                            var cfg = config[zoneId];
+                            var text = rawTexts[cfg.pil];
+                            
+                            if (text) {
+                                var forecastText = parseOparea(text, cfg.startPattern, cfg.endPattern);
+                                var synopsis = extractSynopsis(text);
+                                var issueTime = extractIssueTime(text);
+                                
+                                if (forecastText) {
+                                    parsedForecasts[basin][zoneId] = {
+                                        synopsis: synopsis,
+                                        forecast: forecastText,
+                                        warning: extractWarning(forecastText),
+                                        time: issueTime
+                                    };
+                                    console.log('[DEBUG] Parsed ' + zoneId + ' from ' + cfg.pil);
+                                } else {
+                                    console.warn('[DEBUG] Could not parse ' + zoneId + ' from ' + cfg.pil);
+                                }
+                            }
+                        }
+                    }
+                });
+                
+                // Reload zones with new data
+                loadZones();
+                
+                // Reset panel
+                document.getElementById('forecastPanel').innerHTML =
+                    '<h3>OPAREA Forecast</h3>' +
+                    '<div class="full-text-links">' +
+                    '<h4>Full Forecast Products</h4>' +
+                    '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
+                    '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
+                    '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
+                    '</div>' +
+                    '<div class="no-data">Click on an OPAREA zone to view forecast details</div>';
+                
+                // Show pending zone from URL if any
+                if (pendingZoneFromUrl) {
+                    var currentBasin = document.getElementById('basin').value;
+                    var opareas = navyOpareas[currentBasin];
+                    if (opareas && opareas[pendingZoneFromUrl]) {
+                        showForecast(pendingZoneFromUrl, opareas[pendingZoneFromUrl].longName);
+                    }
+                    pendingZoneFromUrl = null;
+                }
+            });
+        }
 
         var warningColors = {
             'HURRICANE FORCE WIND WARNING': '#ff0000',
@@ -1265,7 +1410,7 @@
             for (var zoneId in opareas) {
                 if (opareas.hasOwnProperty(zoneId)) {
                     var zone = opareas[zoneId];
-                    var forecast = sampleForecasts[basin] && sampleForecasts[basin][zoneId];
+                    var forecast = parsedForecasts[basin] && parsedForecasts[basin][zoneId];
                     var warning = forecast ? forecast.warning : 'NONE';
                     var color = getWarningColor(warning);
 
@@ -1293,7 +1438,7 @@
                         },
                         mouseout: function(e) {
                             var zId = e.target.zoneId;
-                            var fcst = sampleForecasts[document.getElementById('basin').value];
+                            var fcst = parsedForecasts[document.getElementById('basin').value];
                             var w = fcst && fcst[zId] ? fcst[zId].warning : 'NONE';
                             e.target.setStyle({
                                 fillColor: getWarningColor(w),
@@ -1340,15 +1485,15 @@
 
             var panel = document.getElementById('forecastPanel');
             var basin = document.getElementById('basin').value;
-            var forecast = sampleForecasts[basin] && sampleForecasts[basin][zoneId];
+            var forecast = parsedForecasts[basin] && parsedForecasts[basin][zoneId];
 
             if (!forecast) {
                 panel.innerHTML = '<h3>OPAREA Forecast</h3>' +
                     '<div class="full-text-links">' +
                     '<h4>Full Forecast Products</h4>' +
-                    '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
-                    '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
-                    '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                    '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
+                    '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
+                    '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
                     '</div>' +
                     '<div class="no-data">No forecast data available for ' + zoneName + '</div>';
                 return;
@@ -1360,9 +1505,9 @@
             var html = '<h3>OPAREA Forecast</h3>' +
                 '<div class="full-text-links">' +
                 '<h4>Full Forecast Products</h4>' +
-                '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
-                '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
-                '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
+                '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
+                '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
                 '</div>' +
                 '<div class="forecast-header">' + zoneName + ' OPAREA</div>' +
                 '<div class="forecast-time">Issued: ' + forecast.time + '</div>';
@@ -1491,9 +1636,9 @@
                 '<h3>OPAREA Forecast</h3>' +
                 '<div class="full-text-links">' +
                 '<h4>Full Forecast Products</h4>' +
-                '<a href="shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>' +
-                '<a href="shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>' +
-                '<a href="shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>' +
+                '<a href="' + forecastUrls.WRKFWNX01 + '" target="_blank">FOXX01</a>' +
+                '<a href="' + forecastUrls.WRKFWNX02 + '" target="_blank">FOXX02</a>' +
+                '<a href="' + forecastUrls.WRKFWNXPT + '" target="_blank">FOXXPT</a>' +
                 '</div>' +
                 '<div class="no-data">Click on an OPAREA zone to view forecast details</div>';
         }
@@ -1510,12 +1655,17 @@
             btn.textContent = 'Refreshing...';
             btn.disabled = true;
 
-            // Simulate refresh
+            // Clear cached data and reload
+            rawTexts = {};
+            parsedForecasts = { atlantic: {}, pacific: {} };
+            
+            loadForecastData();
+            
+            // Re-enable button after a delay
             setTimeout(function() {
-                loadZones();
                 btn.textContent = 'Refresh Data';
                 btn.disabled = false;
-            }, 1000);
+            }, 2000);
         }
 
         document.addEventListener('DOMContentLoaded', function() {
@@ -1542,17 +1692,8 @@
                 map.setView([33, -119], 6);
             }
             
-            loadZones();
-            
-            // Show pending zone from URL
-            if (pendingZoneFromUrl) {
-                var opareas = navyOpareas[basin];
-                if (opareas && opareas[pendingZoneFromUrl]) {
-                    var zone = opareas[pendingZoneFromUrl];
-                    showForecast(pendingZoneFromUrl, zone.longName);
-                }
-                pendingZoneFromUrl = null;
-            }
+            // Load forecast data from NWS (this will also call loadZones and handle pendingZoneFromUrl)
+            loadForecastData();
 
             document.getElementById('basin').addEventListener('change', changeBasin);
             document.getElementById('refreshBtn').addEventListener('click', refreshData);

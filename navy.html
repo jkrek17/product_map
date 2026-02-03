@@ -884,9 +884,9 @@
                 <h3>OPAREA Forecast</h3>
                 <div class="full-text-links">
                     <h4>Full Forecast Products</h4>
-                    <a href="https://ocean.weather.gov/shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>
-                    <a href="https://ocean.weather.gov/shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>
-                    <a href="https://ocean.weather.gov/shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>
+                    <a href="/shtml/WRKFWNX01.txt" target="_blank">FOXX01</a>
+                    <a href="/shtml/WRKFWNX02.txt" target="_blank">FOXX02</a>
+                    <a href="/shtml/WRKFWNXPT.txt" target="_blank">FOXXPT</a>
                 </div>
                 <div class="no-data">Click on an OPAREA zone to view forecast details</div>
             </div>
@@ -1136,11 +1136,11 @@
             }
         };
 
-        // Forecast data URLs
+        // Forecast data URLs (local shtml directory)
         var forecastUrls = {
-            WRKFWNX01: 'https://ocean.weather.gov/shtml/WRKFWNX01.txt',
-            WRKFWNX02: 'https://ocean.weather.gov/shtml/WRKFWNX02.txt',
-            WRKFWNXPT: 'https://ocean.weather.gov/shtml/WRKFWNXPT.txt'
+            WRKFWNX01: '/shtml/WRKFWNX01.txt',
+            WRKFWNX02: '/shtml/WRKFWNX02.txt',
+            WRKFWNXPT: '/shtml/WRKFWNXPT.txt'
         };
 
         // Parsed forecast data storage

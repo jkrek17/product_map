@@ -217,7 +217,7 @@ function parseOparea(text, startPattern, endPattern) {
 
 // Load Navy GeoJSON (all zones)
 function loadNavyGeoJson() {
-    return fetch('navy.geojson')
+    return fetch('assets/navy.geojson')
         .then(function(response) {
             if (!response.ok) throw new Error('Failed to load GeoJSON');
             return response.json();

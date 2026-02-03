@@ -54,16 +54,19 @@ Forecast data from NOAA Ocean Prediction Center:
 
 ```
 ├── index.html              # Main application
+├── navy.html               # Navy forecasts page
 ├── api.php                 # API endpoint for forecast data
 ├── getText.php             # Text data fetcher
-├── navy.html               # Navy forecasts page
-├── navy.css                # Navy page styles
-├── navy.js                 # Navy page JavaScript
-├── offshore-forecasts.json # Offshore forecast data
-├── navtex-forecasts.json   # NAVTEX forecast data
-├── offshores.geojson       # Offshore zone polygons
-├── navtex.geojson          # NAVTEX zone polygons
-├── navy.geojson            # Navy OPAREA polygons (Atlantic & Pacific)
+├── css/
+│   └── navy.css            # Navy page styles
+├── js/
+│   └── navy.js             # Navy page JavaScript
+├── assets/
+│   ├── offshore-forecasts.json  # Offshore forecast data
+│   ├── navtex-forecasts.json    # NAVTEX forecast data
+│   ├── offshores.geojson        # Offshore zone polygons
+│   ├── navtex.geojson           # NAVTEX zone polygons
+│   └── navy.geojson             # Navy OPAREA polygons
 ├── libs/
 │   ├── leaflet/            # Leaflet 1.9.4
 │   └── chartjs/            # Chart.js 4.4.1

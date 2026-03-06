@@ -53,6 +53,11 @@ $NWS_PRODUCT_API = array(
     "N04"  => array("OFF", "KNHC", "OFFN04"),
     "N05"  => array("OFF", "KNHC", "OFFN05"),
     "N06"  => array("OFF", "KNHC", "OFFN06"),
+    // ---- Alaska coastal CWF (full types/CWF list — location filter broken for PAFC/PAFG) ----
+    "CWFAER" => array("CWF", "PAFC", "CWFAER"),  // N Gulf, Kodiak, Cook Inlet
+    "CWFALU" => array("CWF", "PAFC", "CWFALU"),  // SW Alaska, Bristol Bay, Aleutians
+    "CWFNSB" => array("CWF", "PAFG", "CWFNSB"),  // Arctic / North Slope
+    "CWFWCZ" => array("CWF", "PAFG", "CWFWCZ"),  // Northwest Alaska
     // ---- High Seas (HSF) ----
     "HSFAT1" => array("HSF", "KWBC", "HSFAT1"),
     "HSFAT2" => array("HSF", "KNHC", "HSFAT2"),
@@ -403,6 +408,34 @@ $COASTAL_ZONE_MAPPINGS = array(
     "STU" => array("PSZ156", "PSZ157", "PSZ152", "PSZ158", "PSZ159", "PSZ155", "PSZ154"),
     "TAE" => array("GMZ770", "GMZ775", "GMZ765", "GMZ730", "GMZ755", "GMZ751", "GMZ752", "GMZ772", "GMZ735"),
     "TBW" => array("GMZ876", "GMZ873", "GMZ870", "GMZ850", "GMZ853", "GMZ830", "GMZ856", "GMZ836"),
+);
+
+// Alaska CWF zone mappings (product name → zone IDs)
+// Source: https://www.weather.gov/source/afc/mobile/marine.html
+$ALASKA_COASTAL_ZONES = array(
+    "CWFAER" => array(  // PAFC — Northern Gulf, Kodiak, Cook Inlet
+        "PKZ710","PKZ711","PKZ712","PKZ714","PKZ715","PKZ716",
+        "PKZ720","PKZ721","PKZ722","PKZ723","PKZ724","PKZ725","PKZ726",
+        "PKZ730","PKZ731","PKZ732","PKZ733","PKZ734",
+        "PKZ736","PKZ737","PKZ738","PKZ740","PKZ741","PKZ742",
+    ),
+    "CWFALU" => array(  // PAFC — SW Alaska, Bristol Bay, Aleutians
+        "PKZ750","PKZ751","PKZ752","PKZ753","PKZ754","PKZ755",
+        "PKZ756","PKZ757","PKZ758","PKZ759",
+        "PKZ760","PKZ761","PKZ762","PKZ763","PKZ764","PKZ765","PKZ766","PKZ767",
+        "PKZ770","PKZ771","PKZ772","PKZ773","PKZ774","PKZ775",
+        "PKZ776","PKZ777","PKZ778",
+        "PKZ780","PKZ781","PKZ782","PKZ783","PKZ784","PKZ785","PKZ786","PKZ787",
+    ),
+    "CWFNSB" => array(  // PAFG — Arctic / North Slope Beaufort
+        "PKZ811","PKZ812","PKZ813","PKZ814","PKZ815",
+        "PKZ857","PKZ858","PKZ859","PKZ860","PKZ861",
+    ),
+    "CWFWCZ" => array(  // PAFG — Northwest Alaska / Western Coastal Zone
+        "PKZ801","PKZ802","PKZ803","PKZ804","PKZ805","PKZ806","PKZ807",
+        "PKZ808","PKZ809","PKZ810","PKZ816","PKZ817",
+        "PKZ850","PKZ851","PKZ852","PKZ853","PKZ854","PKZ855","PKZ856",
+    ),
 );
 
 // Zone names
@@ -1180,6 +1213,20 @@ if ($type === 'offshore') {
         if ($content && isset($COASTAL_ZONE_MAPPINGS[$wfo])) {
             $forecasts = parseOffshoreProduct($content, $COASTAL_ZONE_MAPPINGS[$wfo], array());
             debugLog("Coastal WFO {$wfo} parsed", array('count' => count($forecasts)));
+            $allForecasts = array_merge($allForecasts, $forecasts);
+        }
+    }
+
+    // Alaska CWF products (CWFAER/CWFALU/CWFNSB/CWFWCZ) — fetched via the
+    // full types/CWF list since location filter is broken for PAFC/PAFG
+    foreach ($ALASKA_COASTAL_ZONES as $matchStr => $zones) {
+        $apiCfg  = isset($NWS_PRODUCT_API[$matchStr]) ? $NWS_PRODUCT_API[$matchStr] : null;
+        $content = $apiCfg
+            ? fetchProductContent($apiCfg[0], $apiCfg[1], $apiCfg[2])
+            : null;
+        if ($content) {
+            $forecasts = parseOffshoreProduct($content, $zones, array());
+            debugLog("Alaska coastal {$matchStr} parsed", array('count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
         }
     }

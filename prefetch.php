@@ -93,6 +93,12 @@ $PRODUCTS = [
     'N07'    => ['OFF', 'KWNM', 'OFFN07'],
     'N08'    => ['OFF', 'KWNM', 'OFFN08'],
     'N09'    => ['OFF', 'KWNM', 'OFFN09'],
+    // Alaska coastal CWF — fetched via full types/CWF list (location filter
+    // broken for PAFC/PAFG; these are parsed in the coastal section below)
+    'CWFAER' => ['CWF', 'PAFC', 'CWFAER'],   // N Gulf, Kodiak, Cook Inlet
+    'CWFALU' => ['CWF', 'PAFC', 'CWFALU'],   // SW Alaska, Bristol Bay, Aleutians
+    'CWFNSB' => ['CWF', 'PAFG', 'CWFNSB'],   // Arctic / North Slope
+    'CWFWCZ' => ['CWF', 'PAFG', 'CWFWCZ'],   // Northwest Alaska
     // High Seas
     'HSFAT1' => ['HSF', 'KWBC', 'HSFAT1'],
     'HSFEP1' => ['HSF', 'KWBC', 'HSFEP1'],
@@ -102,24 +108,53 @@ $PRODUCTS = [
 ];
 
 // CWF product per WFO (one product per WFO, no matchString needed)
-// WFOs that use a non-CWF product type for coastal marine forecasts
-// AJK uses MWW (Marine Weather Watch) which covers all 24 PKZ coastal zones;
-// CWF from AJK only covers nearshore zones.
-// AFC/AFG have NO coastal marine product in api.weather.gov — their PKZ zones
-// (PKZ710-787 for AFC, PKZ801-861 for AFG) are only available from local
-// /shtml/ files (AFCCWFAFC.txt, AFGCWFAFG.txt) on the server.
+// WFOs that use a non-CWF product type for coastal marine forecasts.
+// AJK uses MWW which covers all 24 SE Alaska PKZ coastal zones.
 $COASTAL_PRODUCT_TYPES = [
-    'AJK' => 'MWW',   // Marine Weather Watch — covers all SE Alaska PKZ zones
+    'AJK' => 'MWW',
 ];
 
+// AFC (Anchorage) and AFG (Fairbanks) cannot be fetched via
+// types/CWF/locations/AFC — the NWS API location filter is broken for
+// PAFC/PAFG.  Their CWF products (CWFAER, CWFALU, CWFNSB, CWFWCZ) ARE
+// available via the full types/CWF list.  They are handled in $PRODUCTS
+// (the fetchAllProductTexts batch) below, NOT in $COASTAL_WFOS.
 $COASTAL_WFOS = [
     'BOX','GYX','CAR','OKX','PHI','LWX','AKQ',
     'MHX','ILM','CHS','JAX','MLB','MFL','SJU',
     'KEY','TBW','TAE','MOB','LIX','LCH','HGX','CRP','BRO',
     'SEW','PQR','MFR','EKA','MTR','LOX','SGX',
-    'HFO','AFC','AFG','AJK',
+    'HFO','AJK',                              // AFC/AFG removed — handled via $PRODUCTS
     'APX','BUF','CLE','DLH','DTX','GRB','GRR','IWX','LOT','MKX','MQT',
     'GUM','PQE','PQW','STU',
+];
+
+// Alaska coastal zones per product (from NWS AFC marine product page)
+// https://www.weather.gov/source/afc/mobile/marine.html
+$ALASKA_COASTAL_ZONES = [
+    'CWFAER' => [   // Northern Gulf, Kodiak, Cook Inlet  (PAFC)
+        'PKZ710','PKZ711','PKZ712','PKZ714','PKZ715','PKZ716',
+        'PKZ720','PKZ721','PKZ722','PKZ723','PKZ724','PKZ725','PKZ726',
+        'PKZ730','PKZ731','PKZ732','PKZ733','PKZ734',
+        'PKZ736','PKZ737','PKZ738','PKZ740','PKZ741','PKZ742',
+    ],
+    'CWFALU' => [   // SW Alaska, Bristol Bay, Aleutians  (PAFC)
+        'PKZ750','PKZ751','PKZ752','PKZ753','PKZ754','PKZ755',
+        'PKZ756','PKZ757','PKZ758','PKZ759',
+        'PKZ760','PKZ761','PKZ762','PKZ763','PKZ764','PKZ765','PKZ766','PKZ767',
+        'PKZ770','PKZ771','PKZ772','PKZ773','PKZ774','PKZ775',
+        'PKZ776','PKZ777','PKZ778',
+        'PKZ780','PKZ781','PKZ782','PKZ783','PKZ784','PKZ785','PKZ786','PKZ787',
+    ],
+    'CWFNSB' => [   // Arctic / North Slope Beaufort  (PAFG)
+        'PKZ811','PKZ812','PKZ813','PKZ814','PKZ815',
+        'PKZ857','PKZ858','PKZ859','PKZ860','PKZ861',
+    ],
+    'CWFWCZ' => [   // Northwest Alaska / Western Coastal Zone  (PAFG)
+        'PKZ801','PKZ802','PKZ803','PKZ804','PKZ805','PKZ806','PKZ807',
+        'PKZ808','PKZ809','PKZ810','PKZ816','PKZ817',
+        'PKZ850','PKZ851','PKZ852','PKZ853','PKZ854','PKZ855','PKZ856',
+    ],
 ];
 
 // ==========================================================================
@@ -534,9 +569,10 @@ include __DIR__ . '/api.php';
 log_msg("=== Fetching offshore + NAVTEX products ===");
 
 // Map matchString => [type, office] for the two-phase fetcher
+// Include OFF, HSF, and CWF (Alaska coastal — PAFC/PAFG location filter broken)
 $offshoreMatchMap = [];
 foreach ($PRODUCTS as $key => [$type, $office, $match]) {
-    if (in_array($type, ['OFF', 'HSF'])) {
+    if (in_array($type, ['OFF', 'HSF', 'CWF'])) {
         $offshoreMatchMap[$match] = [$type, $office];
     }
 }
@@ -609,6 +645,18 @@ foreach ($coastalTexts as $wfo => $text) {
     $coastalResult = array_merge($coastalResult, $parsed);
 }
 log_msg("Coastal: " . count($coastalTexts) . " WFOs fetched → " . count($coastalResult) . " zones parsed");
+
+// Alaska CWF products (CWFAER/CWFALU/CWFNSB/CWFWCZ) — fetched in the
+// offshore/navtex batch above via the full types/CWF list
+log_msg("=== Parsing Alaska coastal CWF products ===");
+foreach ($ALASKA_COASTAL_ZONES as $matchStr => $zones) {
+    $text = $productTexts[$matchStr] ?? null;
+    if (!$text) { log_msg("MISS alaska coastal: $matchStr"); continue; }
+    $parsed = pf_parseZoneForecast($text, $zones, []);
+    $coastalResult = array_merge($coastalResult, $parsed);
+    log_msg("OK alaska coastal: $matchStr → " . count($parsed) . " zones");
+}
+log_msg("Coastal total after Alaska: " . count($coastalResult) . " zones");
 
 // ==========================================================================
 // WRITE RESULT FILES

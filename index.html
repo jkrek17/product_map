@@ -260,6 +260,21 @@
             box-shadow: 0 2px 8px rgba(0,0,0,0.15);
         }
 
+        .highseas-text {
+            background: #0a1628;
+            color: #c8d8e8;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            line-height: 1.6;
+            padding: 14px 16px;
+            border-radius: 8px;
+            border-left: 4px solid #3b82f6;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-break: break-word;
+            margin-top: 10px;
+        }
+
         .day-forecast {
             background: #f8fafc;
             border-radius: 10px;
@@ -811,6 +826,7 @@
                     <option value="offshore">Offshore</option>
                     <option value="coastal">Coastal</option>
                     <option value="navtex">NAVTEX</option>
+                    <option value="highseas">High Seas</option>
                 </select>
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
@@ -1044,9 +1060,10 @@
 
         function loadZones() {
             var product = document.getElementById('product').value;
-            var geoJsonFile = product === 'navtex'  ? 'assets/navtex.geojson'
-                            : product === 'coastal' ? 'assets/coastal.geojson'
-                            :                         'assets/offshores.geojson';
+            var geoJsonFile = product === 'navtex'   ? 'assets/navtex.geojson'
+                            : product === 'coastal'  ? 'assets/coastal.geojson'
+                            : product === 'highseas' ? 'assets/highseas.geojson'
+                            :                          'assets/offshores.geojson';
             var idField = 'ID';
 
             console.log('[DEBUG] loadZones() called');
@@ -1288,6 +1305,14 @@
                 html += '<div class="warning-banner" style="background:' + warningColor + ';color:' + textColor + ';">' + forecast.warning + '</div>';
             }
 
+            // High Seas: display full raw text
+            if (forecast.rawText) {
+                html += '<pre class="highseas-text">' + forecast.rawText.replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</pre>';
+                panel.innerHTML = html;
+                if (weatherChart) { weatherChart.destroy(); weatherChart = null; }
+                return;
+            }
+
             if (forecast.forecast && forecast.forecast.length > 0) {
                 forecast.forecast.forEach(function(day) {
                     html += '<div class="day-forecast">' +
@@ -1406,7 +1431,7 @@
             console.log('[DEBUG] URL parameters:', JSON.stringify(params));
             
             // Set product and basin from URL if provided
-            var validProducts = ['offshore', 'coastal', 'navtex'];
+            var validProducts = ['offshore', 'coastal', 'navtex', 'highseas'];
             if (params.product && validProducts.indexOf(params.product) !== -1) {
                 document.getElementById('product').value = params.product;
             }

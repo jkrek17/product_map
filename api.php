@@ -1,19 +1,160 @@
 <?php
 /**
  * OPC Weather Map - Live Data API
- * Reads forecast data from local NWS text files on the server
+ *
+ * Data source priority for every product:
+ *   1. NWS public API  (api.weather.gov) — live, cached locally for 15 min
+ *   2. Local /shtml/ files              — fallback if API unreachable
  */
 
 // =============================================================================
-// CONFIGURATION - Path to local NWS data directory
+// CONFIGURATION
 // =============================================================================
-// The NWS text files are served from the /shtml/ directory on this server.
-// This auto-detects the path based on the web server's document root.
-// Example: if DocumentRoot is /home/www, files are at /home/www/shtml/
-//
-// You can override this by setting a specific path:
-// $LOCAL_DATA_DIR = "/home/www/shtml";
 $LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
+
+// NWS API settings
+define('NWS_API_BASE', 'https://api.weather.gov');
+define('NWS_CACHE_DIR', sys_get_temp_dir() . '/nws_product_cache');
+define('NWS_CACHE_TTL', 900);   // seconds — products update every few hours
+define('NWS_USER_AGENT', '(OPC Product Map, nws-product-map)');
+
+// =============================================================================
+// NWS API — product→(type, office, match) lookup table
+// "match" is the string that appears on line 3 of the product text
+// =============================================================================
+$NWS_PRODUCT_API = array(
+    // ---- Offshore (OFF) — OPC Atlantic (KWBC) ----
+    "NT1"  => array("OFF", "KWBC", "OFFNT1"),
+    "NT2"  => array("OFF", "KWBC", "OFFNT2"),
+    "PZ5"  => array("OFF", "KWBC", "OFFPZ5"),
+    "PZ6"  => array("OFF", "KWBC", "OFFPZ6"),
+    // ---- Offshore (OFF) — NHC Miami (KNHC) ----
+    "NT3"  => array("OFF", "KNHC", "OFFNT3"),
+    "NT4"  => array("OFF", "KNHC", "OFFNT4"),
+    "NT5"  => array("OFF", "KNHC", "OFFNT5"),
+    "PZ7"  => array("OFF", "KNHC", "OFFPZ7"),
+    "PZ8"  => array("OFF", "KNHC", "OFFPZ8"),
+    // ---- Offshore (OFF) — Hawaii (PHFO) ----
+    "PH"   => array("OFF", "PHFO", "OFFPH"),
+    // ---- Offshore (OFF) — Alaska (PAFC / PAJK / PAFG) ----
+    "PKG"  => array("OFF", "PAFC", "OFFPKG"),
+    "PKB"  => array("OFF", "PAFC", "OFFPKB"),
+    "PKS"  => array("OFF", "PAJK", "OFFPKS"),
+    "PKA"  => array("OFF", "PAFG", "OFFPKA"),
+    // ---- NAVTEX (OFF) — OPC Pacific (KWNM) ----
+    "N07"  => array("OFF", "KWNM", "OFFN07"),
+    "N08"  => array("OFF", "KWNM", "OFFN08"),
+    "N09"  => array("OFF", "KWNM", "OFFN09"),
+    // ---- NAVTEX (OFF) — OPC Atlantic (KWBC) ----
+    "N01"  => array("OFF", "KWBC", "OFFN01"),
+    "N02"  => array("OFF", "KWBC", "OFFN02"),
+    "N03"  => array("OFF", "KWBC", "OFFN03"),
+    // ---- NAVTEX (OFF) — NHC Miami (KNHC) ----
+    "N04"  => array("OFF", "KNHC", "OFFN04"),
+    "N05"  => array("OFF", "KNHC", "OFFN05"),
+    "N06"  => array("OFF", "KNHC", "OFFN06"),
+    // ---- High Seas (HSF) ----
+    "HSFAT1" => array("HSF", "KWBC", "HSFAT1"),
+    "HSFAT2" => array("HSF", "KNHC", "HSFAT2"),
+    "HSFEP1" => array("HSF", "KWBC", "HSFEP1"),
+    "HSFEP2" => array("HSF", "KNHC", "HSFEP2"),
+    "HSFNP"  => array("HSF", "PHFO", "HSFNP"),
+);
+// Coastal WFOs use type=CWF, one product per WFO — added dynamically in handler
+
+// =============================================================================
+// NWS API HELPERS
+// =============================================================================
+
+/**
+ * Create cache directory if needed, return its path.
+ */
+function nwsCacheDir() {
+    $dir = NWS_CACHE_DIR;
+    if (!is_dir($dir)) @mkdir($dir, 0755, true);
+    return $dir;
+}
+
+/**
+ * Make an HTTP GET to the NWS API; return decoded JSON array or null.
+ */
+function nwsApiGet($url) {
+    $opts = array(
+        'http' => array(
+            'method'  => 'GET',
+            'header'  => "User-Agent: " . NWS_USER_AGENT . "\r\nAccept: application/geo+json\r\n",
+            'timeout' => 10,
+            'ignore_errors' => true,
+        )
+    );
+    $raw = @file_get_contents($url, false, stream_context_create($opts));
+    if (!$raw) return null;
+    $data = json_decode($raw, true);
+    return ($data && !isset($data['status'])) ? $data : null;
+}
+
+/**
+ * Fetch the productText for a single product UUID from api.weather.gov.
+ */
+function nwsGetProductText($productId) {
+    $cacheFile = nwsCacheDir() . '/prod_' . md5($productId) . '.txt';
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < NWS_CACHE_TTL) {
+        return file_get_contents($cacheFile) ?: null;
+    }
+    $data = nwsApiGet(NWS_API_BASE . "/products/{$productId}");
+    if (!$data || empty($data['productText'])) return null;
+    $text = $data['productText'];
+    file_put_contents($cacheFile, $text);
+    return $text;
+}
+
+/**
+ * Fetch the most recent product of $type from $office whose text contains $matchStr.
+ * Results are cached per (type, office, matchStr).
+ * Falls back to $localFilepath if the API is unreachable or returns nothing.
+ */
+function fetchProductContent($type, $office, $matchStr, $localFilepath = null) {
+    // Per-product cache (keyed by type+office+match)
+    $cacheKey  = strtolower("{$type}_{$office}" . ($matchStr ? "_{$matchStr}" : ''));
+    $cacheFile = nwsCacheDir() . '/match_' . md5($cacheKey) . '.txt';
+
+    if (file_exists($cacheFile) && (time() - filemtime($cacheFile)) < NWS_CACHE_TTL) {
+        $cached = file_get_contents($cacheFile);
+        if ($cached) return $cached;
+    }
+
+    // Query the product list
+    $listUrl = NWS_API_BASE . "/products/types/{$type}/locations/{$office}";
+    $listData = nwsApiGet($listUrl);
+    $items = $listData ? ($listData['@graph'] ?? []) : [];
+
+    $seen = array();
+    foreach ($items as $item) {
+        $pid = $item['id'] ?? '';
+        if (!$pid || in_array($pid, $seen)) continue;
+        $seen[] = $pid;
+
+        $text = nwsGetProductText($pid);
+        if (!$text) continue;
+
+        // Match: if no matchStr, take the first product; otherwise search text
+        if (!$matchStr || stripos($text, $matchStr) !== false) {
+            file_put_contents($cacheFile, $text);
+            return $text;
+        }
+
+        // Stop scanning after checking a reasonable window
+        if (count($seen) >= 15) break;
+    }
+
+    // Fallback to local file
+    if ($localFilepath) {
+        return readLocalFile($localFilepath) ?: null;
+    }
+    return null;
+}
+
+// =============================================================================
 
 // Offshore forecast files (relative to LOCAL_DATA_DIR)
 $OFFSHORE_FILES = array(
@@ -845,102 +986,113 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
-    // Read and parse offshore data from local NWS text files
-    debugLog("Loading offshore data from local files", $LOCAL_DATA_DIR);
+    debugLog("Loading offshore data (NWS API → local fallback)");
     $allForecasts = array();
-    
+
     foreach ($OFFSHORE_FILES as $product => $filename) {
-        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
-        debugLog("Processing offshore product", array('product' => $product, 'file' => $filepath));
-        
-        $content = readLocalFile($filepath);
-        if ($content) {
-            $zones = $ZONE_MAPPINGS[$product];
-            $forecasts = parseOffshoreProduct($content, $zones, $ZONE_NAMES);
-            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
+        $apiCfg  = isset($NWS_PRODUCT_API[$product]) ? $NWS_PRODUCT_API[$product] : null;
+        $content = $apiCfg
+            ? fetchProductContent($apiCfg[0], $apiCfg[1], $apiCfg[2], $LOCAL_DATA_DIR . '/' . $filename)
+            : readLocalFile($LOCAL_DATA_DIR . '/' . $filename);
+
+        if ($content && isset($ZONE_MAPPINGS[$product])) {
+            $forecasts = parseOffshoreProduct($content, $ZONE_MAPPINGS[$product], $ZONE_NAMES);
+            debugLog("Product {$product} parsed", array('count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
-        } else {
-            debugLog("WARNING: Failed to read product " . $product);
         }
     }
-    
-    debugLog("All offshore data loaded", array('total_forecasts' => count($allForecasts)));
-    
-    // If debug mode, include debug log in response
-    if ($DEBUG) {
-        echo json_encode(array(
-            'debug' => $debugLog,
-            'data' => $allForecasts,
-            'source' => 'local_files',
-            'data_dir' => $LOCAL_DATA_DIR
-        ));
-    } else {
-        echo json_encode($allForecasts);
-    }
-    
+
+    debugLog("Offshore complete", array('total' => count($allForecasts)));
+    echo $DEBUG
+        ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
+        : json_encode($allForecasts);
+
 } elseif ($type === 'navtex') {
-    // Read and parse NAVTEX data from local NWS text files
-    debugLog("Loading NAVTEX data from local files", $LOCAL_DATA_DIR);
+    debugLog("Loading NAVTEX data (NWS API → local fallback)");
     $allForecasts = array();
-    
+
     foreach ($NAVTEX_FILES as $product => $filename) {
-        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
-        debugLog("Processing NAVTEX product", array('product' => $product, 'file' => $filepath));
-        
-        $content = readLocalFile($filepath);
+        $apiCfg  = isset($NWS_PRODUCT_API[$product]) ? $NWS_PRODUCT_API[$product] : null;
+        $content = $apiCfg
+            ? fetchProductContent($apiCfg[0], $apiCfg[1], $apiCfg[2], $LOCAL_DATA_DIR . '/' . $filename)
+            : readLocalFile($LOCAL_DATA_DIR . '/' . $filename);
+
         if ($content) {
             $forecasts = parseNavtexProduct($content, $NAVTEX_NAME_TO_ID, $NAVTEX_ZONES);
-            debugLog("Product " . $product . " parsed", array('forecasts_count' => count($forecasts)));
+            debugLog("NAVTEX product {$product} parsed", array('count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
-        } else {
-            debugLog("WARNING: Failed to read product " . $product);
         }
     }
-    
-    debugLog("All NAVTEX data loaded", array('total_forecasts' => count($allForecasts)));
-    
-    if ($DEBUG) {
-        echo json_encode(array(
-            'debug' => $debugLog,
-            'data' => $allForecasts,
-            'source' => 'local_files',
-            'data_dir' => $LOCAL_DATA_DIR
-        ));
-    } else {
-        echo json_encode($allForecasts);
-    }
-    
+
+    debugLog("NAVTEX complete", array('total' => count($allForecasts)));
+    echo $DEBUG
+        ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
+        : json_encode($allForecasts);
+
 } elseif ($type === 'coastal') {
-    debugLog("Loading coastal data from local files", $LOCAL_DATA_DIR);
+    debugLog("Loading coastal data (NWS API → local fallback)");
     $allForecasts = array();
 
     foreach ($COASTAL_FILES as $wfo => $filename) {
-        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
-        debugLog("Processing coastal WFO", array('wfo' => $wfo, 'file' => $filepath));
+        // CWF: one product per WFO, no matchStr needed
+        $content = fetchProductContent('CWF', $wfo, null, $LOCAL_DATA_DIR . '/' . $filename);
 
-        $content = readLocalFile($filepath);
         if ($content && isset($COASTAL_ZONE_MAPPINGS[$wfo])) {
-            $zones = $COASTAL_ZONE_MAPPINGS[$wfo];
-            $forecasts = parseOffshoreProduct($content, $zones, array());
-            debugLog("WFO " . $wfo . " parsed", array('forecasts_count' => count($forecasts)));
+            $forecasts = parseOffshoreProduct($content, $COASTAL_ZONE_MAPPINGS[$wfo], array());
+            debugLog("Coastal WFO {$wfo} parsed", array('count' => count($forecasts)));
             $allForecasts = array_merge($allForecasts, $forecasts);
-        } else {
-            debugLog("Skipping WFO " . $wfo . " (file missing or no zone mapping)");
         }
     }
 
-    debugLog("All coastal data loaded", array('total_forecasts' => count($allForecasts)));
+    debugLog("Coastal complete", array('total' => count($allForecasts)));
+    echo $DEBUG
+        ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
+        : json_encode($allForecasts);
 
-    if ($DEBUG) {
-        echo json_encode(array(
-            'debug' => $debugLog,
-            'data'  => $allForecasts,
-            'source' => 'local_files',
-            'data_dir' => $LOCAL_DATA_DIR
-        ));
-    } else {
-        echo json_encode($allForecasts);
+} elseif ($type === 'highseas') {
+    debugLog("Loading high seas data (NWS API → local fallback)");
+
+    // Extract issue time from product text
+    function extractIssueTime($text) {
+        if (preg_match('/(\d{3,4}\s*(?:AM|PM)\s*\w+\s+\w+\s+\w+\s+\d+\s+\d{4})/i', $text, $m)) {
+            return trim($m[1]);
+        }
+        return date('g:i A T D M j Y');
     }
+
+    $highSeasZones = array(
+        array('id' => 'HSFAT1', 'name' => 'North Atlantic High Seas',
+              'api' => array('HSF', 'KWBC', 'HSFAT1')),
+        array('id' => 'HSFAT2', 'name' => 'Tropical Atlantic / Caribbean / Gulf High Seas',
+              'api' => array('HSF', 'KNHC', 'HSFAT2')),
+        array('id' => 'HSFEP1', 'name' => 'North Pacific High Seas',
+              'api' => array('HSF', 'KWBC', 'HSFEP1')),
+        array('id' => 'HSFEP2', 'name' => 'Eastern North Pacific High Seas',
+              'api' => array('HSF', 'KNHC', 'HSFEP2')),
+        array('id' => 'HSFNP',  'name' => 'Central North Pacific High Seas',
+              'api' => array('HSF', 'PHFO', 'HSFNP')),
+    );
+
+    $allForecasts = array();
+    foreach ($highSeasZones as $zone) {
+        $cfg  = $zone['api'];
+        $text = fetchProductContent($cfg[0], $cfg[1], $cfg[2]);
+        if ($text) {
+            $allForecasts[] = array(
+                'zone'    => $zone['id'],
+                'name'    => $zone['name'],
+                'time'    => extractIssueTime($text),
+                'warning' => extractWarning($text),
+                'rawText' => trim($text),
+            );
+            debugLog("High seas zone {$zone['id']} fetched");
+        }
+    }
+
+    debugLog("High seas complete", array('total' => count($allForecasts)));
+    echo $DEBUG
+        ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
+        : json_encode($allForecasts);
 
 } else {
     debugLog("ERROR: Invalid type requested", $type);

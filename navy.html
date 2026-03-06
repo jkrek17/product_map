@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navy Forecast Areas - OPC Weather Map</title>
+    <link rel="stylesheet" href="libs/leaflet/leaflet.css">
+    <link rel="stylesheet" href="css/navy.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>Navy Forecast Areas</h1>
+            <p>U.S. Navy Operations Areas (OPAREAs) - Marine Forecast Visualization</p>
+        </div>
+        <div class="controls">
+            <div class="control-group">
+                <label for="basin">Region:</label>
+                <select id="basin">
+                    <option value="atlantic">Atlantic</option>
+                    <option value="pacific">Pacific</option>
+                </select>
+            </div>
+            <button type="button" id="refreshBtn">Refresh Data</button>
+            <button type="button" id="shareBtn" title="Copy link to current view">Share Link</button>
+            <a href="index.html" id="backBtn">&#8592; OPC Map</a>
+            <button type="button" id="aboutBtn">About</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div id="map"></div>
+        <div class="sidebar" id="sidebar">
+            <div class="forecast-panel" id="forecastPanel">
+                <h3>Area Forecast</h3>
+                <div class="full-text-links">
+                    <h4>Full Forecast Products</h4>
+                    <a href="get-forecast.php?pil=WRKFWNX01" target="_blank">FOXX01 (Atlantic South)</a>
+                    <a href="get-forecast.php?pil=WRKFWNX02" target="_blank">FOXX02 (Atlantic North)</a>
+                    <a href="https://ocean.weather.gov/.cj/.monitor/.navy/gfe_navy_zones_fwcsc1_onp_latest.txt" target="_blank">FWC San Diego (Pacific)</a>
+                </div>
+                <div class="no-data">Click on an area to view forecast details</div>
+            </div>
+            <div class="chart-panel">
+                <h3>Wind &amp; Wave Forecast</h3>
+                <div class="chart-container">
+                    <canvas id="weatherChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button type="button" class="mobile-toggle" id="mobileToggle" title="Toggle Forecast Panel">
+        &#9650;
+    </button>
+
+    <div class="legend">
+        <div class="legend-item">
+            <span class="legend-color legend-color-none"></span>
+            <span>No Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale"></span>
+            <span>Gale Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-gale-possible"></span>
+            <span>Gale Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm"></span>
+            <span>Storm Warning</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-storm-possible"></span>
+            <span>Storm Force Possible</span>
+        </div>
+        <div class="legend-item">
+            <span class="legend-color legend-color-hurricane"></span>
+            <span>Hurricane Force</span>
+        </div>
+    </div>
+
+    <!-- About/Help Modal -->
+    <div class="modal-overlay" id="aboutModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>About Navy Forecast Areas</h2>
+                <button type="button" class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body">
+                <h3>Overview</h3>
+                <p>This application displays marine weather forecasts for U.S. Navy Operations Areas (OPAREAs). These areas are used by the Navy for training and operational activities, with dedicated weather forecasts provided by the Ocean Prediction Center.</p>
+
+                <h3>Atlantic OPAREAs</h3>
+                <ul>
+                    <li><strong>Boston:</strong> Waters off the coast of Massachusetts and Maine</li>
+                    <li><strong>Narragansett Bay:</strong> Southern New England coastal waters</li>
+                    <li><strong>VACAPES:</strong> Virginia Capes operating area</li>
+                    <li><strong>Cherry Point:</strong> North Carolina coastal waters</li>
+                    <li><strong>Charleston:</strong> South Carolina coastal waters</li>
+                    <li><strong>Jacksonville:</strong> Northeast Florida coastal waters</li>
+                    <li><strong>Port Canaveral:</strong> Central Florida coastal waters</li>
+                    <li><strong>TOTO:</strong> Tongue of the Ocean (Bahamas)</li>
+                </ul>
+
+                <h3>Pacific OPAREAs (San Diego)</h3>
+                <ul>
+                    <li><strong>Area A (Offshore):</strong> Offshore waters from Pt Conception to San Clemente Island, west to 120-30W</li>
+                    <li><strong>Area B (Coastal):</strong> Coastal waters inside the Channel Islands to Mexico border</li>
+                    <li><strong>Area C (Mexico Offshore):</strong> Mexican offshore waters from 120-30W to 118-25W</li>
+                    <li><strong>Area D (Mexico Coastal):</strong> Mexican coastal waters east of 118-25W</li>
+                </ul>
+
+                <h3>How to Use</h3>
+                <ul>
+                    <li><strong>Select a Region:</strong> Use the dropdown to switch between Atlantic and Pacific.</li>
+                    <li><strong>View Forecasts:</strong> Click on any zone on the map to view the detailed forecast.</li>
+                    <li><strong>Share:</strong> Click "Share Link" to copy a URL that links directly to your current view and selected zone.</li>
+                    <li><strong>Full Products:</strong> Links to complete forecast text files are available in the sidebar.</li>
+                </ul>
+
+                <h3>Bookmarkable URLs</h3>
+                <p>You can bookmark or share specific views using URL parameters:</p>
+                <ul>
+                    <li><code>?zone=vacapes&amp;basin=atlantic</code> - Virginia Capes OPAREA</li>
+                    <li><code>?zone=area_a&amp;basin=pacific</code> - San Diego Area A (Offshore)</li>
+                </ul>
+
+                <h3>Data Sources</h3>
+                <p>Forecast data is provided by the <a href="https://ocean.weather.gov" target="_blank" rel="noopener">NOAA Ocean Prediction Center</a> in coordination with Fleet Weather Centers.</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="libs/leaflet/leaflet.js"></script>
+    <script src="libs/chartjs/chart.min.js"></script>
+    <script src="js/navy.js"></script>
+</body>
+</html>

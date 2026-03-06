@@ -794,7 +794,83 @@ function extractWarning($text) {
 }
 
 /**
- * Parse offshore forecast product
+ * Expand a zone group header line into an array of full zone IDs.
+ *
+ * Handles all CWF/offshore header formats:
+ *   GMZ031-070330-           → [GMZ031]
+ *   GMZ032-035-070330-       → [GMZ032, GMZ035]
+ *   GMZ042>044-070330-       → [GMZ042, GMZ043, GMZ044]
+ *   AMZ600-GMZ606-070700-    → [AMZ600, GMZ606]
+ *   GMZ130-132-135-061915-   → [GMZ130, GMZ132, GMZ135]
+ */
+function expandZoneHeader($header) {
+    $header = rtrim(trim($header), '-');
+    $header = preg_replace('/-\d{6}$/', '', $header);   // strip timestamp
+    $parts  = explode('-', $header);
+    $ids    = array();
+    $prefix = null;
+
+    foreach ($parts as $part) {
+        $part = trim($part);
+        if ($part === '') continue;
+
+        if (preg_match('/^([A-Z]{2}Z)(\d{3})(?:>(\d{3}))?$/', $part, $m)) {
+            $prefix = $m[1];
+            if (!empty($m[3])) {
+                for ($i = intval($m[2]); $i <= intval($m[3]); $i++) {
+                    $ids[] = $prefix . sprintf('%03d', $i);
+                }
+            } else {
+                $ids[] = $prefix . $m[2];
+            }
+        } elseif ($prefix && preg_match('/^(\d{3})(?:>(\d{3}))?$/', $part, $m)) {
+            if (!empty($m[2])) {
+                for ($i = intval($m[1]); $i <= intval($m[2]); $i++) {
+                    $ids[] = $prefix . sprintf('%03d', $i);
+                }
+            } else {
+                $ids[] = $prefix . $m[1];
+            }
+        }
+    }
+    return array_unique($ids);
+}
+
+/**
+ * Split a product text into a map of zoneId => sectionText.
+ * Handles both offshore (single zone per section) and CWF (grouped zones).
+ */
+function buildZoneSectionMap($content) {
+    $map      = array();
+    $sections = preg_split('/\n\$\$[ \t]*(?:\n|$)/', $content);
+
+    foreach ($sections as $section) {
+        $lines     = explode("\n", ltrim($section, "\r\n"));
+        $headerIdx = -1;
+
+        foreach ($lines as $i => $line) {
+            if (preg_match('/^[A-Z]{2}Z\d{3}[-|>]/', trim($line))) {
+                $headerIdx = $i;
+                break;
+            }
+        }
+        if ($headerIdx === -1) continue;
+
+        $zoneIds = expandZoneHeader($lines[$headerIdx]);
+        if (empty($zoneIds)) continue;
+
+        $body = implode("\n", array_slice($lines, $headerIdx + 1));
+        foreach ($zoneIds as $zoneId) {
+            if (!isset($map[$zoneId])) {   // keep first (most recent) occurrence
+                $map[$zoneId] = $body;
+            }
+        }
+    }
+    return $map;
+}
+
+/**
+ * Parse offshore/coastal forecast product
  */
 function parseOffshoreProduct($content, $zones, $zoneNames) {
     $results = array();
@@ -819,102 +895,70 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
         debugLog("WARNING: Could not extract issue time from content");
     }
     
+    // Build section map once for the whole product (handles grouped CWF headers)
+    $sectionMap = buildZoneSectionMap($content);
+    debugLog("Zone section map built", array('zones_found' => count($sectionMap)));
+
     foreach ($zones as $zone) {
-        debugLog("Processing zone", $zone);
-        
+        if (!isset($sectionMap[$zone])) {
+            debugLog("Zone not found in product: " . $zone);
+            continue;
+        }
+
+        $zoneText = $sectionMap[$zone];
         $zoneData = array(
-            'zone' => $zone,
-            'name' => isset($zoneNames[$zone]) ? $zoneNames[$zone] : $zone,
-            'time' => $issueTime ? $issueTime : date('g:i A T D M j Y'),
-            'warning' => 'NONE',
+            'zone'     => $zone,
+            'name'     => isset($zoneNames[$zone]) ? $zoneNames[$zone] : $zone,
+            'time'     => $issueTime ? $issueTime : date('g:i A T D M j Y'),
+            'warning'  => extractWarning($zoneText),
             'forecast' => array()
         );
-        
-        // Find zone section - format is: ANZ800-220345-\n...content...\n$$
-        // Zone ID followed by -DDHHTT- then content until $$
-        $pattern = '/' . preg_quote($zone, '/') . '-\d{6}-\s*(.*?)\n\$\$/s';
-        
-        if (preg_match($pattern, $content, $zoneMatch)) {
-            $zoneText = $zoneMatch[1];
-            debugLog("Zone text found for " . $zone, array(
-                'text_length' => strlen($zoneText),
-                'text_preview' => substr($zoneText, 0, 500)
-            ));
-            
-            // Debug: show what periods we're finding
-            // Periods are like: .TODAY...text .TONIGHT...text
-            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $debugPeriods, PREG_SET_ORDER);
-            debugLog("Period matches for " . $zone, array(
-                'count' => count($debugPeriods),
-                'periods' => array_map(function($m) { return trim($m[1]); }, $debugPeriods)
-            ));
-            
-            // Extract warning
-            $zoneData['warning'] = extractWarning($zoneText);
-            
-            // Parse forecast periods - format is .DAY...text until next .DAY... or end
-            // Example: .TODAY...W winds 15 to 25 kt. Seas 4 to 7 ft. 
-            preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
-            
-            foreach ($periodMatches as $match) {
-                $periodName = trim($match[1]);
-                $periodText = trim($match[2]);
-                
-                // Validate period name
-                $validStarts = array('TODAY', 'TONIGHT', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'REST');
-                $isValid = false;
-                foreach ($validStarts as $v) {
-                    if (stripos($periodName, $v) === 0) {
-                        $isValid = true;
-                        break;
-                    }
-                }
-                
-                if (!$isValid) continue;
-                
-                // Clean text
-                $cleanText = preg_replace('/\s+/', ' ', $periodText);
-                
-                // Extract winds
-                $winds = 'Variable winds';
-                if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:WINDS?\s+)?(\d+)\s*(?:TO\s*)?(\d+)?\s*KT)/i', $cleanText, $windMatch)) {
-                    $winds = ucfirst(strtolower(trim($windMatch[0])));
-                }
-                
-                // Extract seas
-                $seas = 'Seas variable';
-                if (preg_match('/(?:SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s*(?:TO\s*)?(\d+)?\s*FT/i', $cleanText, $seasMatch)) {
-                    $low = $seasMatch[1];
-                    $high = isset($seasMatch[2]) && $seasMatch[2] ? $seasMatch[2] : $low;
-                    $seas = "Seas $low to $high ft";
-                } elseif (preg_match('/(\d+)\s+TO\s+(\d+)\s*FT/i', $cleanText, $seasMatch2)) {
-                    $seas = "Seas {$seasMatch2[1]} to {$seasMatch2[2]} ft";
-                }
-                
-                // Extract weather
-                $weather = 'N/A';
-                $weatherPatterns = array('freezing spray', 'rain', 'snow', 'fog', 'tstms', 'thunderstorms', 'showers', 'drizzle');
-                foreach ($weatherPatterns as $wp) {
-                    if (stripos($cleanText, $wp) !== false) {
-                        if (preg_match('/((?:chance\s+of\s+|isolated\s+|scattered\s+)?' . $wp . '[^.]*?)(?:\.|$)/i', $cleanText, $wxMatch)) {
-                            $weather = ucfirst(strtolower(trim($wxMatch[1])));
-                        }
-                        break;
-                    }
-                }
-                
-                $zoneData['forecast'][] = array(
-                    'Day' => ucwords(strtolower($periodName)),
-                    'Winds' => $winds,
-                    'Seas' => $seas,
-                    'Weather' => $weather
-                );
+
+        preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $periodMatches, PREG_SET_ORDER);
+        debugLog("Periods for $zone", array('count' => count($periodMatches)));
+
+        foreach ($periodMatches as $match) {
+            $periodName = trim($match[1]);
+            $periodText = trim($match[2]);
+
+            $validStarts = array('TODAY', 'TONIGHT', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN', 'REST');
+            $isValid = false;
+            foreach ($validStarts as $v) {
+                if (stripos($periodName, $v) === 0) { $isValid = true; break; }
             }
-        } else {
-            debugLog("WARNING: Zone " . $zone . " NOT FOUND in content", array(
-                'pattern_used' => $pattern,
-                'content_preview' => substr($content, 0, 500)
-            ));
+            if (!$isValid) continue;
+
+            $cleanText = preg_replace('/\s+/', ' ', $periodText);
+
+            $winds = 'Variable winds';
+            if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:WINDS?\s+)?(\d+)\s*(?:TO\s*)?(\d+)?\s*KT)/i', $cleanText, $wm)) {
+                $winds = ucfirst(strtolower(trim($wm[0])));
+            }
+
+            $seas = 'Seas variable';
+            if (preg_match('/(?:SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s*(?:TO\s*)?(\d+)?\s*FT/i', $cleanText, $sm)) {
+                $lo = $sm[1]; $hi = isset($sm[2]) && $sm[2] ? $sm[2] : $lo;
+                $seas = "Seas $lo to $hi ft";
+            } elseif (preg_match('/(\d+)\s+TO\s+(\d+)\s*FT/i', $cleanText, $sm2)) {
+                $seas = "Seas {$sm2[1]} to {$sm2[2]} ft";
+            }
+
+            $weather = 'N/A';
+            foreach (array('freezing spray','rain','snow','fog','tstms','thunderstorms','showers','drizzle') as $wp) {
+                if (stripos($cleanText, $wp) !== false) {
+                    if (preg_match('/((?:chance\s+of\s+|isolated\s+|scattered\s+)?' . $wp . '[^.]*?)(?:\.|$)/i', $cleanText, $wxm)) {
+                        $weather = ucfirst(strtolower(trim($wxm[1])));
+                    }
+                    break;
+                }
+            }
+
+            $zoneData['forecast'][] = array(
+                'Day'     => ucwords(strtolower($periodName)),
+                'Winds'   => $winds,
+                'Seas'    => $seas,
+                'Weather' => $weather
+            );
         }
         
         // Ensure forecast data exists

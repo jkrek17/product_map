@@ -325,15 +325,78 @@ function pf_extractTime(string $text): string {
     return date('g:i A T D M j Y');
 }
 
+/**
+ * Expand a zone group header into full zone IDs.
+ * Handles: single, list (GMZ032-035-), range (GMZ042>044-), mixed prefixes.
+ */
+function pf_expandZoneHeader(string $header): array {
+    $header = rtrim(trim($header), '-');
+    $header = preg_replace('/-\d{6}$/', '', $header);
+    $parts  = explode('-', $header);
+    $ids    = [];
+    $prefix = null;
+
+    foreach ($parts as $part) {
+        $part = trim($part);
+        if ($part === '') continue;
+
+        if (preg_match('/^([A-Z]{2}Z)(\d{3})(?:>(\d{3}))?$/', $part, $m)) {
+            $prefix = $m[1];
+            if (!empty($m[3])) {
+                for ($i = intval($m[2]); $i <= intval($m[3]); $i++) {
+                    $ids[] = $prefix . sprintf('%03d', $i);
+                }
+            } else {
+                $ids[] = $prefix . $m[2];
+            }
+        } elseif ($prefix && preg_match('/^(\d{3})(?:>(\d{3}))?$/', $part, $m)) {
+            if (!empty($m[2])) {
+                for ($i = intval($m[1]); $i <= intval($m[2]); $i++) {
+                    $ids[] = $prefix . sprintf('%03d', $i);
+                }
+            } else {
+                $ids[] = $prefix . $m[1];
+            }
+        }
+    }
+    return array_unique($ids);
+}
+
+/** Build a zoneId => sectionText map from any product text. */
+function pf_buildZoneSectionMap(string $content): array {
+    $map      = [];
+    $sections = preg_split('/\n\$\$[ \t]*(?:\n|$)/', $content);
+
+    foreach ($sections as $section) {
+        $lines     = explode("\n", ltrim($section, "\r\n"));
+        $headerIdx = -1;
+        foreach ($lines as $i => $line) {
+            if (preg_match('/^[A-Z]{2}Z\d{3}[-|>]/', trim($line))) {
+                $headerIdx = $i; break;
+            }
+        }
+        if ($headerIdx === -1) continue;
+
+        $zoneIds = pf_expandZoneHeader($lines[$headerIdx]);
+        if (empty($zoneIds)) continue;
+
+        $body = implode("\n", array_slice($lines, $headerIdx + 1));
+        foreach ($zoneIds as $zoneId) {
+            if (!isset($map[$zoneId])) $map[$zoneId] = $body;
+        }
+    }
+    return $map;
+}
+
 function pf_parseZoneForecast(string $content, array $zones, array $zoneNames): array {
-    $results  = [];
+    $results   = [];
     $issueTime = pf_extractTime($content);
+    $sectionMap = pf_buildZoneSectionMap($content);
 
     foreach ($zones as $zone) {
-        $pattern = '/' . preg_quote($zone, '/') . '-\d{6}-\s*(.*?)\n\$\$/s';
-        if (!preg_match($pattern, $content, $m)) continue;
+        if (!isset($sectionMap[$zone])) continue;
 
-        $zoneText = $m[1];
+        $zoneText = $sectionMap[$zone];
         $forecast = [];
         preg_match_all('/\.([A-Z][A-Z\s]*?)\.\.\.([^.]*(?:\.[^A-Z][^.]*)*)/s', $zoneText, $pm, PREG_SET_ORDER);
 

@@ -403,32 +403,14 @@
         .lc-tsunami     { background: #fd6347; }
         .lc-mws         { background: #ffefd5; border: 1px solid #888; }
 
-        .leaflet-popup-content-wrapper {
-            background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
-            color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+        /* Click marker — pulsing dot */
+        .zone-click-marker {
+            animation: markerPulse 1.6s ease-out forwards;
         }
-
-        .leaflet-popup-tip {
-            background: #16213e;
-        }
-
-        .leaflet-popup-content {
-            margin: 14px 16px;
-            font-size: 14px;
-        }
-
-        .zone-popup-title {
-            font-weight: 700;
-            color: #e94560;
-            font-size: 15px;
-            margin-bottom: 4px;
-        }
-
-        .zone-popup-id {
-            color: #94a3b8;
-            font-size: 12px;
+        @keyframes markerPulse {
+            0%   { opacity: 1;   transform: scale(1);   }
+            60%  { opacity: 0.9; transform: scale(1.35);}
+            100% { opacity: 1;   transform: scale(1);   }
         }
 
         .no-data {
@@ -1123,123 +1105,105 @@
         }
 
         function loadZones() {
-            var product = document.getElementById('product').value;
+            var product     = document.getElementById('product').value;
             var geoJsonFile = geoJsonFileForProduct(product);
-            var idField = 'ID';
-
-            console.log('[DEBUG] loadZones() called');
-            console.log('[DEBUG] Product:', product);
-            console.log('[DEBUG] GeoJSON file:', geoJsonFile);
-            console.log('[DEBUG] ID field:', idField);
-            console.log('[DEBUG] Current forecastData length:', forecastData ? forecastData.length : 'null/undefined');
 
             fetch(geoJsonFile)
-                .then(function(response) {
-                    console.log('[DEBUG] GeoJSON response status:', response.status);
-                    return response.text();
-                })
-                .then(function(text) {
-                    console.log('[DEBUG] GeoJSON text length:', text ? text.length : 0);
-                    console.log('[DEBUG] GeoJSON text starts with "var ":', text.indexOf('var ') === 0);
-                    if (text.indexOf('var ') === 0) {
-                        console.log('[DEBUG] Attempting to extract JSON from JavaScript variable...');
-                        var match = text.match(/var\s+\w+\s*=\s*(\{[\s\S]*\})/);
-                        if (match) {
-                            text = match[1];
-                            console.log('[DEBUG] Extracted JSON length:', text.length);
-                        } else {
-                            console.warn('[DEBUG] WARNING: Could not extract JSON from JavaScript variable');
-                        }
-                    }
-                    var geoJson = JSON.parse(text);
-                    console.log('[DEBUG] GeoJSON parsed successfully');
-                    console.log('[DEBUG] GeoJSON type:', geoJson.type);
-                    console.log('[DEBUG] GeoJSON features count:', geoJson.features ? geoJson.features.length : 'N/A');
-                    if (geoJson.features && geoJson.features.length > 0) {
-                        console.log('[DEBUG] First feature properties:', JSON.stringify(geoJson.features[0].properties));
-                        console.log('[DEBUG] All zone IDs in GeoJSON:', geoJson.features.map(function(f) { return f.properties.ID || f.properties.Name; }).join(', '));
-                    }
-                    displayZones(geoJson, idField);
-                })
-                .catch(function(error) {
-                    console.error('[DEBUG] Error loading zones:', error);
-                    console.error('[DEBUG] Error message:', error.message);
-                    console.error('[DEBUG] Error stack:', error.stack);
-                });
+                .then(function(r) { return r.json(); })
+                .then(function(geoJson) { displayZones(geoJson, 'ID'); })
+                .catch(function(err) { console.error('GeoJSON load error:', err); });
+        }
+
+        // Track selected zone layer and click marker globally
+        var selectedLayer  = null;
+        var clickMarker    = null;
+        var activeGeoLayer = null;   // ref to current L.geoJSON for resetStyle()
+
+        function zoneStyle(warning, selected) {
+            var isWarning = warning && warning !== 'NONE';
+            return {
+                fillColor:   getWarningColor(warning),
+                fillOpacity: selected ? 0.75 : (isWarning ? 0.52 : 0.18),
+                color:       selected ? '#ffffff' : (isWarning ? 'rgba(20,20,40,0.6)' : 'rgba(120,140,160,0.35)'),
+                weight:      selected ? 2.5       : (isWarning ? 1.0 : 0.6),
+                opacity:     1
+            };
+        }
+
+        function setSelectedLayer(layer, zoneId) {
+            // Deselect previous
+            if (selectedLayer && selectedLayer !== layer) {
+                if (activeGeoLayer) activeGeoLayer.resetStyle(selectedLayer);
+            }
+            selectedLayer = layer;
+            if (layer) {
+                var forecast = forecastData.find(function(f) { return f.zone === zoneId; });
+                var warning  = forecast ? forecast.warning : 'NONE';
+                layer.setStyle(zoneStyle(warning, true));
+                layer.bringToFront();
+            }
+        }
+
+        function placeClickMarker(latlng) {
+            if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null; }
+            clickMarker = L.circleMarker(latlng, {
+                radius:      7,
+                color:       '#ffffff',
+                weight:      2.5,
+                fillColor:   '#e94560',
+                fillOpacity: 1,
+                opacity:     1,
+                className:   'zone-click-marker'
+            }).addTo(map);
         }
 
         function displayZones(geoJson, idField) {
-            console.log('[DEBUG] displayZones() called');
-            console.log('[DEBUG] forecastData available:', forecastData ? forecastData.length + ' items' : 'null/undefined');
             zonesLayer.clearLayers();
+            selectedLayer  = null;
+            activeGeoLayer = null;
+            if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null; }
 
-            var matchedZones = [];
-            var unmatchedZones = [];
+            var matched = 0, unmatched = 0;
 
-            L.geoJSON(geoJson, {
+            activeGeoLayer = L.geoJSON(geoJson, {
                 style: function(feature) {
-                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var zoneId  = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
                     var forecast = forecastData.find(function(f) {
                         return f.zone === zoneId || f.zone === feature.properties.Name || f.name === feature.properties.Name;
                     });
                     var warning = forecast ? forecast.warning : 'NONE';
-                    
-                    // Track matched/unmatched for debugging
-                    if (forecast) {
-                        matchedZones.push({zoneId: zoneId, forecastZone: forecast.zone, warning: warning});
-                    } else {
-                        unmatchedZones.push({zoneId: zoneId, name: feature.properties.Name});
-                    }
-                    
-                    return {
-                        fillColor: getWarningColor(warning),
-                        weight: 1.5,
-                        opacity: 1,
-                        color: '#1a1a2e',
-                        fillOpacity: 0.55
-                    };
+                    if (forecast) matched++; else unmatched++;
+                    return zoneStyle(warning, false);
                 },
                 onEachFeature: function(feature, layer) {
-                    var zoneId = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
-                    var zoneName = feature.properties.Name || feature.properties.name || zoneId;
-
-                    layer.bindPopup(
-                        '<div class="zone-popup-title">' + zoneName + '</div>' +
-                        '<div class="zone-popup-id">Zone: ' + zoneId + '</div>'
-                    );
+                    var zoneId   = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
+                    var zoneName = feature.properties.NAME || feature.properties.Name || feature.properties.name || zoneId;
 
                     layer.on({
                         mouseover: function(e) {
-                            e.target.setStyle({ weight: 3, color: '#e94560', fillOpacity: 0.75 });
+                            if (e.target === selectedLayer) return;
+                            e.target.setStyle({
+                                fillOpacity: 0.65,
+                                color:       '#ffffff',
+                                weight:      1.8,
+                                opacity:     1
+                            });
                             e.target.bringToFront();
                         },
                         mouseout: function(e) {
-                            var forecast = forecastData.find(function(f) {
-                                return f.zone === zoneId || f.zone === feature.properties.Name;
-                            });
-                            var warning = forecast ? forecast.warning : 'NONE';
-                            e.target.setStyle({
-                                fillColor: getWarningColor(warning),
-                                weight: 1.5,
-                                opacity: 1,
-                                color: '#1a1a2e',
-                                fillOpacity: 0.55
-                            });
+                            if (e.target === selectedLayer) return;
+                            activeGeoLayer.resetStyle(e.target);   // bug fix: use resetStyle
                         },
-                        click: function() { showForecast(zoneId, zoneName); }
+                        click: function(e) {
+                            setSelectedLayer(e.target, zoneId);
+                            placeClickMarker(e.latlng);
+                            showForecast(zoneId, zoneName);
+                        }
                     });
                 }
             }).addTo(zonesLayer);
-            
-            // Log zone matching results
-            console.log('[DEBUG] Zone matching complete');
-            console.log('[DEBUG] Matched zones (' + matchedZones.length + '):', matchedZones.slice(0, 5), '...');
-            console.log('[DEBUG] Unmatched zones (' + unmatchedZones.length + '):', unmatchedZones.slice(0, 5), '...');
-            if (unmatchedZones.length > 0 && forecastData && forecastData.length > 0) {
-                console.log('[DEBUG] Sample forecast zone IDs:', forecastData.slice(0, 5).map(function(f) { return f.zone; }));
-                console.warn('[DEBUG] WARNING: Some zones have no forecast data!');
-            }
-            
+
+            console.log('[DEBUG] Zones: ' + matched + ' matched, ' + unmatched + ' unmatched');
         }
 
         function loadForecastData() {
@@ -1298,10 +1262,6 @@
         }
 
         function showForecast(zoneId, zoneName) {
-            console.log('[DEBUG] showForecast() called');
-            console.log('[DEBUG] Looking for zoneId:', zoneId, 'zoneName:', zoneName);
-            console.log('[DEBUG] forecastData has', forecastData ? forecastData.length : 0, 'items');
-            
             // Store current zone and update URL
             currentZone = zoneId;
             var product = document.getElementById('product').value;
@@ -1322,13 +1282,9 @@
             });
 
             if (!forecast) {
-                console.warn('[DEBUG] No forecast found for zone:', zoneId, zoneName);
-                console.log('[DEBUG] Available zones in forecastData:', forecastData ? forecastData.map(function(f) { return f.zone; }).join(', ') : 'none');
-                panel.innerHTML = '<h3>Forecast Details</h3><div class="no-data">No forecast data for ' + zoneName + '</div>';
+                panel.innerHTML = '<h3>Forecast Details</h3><div class="no-data">No forecast data available for ' + zoneName + '</div>';
                 return;
             }
-            
-            console.log('[DEBUG] Forecast found:', forecast.zone, '- Warning:', forecast.warning);
 
             var warningColor = getWarningColor(forecast.warning);
             var textColor = (warningColor === '#ffff00' || warningColor === '#ffc0cb') ? '#000' : '#fff';
@@ -1429,45 +1385,28 @@
             console.log('[DEBUG] Refresh API URL:', apiUrl);
 
             fetch(apiUrl)
-                .then(function(response) {
-                    console.log('[DEBUG] Refresh response status:', response.status);
-                    if (response.ok) return response.json();
-                    throw new Error('Failed to load - HTTP ' + response.status);
+                .then(function(r) {
+                    if (r.ok) return r.json();
+                    throw new Error('HTTP ' + r.status);
                 })
                 .then(function(data) {
-                    console.log('[DEBUG] Refresh data received');
-                    console.log('[DEBUG] Refresh data length:', data ? data.length : 'null/undefined');
-                    if (data && data.length > 0) {
-                        console.log('[DEBUG] Refresh first item:', JSON.stringify(data[0], null, 2));
-                    }
                     forecastData = data;
                     updateLegend();
                     loadZones();
                     btn.textContent = 'Refresh Data';
                     btn.disabled = false;
                 })
-                .catch(function(error) {
-                    console.error('[DEBUG] Error refreshing data:', error);
-                    console.error('[DEBUG] Refresh error message:', error.message);
+                .catch(function() {
                     btn.textContent = 'Refresh Data';
                     btn.disabled = false;
-                    alert('Failed to fetch live data. Please try again.');
+                    alert('Failed to refresh data. Please try again.');
                 });
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            console.log('='.repeat(60));
-            console.log('[DEBUG] NWS Marine Weather initializing...');
-            console.log('[DEBUG] Open browser console (F12) to see debug messages');
-            console.log('[DEBUG] Add ?debug=1 to API URL for server-side debugging');
-            console.log('[DEBUG] Bookmarkable URLs: ?zone=ANZ800&product=offshore&basin=atlantic');
-            console.log('='.repeat(60));
-            
             // Parse URL parameters
             var params = getUrlParams();
-            console.log('[DEBUG] URL parameters:', JSON.stringify(params));
-            
-            // Set product and basin from URL if provided
+
             var validProducts = ['offshore', 'coastal', 'navtex', 'highseas'];
             if (params.product && validProducts.indexOf(params.product) !== -1) {
                 document.getElementById('product').value = params.product;
@@ -1476,11 +1415,8 @@
             if (params.basin && validBasins.indexOf(params.basin) !== -1) {
                 document.getElementById('basin').value = params.basin;
             }
-            
-            // Store zone to show after data loads
             if (params.zone) {
                 pendingZoneFromUrl = params.zone;
-                console.log('[DEBUG] Will show zone from URL after data loads:', pendingZoneFromUrl);
             }
             
             initMap();

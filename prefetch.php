@@ -1,3 +1,4 @@
+#!/usr/bin/env php
 <?php
 /**
  * NWS Marine Forecast Pre-fetcher

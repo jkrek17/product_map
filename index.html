@@ -377,12 +377,31 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
-        .legend-color-none { background: #808080; }
-        .legend-color-gale { background: #ffff00; }
-        .legend-color-gale-possible { background: #ffc0cb; }
-        .legend-color-storm { background: #ffa500; }
-        .legend-color-storm-possible { background: #800080; }
-        .legend-color-hurricane { background: #ff0000; }
+        /* Legend colors — sourced from NWS WWA MapServer legend */
+        .lc-none        { background: #808080; }
+        .lc-hfw-warn    { background: #cd5c5c; }
+        .lc-hfw-watch   { background: #9932cc; }
+        .lc-hur-warn    { background: #dc143c; }
+        .lc-hur-watch   { background: #ff00ff; }
+        .lc-ts-warn     { background: #b22222; }
+        .lc-ts-watch    { background: #f08080; }
+        .lc-storm-warn  { background: #9400d3; }
+        .lc-storm-watch { background: #ffe4b5; border: 1px solid #666; }
+        .lc-gale-warn   { background: #dda0dd; }
+        .lc-gale-watch  { background: #ffc0cb; }
+        .lc-haz-warn    { background: #d8bfd8; }
+        .lc-haz-watch   { background: #483d8b; }
+        .lc-surge-warn  { background: #b524f7; }
+        .lc-surge-watch { background: #db7ff7; }
+        .lc-fzspray     { background: #00bfff; }
+        .lc-smw         { background: #ffa500; }
+        .lc-surf-warn   { background: #228b22; }
+        .lc-surf-adv    { background: #ba55d3; }
+        .lc-sca         { background: #d8bfd8; border: 1px solid #666; }
+        .lc-wind-adv    { background: #d2b48c; }
+        .lc-fog         { background: #708090; }
+        .lc-tsunami     { background: #fd6347; }
+        .lc-mws         { background: #ffefd5; border: 1px solid #888; }
 
         .leaflet-popup-content-wrapper {
             background: linear-gradient(135deg, #0f3460 0%, #16213e 100%);
@@ -770,12 +789,15 @@
             font-weight: 600;
         }
 
-        .warning-example-none { background: #808080; color: #fff; }
-        .warning-example-gale { background: #ffff00; color: #000; }
-        .warning-example-gale-possible { background: #ffc0cb; color: #000; }
-        .warning-example-storm { background: #ffa500; color: #fff; }
-        .warning-example-storm-possible { background: #800080; color: #fff; }
-        .warning-example-hurricane { background: #ff0000; color: #fff; }
+        .warning-example-none        { background: #808080; color: #fff; }
+        .warning-example-sca         { background: #d8bfd8; color: #000; }
+        .warning-example-gale        { background: #dda0dd; color: #000; }
+        .warning-example-storm       { background: #9400d3; color: #fff; }
+        .warning-example-hfw         { background: #cd5c5c; color: #fff; }
+        .warning-example-hurricane   { background: #dc143c; color: #fff; }
+        .warning-example-tropical    { background: #b22222; color: #fff; }
+        .warning-example-smw         { background: #ffa500; color: #fff; }
+        .warning-example-surge       { background: #b524f7; color: #fff; }
 
         .modal-body a {
             color: #e94560;
@@ -856,30 +878,30 @@
     </button>
 
     <div class="legend">
-        <div class="legend-item">
-            <span class="legend-color legend-color-none"></span>
-            <span>No Warning</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color legend-color-gale"></span>
-            <span>Gale Warning</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color legend-color-gale-possible"></span>
-            <span>Gale Force Possible</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color legend-color-storm"></span>
-            <span>Storm Warning</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color legend-color-storm-possible"></span>
-            <span>Storm Force Possible</span>
-        </div>
-        <div class="legend-item">
-            <span class="legend-color legend-color-hurricane"></span>
-            <span>Hurricane Force</span>
-        </div>
+        <div class="legend-item"><span class="legend-color lc-none"></span><span>No Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-smw"></span><span>Special Marine Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-sca"></span><span>Small Craft Advisory</span></div>
+        <div class="legend-item"><span class="legend-color lc-gale-warn"></span><span>Gale Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-gale-watch"></span><span>Gale Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-storm-warn"></span><span>Storm Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-storm-watch"></span><span>Storm Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-haz-warn"></span><span>Hazardous Seas Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-haz-watch"></span><span>Hazardous Seas Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-hfw-warn"></span><span>Hurricane Force Wind Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-hfw-watch"></span><span>Hurricane Force Wind Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-hur-warn"></span><span>Hurricane Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-hur-watch"></span><span>Hurricane Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-ts-warn"></span><span>Tropical Storm Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-ts-watch"></span><span>Tropical Storm Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-surge-warn"></span><span>Storm Surge Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-surge-watch"></span><span>Storm Surge Watch</span></div>
+        <div class="legend-item"><span class="legend-color lc-fzspray"></span><span>Freezing Spray</span></div>
+        <div class="legend-item"><span class="legend-color lc-surf-warn"></span><span>High Surf Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-surf-adv"></span><span>High Surf Advisory</span></div>
+        <div class="legend-item"><span class="legend-color lc-wind-adv"></span><span>Wind Advisory</span></div>
+        <div class="legend-item"><span class="legend-color lc-fog"></span><span>Dense Fog Advisory</span></div>
+        <div class="legend-item"><span class="legend-color lc-tsunami"></span><span>Tsunami Warning</span></div>
+        <div class="legend-item"><span class="legend-color lc-mws"></span><span>Marine Weather Statement</span></div>
     </div>
 
     <!-- About/Help Modal -->
@@ -906,11 +928,14 @@
                 <p>Zones are colored based on active warnings:</p>
                 <ul>
                     <li><span class="warning-example warning-example-none">Gray</span> - No active warning</li>
-                    <li><span class="warning-example warning-example-gale">Yellow</span> - Gale Warning (34-47 kt winds)</li>
-                    <li><span class="warning-example warning-example-gale-possible">Pink</span> - Gale Force Possible</li>
-                    <li><span class="warning-example warning-example-storm">Orange</span> - Storm Warning (48-63 kt winds)</li>
-                    <li><span class="warning-example warning-example-storm-possible">Purple</span> - Storm Force Possible</li>
-                    <li><span class="warning-example warning-example-hurricane">Red</span> - Hurricane Force Warning (64+ kt winds)</li>
+                    <li><span class="warning-example warning-example-sca">Thistle</span> - Small Craft Advisory</li>
+                    <li><span class="warning-example warning-example-gale">Plum</span> - Gale Warning (34-47 kt)</li>
+                    <li><span class="warning-example warning-example-storm">Dark Violet</span> - Storm Warning (48-63 kt)</li>
+                    <li><span class="warning-example warning-example-hfw">Indian Red</span> - Hurricane Force Wind Warning</li>
+                    <li><span class="warning-example warning-example-hurricane">Crimson</span> - Hurricane Warning</li>
+                    <li><span class="warning-example warning-example-tropical">Fire Brick</span> - Tropical Storm Warning</li>
+                    <li><span class="warning-example warning-example-smw">Orange</span> - Special Marine Warning</li>
+                    <li><span class="warning-example warning-example-surge">Violet</span> - Storm Surge Warning</li>
                 </ul>
 
                 <h3>Bookmarkable URLs</h3>
@@ -1058,12 +1083,16 @@
             L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
         }
 
+        function geoJsonFileForProduct(product) {
+            return product === 'navtex'   ? 'assets/navtex.geojson'
+                 : product === 'coastal'  ? 'assets/coastal.geojson'
+                 : product === 'highseas' ? 'assets/highseas.geojson'
+                 :                          'assets/offshores.geojson';
+        }
+
         function loadZones() {
             var product = document.getElementById('product').value;
-            var geoJsonFile = product === 'navtex'   ? 'assets/navtex.geojson'
-                            : product === 'coastal'  ? 'assets/coastal.geojson'
-                            : product === 'highseas' ? 'assets/highseas.geojson'
-                            :                          'assets/offshores.geojson';
+            var geoJsonFile = geoJsonFileForProduct(product);
             var idField = 'ID';
 
             console.log('[DEBUG] loadZones() called');
@@ -1179,86 +1208,60 @@
                 console.warn('[DEBUG] WARNING: Some zones have no forecast data!');
             }
             
-            // Handle pending zone from URL
-            if (pendingZoneFromUrl) {
-                console.log('[DEBUG] Showing pending zone from URL:', pendingZoneFromUrl);
-                var zoneToShow = pendingZoneFromUrl;
-                pendingZoneFromUrl = null;
-                
-                // Find the zone name from forecastData
-                var forecast = forecastData.find(function(f) { return f.zone === zoneToShow; });
-                var zoneName = forecast ? (forecast.name || zoneToShow) : zoneToShow;
-                showForecast(zoneToShow, zoneName);
-            }
         }
 
         function loadForecastData() {
-            var product = document.getElementById('product').value;
-            var apiUrl = 'api.php?type=' + product;
+            var product    = document.getElementById('product').value;
+            var apiUrl     = 'api.php?type=' + product;
+            var geoJsonFile = geoJsonFileForProduct(product);
 
-            console.log('[DEBUG] loadForecastData() called');
-            console.log('[DEBUG] Product type:', product);
-            console.log('[DEBUG] API URL:', apiUrl);
-
-            // Show loading state
             document.getElementById('forecastPanel').innerHTML =
-                '<h3>Forecast Details</h3><div class="no-data">Loading live data from NWS...</div>';
+                '<h3>Forecast Details</h3><div class="no-data">Loading forecast data...</div>';
 
-            console.log('[DEBUG] Fetching from API...');
-            fetch(apiUrl)
-                .then(function(response) {
-                    console.log('[DEBUG] API Response status:', response.status);
-                    console.log('[DEBUG] API Response ok:', response.ok);
-                    console.log('[DEBUG] API Response headers:', JSON.stringify([...response.headers.entries()]));
-                    if (response.ok) return response.json();
-                    throw new Error('Failed to load - HTTP ' + response.status);
+            // ----------------------------------------------------------------
+            // Load GeoJSON zones AND forecast data in parallel.
+            // Zones are rendered immediately (gray) as soon as the GeoJSON
+            // arrives, then recolored once the forecast data is ready.
+            // ----------------------------------------------------------------
+            var geoJsonPromise = fetch(geoJsonFile)
+                .then(function(r) { return r.json(); })
+                .catch(function() { return null; });
+
+            var dataPromise = fetch(apiUrl)
+                .then(function(r) {
+                    if (r.ok) return r.json();
+                    throw new Error('HTTP ' + r.status);
                 })
-                .then(function(data) {
-                    console.log('[DEBUG] API returned data successfully');
-                    console.log('[DEBUG] Data type:', typeof data);
-                    console.log('[DEBUG] Data is array:', Array.isArray(data));
-                    console.log('[DEBUG] Data length:', data ? data.length : 'null/undefined');
-                    if (data && data.length > 0) {
-                        console.log('[DEBUG] First item sample:', JSON.stringify(data[0], null, 2));
-                        console.log('[DEBUG] All zone IDs:', data.map(function(d) { return d.zone; }).join(', '));
-                    } else {
-                        console.warn('[DEBUG] WARNING: Data is empty or null!');
-                    }
-                    forecastData = data;
-                    console.log('[DEBUG] Calling loadZones()...');
-                    loadZones();
-                    document.getElementById('forecastPanel').innerHTML =
-                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
-                })
-                .catch(function(error) {
-                    console.error('[DEBUG] Error loading forecast data from API:', error);
-                    console.error('[DEBUG] Error message:', error.message);
-                    console.error('[DEBUG] Error stack:', error.stack);
-                    // Fallback to static JSON files
-                    var jsonFile = (product === 'navtex') ? 'assets/navtex-forecasts.json' : 'assets/offshore-forecasts.json';
-                    console.log('[DEBUG] Falling back to static JSON file:', jsonFile);
-                    fetch(jsonFile)
-                        .then(function(r) {
-                            console.log('[DEBUG] Static JSON response status:', r.status);
-                            return r.json();
-                        })
-                        .then(function(data) {
-                            console.log('[DEBUG] Static JSON loaded successfully');
-                            console.log('[DEBUG] Static data length:', data ? data.length : 'null/undefined');
-                            if (data && data.length > 0) {
-                                console.log('[DEBUG] Static data first item:', JSON.stringify(data[0], null, 2));
-                            }
-                            forecastData = data;
-                            loadZones();
-                        })
-                        .catch(function(staticError) {
-                            console.error('[DEBUG] Error loading static JSON:', staticError);
-                            forecastData = [];
-                            loadZones();
-                        });
-                    document.getElementById('forecastPanel').innerHTML =
-                        '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
+                .catch(function() {
+                    // Fallback: static snapshot for offshore/navtex
+                    var fallback = product === 'navtex' ? 'assets/navtex-forecasts.json'
+                                 : product === 'offshore' ? 'assets/offshore-forecasts.json'
+                                 : null;
+                    if (!fallback) return [];
+                    return fetch(fallback).then(function(r) { return r.json(); }).catch(function() { return []; });
                 });
+
+            // Phase 1: render zones as soon as GeoJSON is ready (gray placeholders)
+            geoJsonPromise.then(function(geoJson) {
+                if (geoJson) displayZones(geoJson, 'ID');
+            });
+
+            // Phase 2: when both are ready, recolor zones with forecast data
+            Promise.all([geoJsonPromise, dataPromise]).then(function(results) {
+                var geoJson = results[0];
+                var data    = results[1] || [];
+                forecastData = data;
+                if (geoJson) displayZones(geoJson, 'ID');
+                document.getElementById('forecastPanel').innerHTML =
+                    '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
+
+                if (pendingZoneFromUrl) {
+                    var zoneId = pendingZoneFromUrl;
+                    pendingZoneFromUrl = null;
+                    var fc = forecastData.find(function(f) { return f.zone === zoneId; });
+                    showForecast(zoneId, fc ? (fc.name || zoneId) : zoneId);
+                }
+            });
         }
 
         function showForecast(zoneId, zoneName) {

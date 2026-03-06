@@ -949,6 +949,7 @@
 
     <script src="libs/leaflet/leaflet.js"></script>
     <script src="libs/chartjs/chart.min.js"></script>
+    <script src="libs/topojson/topojson-client.min.js"></script>
 
     <script>
         var map;
@@ -1100,18 +1101,29 @@
         function geoJsonFileForProduct(product) {
             return product === 'navtex'   ? 'assets/navtex.geojson'
                  : product === 'coastal'  ? 'assets/coastal.geojson'
-                 : product === 'highseas' ? 'assets/highseas.geojson'
+                 : product === 'highseas' ? 'assets/highseas.topojson'
                  :                          'assets/offshores.geojson';
         }
 
-        function loadZones() {
-            var product     = document.getElementById('product').value;
-            var geoJsonFile = geoJsonFileForProduct(product);
-
-            fetch(geoJsonFile)
+        /** Load a zone file — handles both GeoJSON and TopoJSON transparently. */
+        function loadZoneFile(url) {
+            return fetch(url)
                 .then(function(r) { return r.json(); })
-                .then(function(geoJson) { displayZones(geoJson, 'ID'); })
-                .catch(function(err) { console.error('GeoJSON load error:', err); });
+                .then(function(data) {
+                    // TopoJSON has a 'type':'Topology' envelope — convert to GeoJSON
+                    if (data.type === 'Topology') {
+                        var key = Object.keys(data.objects)[0];
+                        return topojson.feature(data, data.objects[key]);
+                    }
+                    return data;
+                })
+                .catch(function() { return null; });
+        }
+
+        function loadZones() {
+            var product = document.getElementById('product').value;
+            loadZoneFile(geoJsonFileForProduct(product))
+                .then(function(geoJson) { if (geoJson) displayZones(geoJson, 'ID'); });
         }
 
         // Track selected zone layer and click marker globally
@@ -1219,9 +1231,7 @@
             // Zones are rendered immediately (gray) as soon as the GeoJSON
             // arrives, then recolored once the forecast data is ready.
             // ----------------------------------------------------------------
-            var geoJsonPromise = fetch(geoJsonFile)
-                .then(function(r) { return r.json(); })
-                .catch(function() { return null; });
+            var geoJsonPromise = loadZoneFile(geoJsonFile);
 
             var dataPromise = fetch(apiUrl)
                 .then(function(r) {

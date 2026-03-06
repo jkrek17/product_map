@@ -800,14 +800,16 @@
                     <option value="gulf">Gulf / Caribbean</option>
                     <option value="tropical">Tropical Atlantic</option>
                     <option value="pacific">E Pacific</option>
-                    <!-- <option value="hawaii">Hawaii / C Pacific</option> -->
-                    <!-- <option value="alaska">Alaska / Bering Sea</option> -->
+                    <option value="hawaii">Hawaii</option>
+                    <option value="alaska">Alaska</option>
+                    <option value="greatlakes">Great Lakes</option>
                 </select>
             </div>
             <div class="control-group">
                 <label for="product">Product:</label>
                 <select id="product">
-                    <option value="offshore">Offshore Forecasts</option>
+                    <option value="offshore">Offshore</option>
+                    <option value="coastal">Coastal</option>
                     <option value="navtex">NAVTEX</option>
                 </select>
             </div>
@@ -959,16 +961,57 @@
             toggle.innerHTML = sidebar.classList.contains('open') ? '&#9660;' : '&#9650;';
         }
 
+        // Colors sourced from NWS WWA MapServer legend
+        // https://mapservices.weather.noaa.gov/eventdriven/rest/services/WWA/watch_warn_adv/MapServer/legend
         var warningColors = {
-            'HURRICANE FORCE WIND WARNING': '#ff0000',
-            'HURRICANE WARNING': '#ff0000',
-            'STORM WARNING': '#ffa500',
-            'TROPICAL STORM WARNING': '#ffa500',
-            'GALE WARNING': '#ffff00',
-            'GALE FORCE POSSIBLE': '#ffc0cb',
-            'STORM FORCE POSSIBLE': '#800080',
-            'TROPICAL STORM CONDITIONS POSSIBLE': '#800080',
-            'NONE': '#808080'
+            // Tropical / Hurricane
+            'HURRICANE FORCE WIND WARNING': '#cd5c5c',
+            'HURRICANE FORCE WIND WATCH':   '#9932cc',
+            'HURRICANE WARNING':            '#dc143c',
+            'HURRICANE WATCH':              '#ff00ff',
+            'TROPICAL STORM WARNING':       '#b22222',
+            'TROPICAL STORM WATCH':         '#f08080',
+            // Storm / Gale
+            'STORM WARNING':                '#9400d3',
+            'STORM WATCH':                  '#ffe4b5',
+            'GALE WARNING':                 '#dda0dd',
+            'GALE WATCH':                   '#ffc0cb',
+            // Hazardous Seas
+            'HAZARDOUS SEAS WARNING':       '#d8bfd8',
+            'HAZARDOUS SEAS WATCH':         '#483d8b',
+            // Storm Surge
+            'STORM SURGE WARNING':          '#b524f7',
+            'STORM SURGE WATCH':            '#db7ff7',
+            // Freezing Spray
+            'HEAVY FREEZING SPRAY WARNING': '#00bfff',
+            'HEAVY FREEZING SPRAY WATCH':   '#bc8f8f',
+            'FREEZING SPRAY ADVISORY':      '#00bfff',
+            // Special Marine Warning
+            'SPECIAL MARINE WARNING':       '#ffa500',
+            // High Surf
+            'HIGH SURF WARNING':            '#228b22',
+            'HIGH SURF ADVISORY':           '#ba55d3',
+            // Small Craft / Wind
+            'SMALL CRAFT ADVISORY':         '#d8bfd8',
+            'BRISK WIND ADVISORY':          '#d8bfd8',
+            'WIND ADVISORY':                '#d2b48c',
+            'LAKE WIND ADVISORY':           '#d2b48c',
+            // Dense Fog
+            'DENSE FOG ADVISORY':           '#708090',
+            // Coastal / Lakeshore Flood
+            'COASTAL FLOOD WARNING':        '#228b22',
+            'COASTAL FLOOD WATCH':          '#66cdaa',
+            'COASTAL FLOOD ADVISORY':       '#7cfc00',
+            'LAKESHORE FLOOD WARNING':      '#228b22',
+            'LAKESHORE FLOOD WATCH':        '#66cdaa',
+            'LAKESHORE FLOOD ADVISORY':     '#7cfc00',
+            // Tsunami
+            'TSUNAMI WARNING':              '#fd6347',
+            'TSUNAMI WATCH':                '#ff00ff',
+            'TSUNAMI ADVISORY':             '#d2691e',
+            // Marine Weather Statement
+            'MARINE WEATHER STATEMENT':     '#ffefd5',
+            'NONE':                         '#808080'
         };
 
         function getWarningColor(warning) {
@@ -1001,7 +1044,9 @@
 
         function loadZones() {
             var product = document.getElementById('product').value;
-            var geoJsonFile = (product === 'navtex') ? 'assets/navtex.geojson' : 'assets/offshores.geojson';
+            var geoJsonFile = product === 'navtex'  ? 'assets/navtex.geojson'
+                            : product === 'coastal' ? 'assets/coastal.geojson'
+                            :                         'assets/offshores.geojson';
             var idField = 'ID';
 
             console.log('[DEBUG] loadZones() called');
@@ -1299,12 +1344,13 @@
 
         function changeBasin() {
             var basin = document.getElementById('basin').value;
-            if      (basin === 'atlantic')  map.flyTo([38, -72], 5);
-            else if (basin === 'gulf')      map.flyTo([25, -90], 5);
-            else if (basin === 'tropical')  map.flyTo([18, -68], 5);
-            else if (basin === 'pacific')   map.flyTo([20, -108], 5);
-            // else if (basin === 'hawaii')    map.flyTo([22, -158], 6);
-            // else if (basin === 'alaska')    map.flyTo([57, -153], 5);
+            if      (basin === 'atlantic')   map.flyTo([38, -72],  5);
+            else if (basin === 'gulf')       map.flyTo([25, -90],  5);
+            else if (basin === 'tropical')   map.flyTo([18, -68],  5);
+            else if (basin === 'pacific')    map.flyTo([20, -108], 5);
+            else if (basin === 'hawaii')     map.flyTo([22, -158], 6);
+            else if (basin === 'alaska')     map.flyTo([60, -153], 5);
+            else if (basin === 'greatlakes') map.flyTo([44, -85],  6);
 
             // Update URL with new basin
             updateUrl(currentZone, document.getElementById('product').value, basin);
@@ -1360,10 +1406,11 @@
             console.log('[DEBUG] URL parameters:', JSON.stringify(params));
             
             // Set product and basin from URL if provided
-            if (params.product && (params.product === 'offshore' || params.product === 'navtex')) {
+            var validProducts = ['offshore', 'coastal', 'navtex'];
+            if (params.product && validProducts.indexOf(params.product) !== -1) {
                 document.getElementById('product').value = params.product;
             }
-            var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific']; // 'hawaii', 'alaska' disabled
+            var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific', 'hawaii', 'alaska', 'greatlakes'];
             if (params.basin && validBasins.indexOf(params.basin) !== -1) {
                 document.getElementById('basin').value = params.basin;
             }
@@ -1378,11 +1425,12 @@
             
             // Set initial map view based on basin
             var basin = document.getElementById('basin').value;
-            if      (basin === 'gulf')     map.setView([25, -90], 5);
-            else if (basin === 'tropical') map.setView([18, -68], 5);
-            else if (basin === 'pacific')  map.setView([20, -108], 5);
-            // else if (basin === 'hawaii')   map.setView([22, -158], 6);
-            // else if (basin === 'alaska')   map.setView([57, -153], 5);
+            if      (basin === 'gulf')       map.setView([25, -90],  5);
+            else if (basin === 'tropical')   map.setView([18, -68],  5);
+            else if (basin === 'pacific')    map.setView([20, -108], 5);
+            else if (basin === 'hawaii')     map.setView([22, -158], 6);
+            else if (basin === 'alaska')     map.setView([60, -153], 5);
+            else if (basin === 'greatlakes') map.setView([44, -85],  6);
             
             document.getElementById('basin').addEventListener('change', changeBasin);
             document.getElementById('product').addEventListener('change', function() {

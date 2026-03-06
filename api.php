@@ -26,13 +26,75 @@ $OFFSHORE_FILES = array(
     "PZ6" => "NFDOFFPZ6.txt",
     "PZ7" => "MIAOFFPZ7.txt",
     "PZ8" => "MIAOFFPZ8.txt",
-    // Hawaii / Central Pacific -- disabled, uncomment when product files are available
-    // "PH"  => "HFOOFFPH.txt",         // PHZ180 - Hawaiian Offshore Waters
-    // Alaska -- disabled, uncomment when product files are available
-    // "PKG" => "AFCOFFPKG.txt",        // PKZ311/PKZ312 - Gulf of Alaska (AFC Anchorage)
-    // "PKB" => "AFCOFFPKB.txt",        // PKZ351/PKZ352 - Gulf of Alaska offshore (AFC)
-    // "PKS" => "AJKOFFPKS.txt",        // PKZ411-PKZ414 - Bering Sea (AJK Juneau)
-    // "PKA" => "AFGOFFPKA.txt",        // PKZ500-PKZ510 - Arctic (AFG Fairbanks)
+    "PH"  => "HFOOFFPH.txt",           // PHZ180 - Hawaiian Offshore Waters
+    "PKG" => "AFCOFFPKG.txt",          // PKZ311/PKZ312 - Gulf of Alaska (AFC)
+    "PKB" => "AFCOFFPKB.txt",          // PKZ351/PKZ352 - Gulf of Alaska offshore (AFC)
+    "PKS" => "AJKOFFPKS.txt",          // PKZ411-PKZ414 - Bering Sea (AJK)
+    "PKA" => "AFGOFFPKA.txt",          // PKZ500-PKZ510 - Arctic (AFG)
+);
+
+// Coastal Waters Forecast (CWF) files — one per issuing WFO
+// File naming: {WFO}CWF{WFO}.txt  e.g. BOXCWFBOX.txt
+$COASTAL_FILES = array(
+    // Atlantic - New England
+    "BOX" => "BOXCWFBOX.txt",
+    "GYX" => "GYXCWFGYX.txt",
+    "CAR" => "CARCWFCAR.txt",
+    // Atlantic - Mid-Atlantic / Chesapeake
+    "OKX" => "OKXCWFOKX.txt",
+    "PHI" => "PHICWFPHI.txt",
+    "LWX" => "LWXCWFLWX.txt",
+    "AKQ" => "AKQCWFAKQ.txt",
+    // SE Atlantic / Caribbean
+    "MHX" => "MHXCWFMHX.txt",
+    "ILM" => "ILMCWFILM.txt",
+    "CHS" => "CHSCWFCHS.txt",
+    "JAX" => "JAXCWFJAX.txt",
+    "MLB" => "MLBCWFMLB.txt",
+    "MFL" => "MFLCWFMFL.txt",
+    "SJU" => "SJUCWFSJU.txt",
+    // Gulf of America
+    "KEY" => "KEYCWFKEY.txt",
+    "TBW" => "TBWCWFTBW.txt",
+    "TAE" => "TAECWFTAE.txt",
+    "MOB" => "MOBCWFMOB.txt",
+    "LIX" => "LIXCWFLIX.txt",
+    "LCH" => "LCHCWFLCH.txt",
+    "HGX" => "HGXCWFHGX.txt",
+    "CRP" => "CRPCWFCRP.txt",
+    "BRO" => "BROCWFBRO.txt",
+    // Pacific - West Coast
+    "SEW" => "SEWCWFSEW.txt",
+    "PQR" => "PQRCWFPQR.txt",
+    "MFR" => "MFRCWFMFR.txt",
+    "EKA" => "EKACWFEKA.txt",
+    "MTR" => "MTRCWFMTR.txt",
+    "LOX" => "LOXCWFLOX.txt",
+    "SGX" => "SGXCWFSGX.txt",
+    // Hawaii
+    "HFO" => "HFOCWFHFO.txt",
+    // Alaska
+    "AFC" => "AFCCWFAFC.txt",
+    "AFG" => "AFGCWFAFG.txt",
+    "AJK" => "AJKCWFAJK.txt",
+    // Great Lakes
+    "APX" => "APXCWFAPX.txt",
+    "BOX_GL" => "BOXCWFBOX.txt",       // note: BOX also covers some GL zones
+    "BUF" => "BUFCWFBUF.txt",
+    "CLE" => "CLECWFCLE.txt",
+    "DLH" => "DLHCWFDLH.txt",
+    "DTX" => "DTXCWFDTX.txt",
+    "GRB" => "GRBCWFGRB.txt",
+    "GRR" => "GRRCWFGRR.txt",
+    "IWX" => "IWXCWFIWX.txt",
+    "LOT" => "LOTCWFLOT.txt",
+    "MKX" => "MKXCWFMKX.txt",
+    "MQT" => "MQTCWFMQT.txt",
+    // Pacific Islands
+    "GUM" => "GUMCWFGUM.txt",
+    "PQE" => "PQECWFPQE.txt",
+    "PQW" => "PQWCWFPQW.txt",
+    "STU" => "STUCWFSTU.txt",
 );
 
 // NAVTEX forecast files (relative to LOCAL_DATA_DIR)
@@ -142,13 +204,64 @@ $ZONE_MAPPINGS = array(
     "PZ6" => array("PZZ820", "PZZ920", "PZZ825", "PZZ925", "PZZ830", "PZZ930", "PZZ835", "PZZ935", "PZZ840", "PZZ940", "PZZ945"),
     "PZ7" => array("PMZ009", "PMZ011", "PMZ013", "PMZ014", "PMZ016", "PMZ017", "PMZ019", "PMZ021", "PMZ022", "PMZ024", "PMZ025", "PMZ026", "PMZ028", "PMZ029"),
     "PZ8" => array("PMZ111", "PMZ113", "PMZ115", "PMZ117", "PMZ119", "PMZ121", "PMZ123"),
-    // Hawaii -- disabled
-    // "PH"  => array("PHZ180"),
-    // Alaska -- disabled
-    // "PKG" => array("PKZ311", "PKZ312"),
-    // "PKB" => array("PKZ351", "PKZ352"),
-    // "PKS" => array("PKZ411", "PKZ412", "PKZ413", "PKZ414"),
-    // "PKA" => array("PKZ500", "PKZ505", "PKZ510"),
+    "PH"  => array("PHZ180"),
+    "PKG" => array("PKZ311", "PKZ312"),
+    "PKB" => array("PKZ351", "PKZ352"),
+    "PKS" => array("PKZ411", "PKZ412", "PKZ413", "PKZ414"),
+    "PKA" => array("PKZ500", "PKZ505", "PKZ510"),
+);
+
+// Coastal zone mappings: WFO -> array of zone IDs it covers
+$COASTAL_ZONE_MAPPINGS = array(
+    "AFC" => array("PKZ787", "PKZ786", "PKZ751", "PKZ760", "PKZ772", "PKZ766", "PKZ774", "PKZ778", "PKZ776", "PKZ783", "PKZ781", "PKZ784", "PKZ764", "PKZ767", "PKZ712", "PKZ734", "PKZ733", "PKZ716", "PKZ765", "PKZ711", "PKZ785", "PKZ757", "PKZ738", "PKZ775", "PKZ771", "PKZ723", "PKZ722", "PKZ721", "PKZ720", "PKZ736", "PKZ737", "PKZ714", "PKZ742", "PKZ741", "PKZ740", "PKZ730", "PKZ710", "PKZ726", "PKZ715", "PKZ731", "PKZ732", "PKZ750", "PKZ754", "PKZ773", "PKZ777", "PKZ782", "PKZ780", "PKZ770", "PKZ758", "PKZ756", "PKZ761", "PKZ762", "PKZ763", "PKZ752", "PKZ753", "PKZ725", "PKZ724", "PKZ768", "PKZ755", "PKZ759"),
+    "AFG" => array("PKZ861", "PKZ860", "PKZ859", "PKZ858", "PKZ857", "PKZ852", "PKZ850", "PKZ853", "PKZ854", "PKZ851", "PKZ856", "PKZ801", "PKZ816", "PKZ805", "PKZ803", "PKZ806", "PKZ808", "PKZ855", "PKZ810", "PKZ811", "PKZ812", "PKZ813", "PKZ814", "PKZ815", "PKZ804", "PKZ802", "PKZ817", "PKZ809", "PKZ807"),
+    "AJK" => array("PKZ672", "PKZ671", "PKZ663", "PKZ662", "PKZ661", "PKZ664", "PKZ053", "PKZ036", "PKZ012", "PKZ011", "PKZ013", "PKZ031", "PKZ022", "PKZ021", "PKZ032", "PKZ033", "PKZ034", "PKZ035", "PKZ642", "PKZ643", "PKZ644", "PKZ651", "PKZ652", "PKZ641"),
+    "AKQ" => array("ANZ632", "ANZ636", "ANZ637", "ANZ631", "ANZ635", "ANZ630", "ANZ633", "ANZ634", "ANZ658", "ANZ654", "ANZ650", "ANZ652", "ANZ656", "ANZ686", "ANZ680", "ANZ682", "ANZ684", "ANZ688", "ANZ639"),
+    "APX" => array("LSZ321", "LSZ322", "LHZ346", "LMZ341", "LHZ361", "LHZ347", "LHZ345", "LMZ323", "LMZ364", "LMZ362", "LMZ344", "LMZ342", "LMZ346", "LMZ366", "LHZ348", "LHZ349", "LHZ363", "LHZ362", "LMZ345"),
+    "BOX" => array("ANZ235", "ANZ236", "ANZ237", "ANZ234", "ANZ230", "ANZ233", "ANZ232", "ANZ231", "ANZ251", "ANZ256", "ANZ255", "ANZ254", "ANZ250", "ANZ281", "ANZ283", "ANZ282", "ANZ280"),
+    "BRO" => array("GMZ155", "GMZ170", "GMZ175", "GMZ150", "GMZ135", "GMZ132", "GMZ130"),
+    "BUF" => array("LOZ030", "LEZ040", "LOZ043", "LOZ044", "LEZ041", "LEZ020", "SLZ024", "LOZ045", "LEZ061", "LOZ042", "LOZ062", "LOZ063", "LOZ064", "LOZ065", "SLZ022"),
+    "CAR" => array("ANZ052", "ANZ051", "ANZ050", "ANZ080", "ANZ081"),
+    "CHS" => array("AMZ380", "AMZ384", "AMZ382", "AMZ364", "AMZ362", "AMZ360", "AMZ340"),
+    "CLE" => array("LEZ142", "LEZ163", "LEZ143", "LEZ144", "LEZ145", "LEZ146", "LEZ147", "LEZ148", "LEZ149", "LEZ162", "LEZ164", "LEZ165", "LEZ166", "LEZ167", "LEZ168", "LEZ169"),
+    "CRP" => array("GMZ270", "GMZ275", "GMZ250", "GMZ255", "GMZ237", "GMZ231", "GMZ232", "GMZ236"),
+    "DLH" => array("LSZ144", "LSZ145", "LSZ143", "LSZ142", "LSZ141", "LSZ140", "LSZ146", "LSZ147", "LSZ121", "LSZ148", "LSZ162", "LSZ150"),
+    "DTX" => array("LHZ442", "LCZ460", "LHZ443", "LCZ422", "LCZ423", "LEZ444", "LHZ421", "LHZ422", "LHZ441", "LHZ462", "LHZ463", "LHZ464"),
+    "EKA" => array("PZZ475", "PZZ450", "PZZ415", "PZZ470", "PZZ455", "PZZ410"),
+    "GRB" => array("LMZ522", "LMZ521", "LMZ541", "LMZ543", "LMZ542", "LMZ567", "LMZ565", "LMZ563"),
+    "GRR" => array("LMZ878", "LMZ876", "LMZ870", "LMZ845", "LMZ846", "LMZ847", "LMZ868", "LMZ844", "LMZ849", "LMZ848", "LMZ874", "LMZ872"),
+    "GUM" => array("PMZ191", "PMZ151", "PMZ152", "PMZ153", "PMZ154"),
+    "GYX" => array("ANZ153", "ANZ151", "ANZ154", "ANZ152", "ANZ150", "ANZ182", "ANZ180", "ANZ184"),
+    "HFO" => array("PHZ113", "PHZ112", "PHZ111", "PHZ110", "PHZ116", "PHZ115", "PHZ114", "PHZ118", "PHZ120", "PHZ117", "PHZ124", "PHZ119", "PHZ121", "PHZ123", "PHZ122"),
+    "HGX" => array("GMZ370", "GMZ350", "GMZ355", "GMZ375", "GMZ335", "GMZ330"),
+    "ILM" => array("AMZ254", "AMZ256", "AMZ250", "AMZ252", "AMZ280", "AMZ284"),
+    "IWX" => array("LMZ080", "LMZ043", "LMZ046"),
+    "JAX" => array("AMZ470", "AMZ472", "AMZ474", "AMZ452", "AMZ454", "AMZ450"),
+    "KEY" => array("GMZ044", "GMZ052", "GMZ053", "GMZ054", "GMZ075", "GMZ073", "GMZ072", "GMZ033", "GMZ074", "GMZ055", "GMZ043", "GMZ035", "GMZ032", "GMZ034", "GMZ031", "GMZ042"),
+    "LCH" => array("GMZ450", "GMZ430", "GMZ472", "GMZ475", "GMZ470", "GMZ435", "GMZ452", "GMZ432", "GMZ455", "GMZ436"),
+    "LIX" => array("GMZ533", "GMZ531", "GMZ529", "GMZ541", "GMZ554", "GMZ551", "GMZ553", "GMZ543", "GMZ570", "GMZ577", "GMZ572", "GMZ557", "GMZ575", "GMZ534", "GMZ532", "GMZ536", "GMZ535"),
+    "LOT" => array("LMZ779", "LMZ777", "LMZ745", "LMZ744", "LMZ743", "LMZ742", "LMZ741", "LMZ740"),
+    "LOX" => array("PZZ650", "PZZ673", "PZZ645", "PZZ655", "PZZ676", "PZZ670"),
+    "LWX" => array("ANZ543", "ANZ542", "ANZ534", "ANZ539", "ANZ538", "ANZ531", "ANZ530", "ANZ540", "ANZ533", "ANZ532", "ANZ541", "ANZ535", "ANZ536", "ANZ537"),
+    "MFL" => array("GMZ657", "GMZ656", "AMZ671", "GMZ676", "AMZ651", "AMZ610", "AMZ650", "AMZ630", "AMZ670"),
+    "MFR" => array("PZZ376", "PZZ370", "PZZ350", "PZZ356"),
+    "MHX" => array("AMZ136", "AMZ137", "AMZ135", "AMZ230", "AMZ131", "AMZ231", "AMZ156", "AMZ158", "AMZ154", "AMZ152", "AMZ150", "AMZ188", "AMZ180", "AMZ182", "AMZ184", "AMZ186"),
+    "MKX" => array("LMZ675", "LMZ673", "LMZ671", "LMZ669", "LMZ643", "LMZ646", "LMZ645", "LMZ644"),
+    "MLB" => array("AMZ550", "AMZ555", "AMZ552", "AMZ575", "AMZ570", "AMZ572"),
+    "MOB" => array("GMZ670", "GMZ675", "GMZ631", "GMZ632", "GMZ630", "GMZ655", "GMZ634", "GMZ633", "GMZ650", "GMZ636", "GMZ635"),
+    "MQT" => array("LSZ240", "LSZ241", "LSZ245", "LSZ246", "LSZ247", "LSZ248", "LSZ249", "LSZ250", "LSZ251", "LSZ265", "LMZ221", "LMZ250", "LMZ248", "LSZ266", "LSZ267", "LMZ261", "LSZ242", "LSZ243", "LSZ244", "LSZ263", "LSZ264"),
+    "MTR" => array("PZZ576", "PZZ530", "PZZ531", "PZZ570", "PZZ545", "PZZ540", "PZZ565", "PZZ560", "PZZ535", "PZZ575", "PZZ571"),
+    "OKX" => array("ANZ338", "ANZ335", "ANZ345", "ANZ340", "ANZ331", "ANZ332", "ANZ355", "ANZ353", "ANZ350", "ANZ380", "ANZ383", "ANZ385"),
+    "PHI" => array("ANZ430", "ANZ431", "ANZ480", "ANZ455", "ANZ454", "ANZ453", "ANZ452", "ANZ451", "ANZ450", "ANZ485", "ANZ481", "ANZ482", "ANZ483"),
+    "PQE" => array("PMZ173", "PMZ174", "PMZ181"),
+    "PQR" => array("PZZ210", "PZZ271", "PZZ251", "PZZ253", "PZZ252", "PZZ273", "PZZ272"),
+    "PQW" => array("PMZ171", "PMZ172", "PMZ161"),
+    "SEW" => array("PZZ176", "PZZ173", "PZZ170", "PZZ130", "PZZ131", "PZZ135", "PZZ156", "PZZ150", "PZZ110", "PZZ153", "PZZ132", "PZZ134", "PZZ133"),
+    "SGX" => array("PZZ745", "PZZ740"),
+    "SJU" => array("AMZ745", "AMZ733", "AMZ742", "AMZ741", "AMZ726", "AMZ735", "AMZ716", "AMZ712", "AMZ711", "AMZ723"),
+    "STU" => array("PSZ156", "PSZ157", "PSZ152", "PSZ158", "PSZ159", "PSZ155", "PSZ154"),
+    "TAE" => array("GMZ770", "GMZ775", "GMZ765", "GMZ730", "GMZ755", "GMZ751", "GMZ752", "GMZ772", "GMZ735"),
+    "TBW" => array("GMZ876", "GMZ873", "GMZ870", "GMZ850", "GMZ853", "GMZ830", "GMZ856", "GMZ836"),
 );
 
 // Zone names
@@ -471,19 +584,71 @@ function readLocalFile($filepath) {
 }
 
 /**
- * Extract warning from text
+ * Extract the highest-priority active marine warning/advisory from forecast text.
+ * Order matters — most severe checked first.
  */
 function extractWarning($text) {
-    $text = strtoupper($text);
-    
-    if (strpos($text, 'HURRICANE FORCE WIND WARNING') !== false) return 'HURRICANE FORCE WIND WARNING';
-    if (strpos($text, 'HURRICANE WARNING') !== false) return 'HURRICANE WARNING';
-    if (strpos($text, 'STORM WARNING') !== false) return 'STORM WARNING';
-    if (strpos($text, 'TROPICAL STORM WARNING') !== false) return 'TROPICAL STORM WARNING';
-    if (strpos($text, 'GALE WARNING') !== false) return 'GALE WARNING';
-    if (strpos($text, 'GALE FORCE') !== false) return 'GALE FORCE POSSIBLE';
-    if (strpos($text, 'STORM FORCE') !== false) return 'STORM FORCE POSSIBLE';
-    
+    $t = strtoupper($text);
+
+    // Tropical / Hurricane (highest severity)
+    if (strpos($t, 'HURRICANE FORCE WIND WARNING') !== false) return 'HURRICANE FORCE WIND WARNING';
+    if (strpos($t, 'HURRICANE FORCE WIND WATCH')   !== false) return 'HURRICANE FORCE WIND WATCH';
+    if (strpos($t, 'HURRICANE WARNING')             !== false) return 'HURRICANE WARNING';
+    if (strpos($t, 'HURRICANE WATCH')               !== false) return 'HURRICANE WATCH';
+    if (strpos($t, 'TROPICAL STORM WARNING')        !== false) return 'TROPICAL STORM WARNING';
+    if (strpos($t, 'TROPICAL STORM WATCH')          !== false) return 'TROPICAL STORM WATCH';
+
+    // Storm / Gale
+    if (strpos($t, 'STORM WARNING')                !== false) return 'STORM WARNING';
+    if (strpos($t, 'STORM WATCH')                  !== false) return 'STORM WATCH';
+    if (strpos($t, 'GALE WARNING')                 !== false) return 'GALE WARNING';
+    if (strpos($t, 'GALE WATCH')                   !== false) return 'GALE WATCH';
+
+    // Hazardous Seas
+    if (strpos($t, 'HAZARDOUS SEAS WARNING')        !== false) return 'HAZARDOUS SEAS WARNING';
+    if (strpos($t, 'HAZARDOUS SEAS WATCH')          !== false) return 'HAZARDOUS SEAS WATCH';
+
+    // Storm Surge
+    if (strpos($t, 'STORM SURGE WARNING')           !== false) return 'STORM SURGE WARNING';
+    if (strpos($t, 'STORM SURGE WATCH')             !== false) return 'STORM SURGE WATCH';
+
+    // Freezing Spray
+    if (strpos($t, 'HEAVY FREEZING SPRAY WARNING')  !== false) return 'HEAVY FREEZING SPRAY WARNING';
+    if (strpos($t, 'HEAVY FREEZING SPRAY WATCH')    !== false) return 'HEAVY FREEZING SPRAY WATCH';
+    if (strpos($t, 'FREEZING SPRAY ADVISORY')       !== false) return 'FREEZING SPRAY ADVISORY';
+
+    // Special Marine Warning
+    if (strpos($t, 'SPECIAL MARINE WARNING')        !== false) return 'SPECIAL MARINE WARNING';
+
+    // High Surf
+    if (strpos($t, 'HIGH SURF WARNING')             !== false) return 'HIGH SURF WARNING';
+    if (strpos($t, 'HIGH SURF ADVISORY')            !== false) return 'HIGH SURF ADVISORY';
+
+    // Small Craft / Wind
+    if (strpos($t, 'SMALL CRAFT ADVISORY')          !== false) return 'SMALL CRAFT ADVISORY';
+    if (strpos($t, 'BRISK WIND ADVISORY')           !== false) return 'BRISK WIND ADVISORY';
+    if (strpos($t, 'WIND ADVISORY')                 !== false) return 'WIND ADVISORY';
+    if (strpos($t, 'LAKE WIND ADVISORY')            !== false) return 'LAKE WIND ADVISORY';
+
+    // Dense Fog
+    if (strpos($t, 'DENSE FOG ADVISORY')            !== false) return 'DENSE FOG ADVISORY';
+
+    // Coastal / Lakeshore Flood
+    if (strpos($t, 'COASTAL FLOOD WARNING')         !== false) return 'COASTAL FLOOD WARNING';
+    if (strpos($t, 'COASTAL FLOOD WATCH')           !== false) return 'COASTAL FLOOD WATCH';
+    if (strpos($t, 'COASTAL FLOOD ADVISORY')        !== false) return 'COASTAL FLOOD ADVISORY';
+    if (strpos($t, 'LAKESHORE FLOOD WARNING')       !== false) return 'LAKESHORE FLOOD WARNING';
+    if (strpos($t, 'LAKESHORE FLOOD WATCH')         !== false) return 'LAKESHORE FLOOD WATCH';
+    if (strpos($t, 'LAKESHORE FLOOD ADVISORY')      !== false) return 'LAKESHORE FLOOD ADVISORY';
+
+    // Tsunami
+    if (strpos($t, 'TSUNAMI WARNING')               !== false) return 'TSUNAMI WARNING';
+    if (strpos($t, 'TSUNAMI WATCH')                 !== false) return 'TSUNAMI WATCH';
+    if (strpos($t, 'TSUNAMI ADVISORY')              !== false) return 'TSUNAMI ADVISORY';
+
+    // Marine Weather Statement (lowest priority)
+    if (strpos($t, 'MARINE WEATHER STATEMENT')      !== false) return 'MARINE WEATHER STATEMENT';
+
     return 'NONE';
 }
 
@@ -745,6 +910,38 @@ if ($type === 'offshore') {
         echo json_encode($allForecasts);
     }
     
+} elseif ($type === 'coastal') {
+    debugLog("Loading coastal data from local files", $LOCAL_DATA_DIR);
+    $allForecasts = array();
+
+    foreach ($COASTAL_FILES as $wfo => $filename) {
+        $filepath = $LOCAL_DATA_DIR . '/' . $filename;
+        debugLog("Processing coastal WFO", array('wfo' => $wfo, 'file' => $filepath));
+
+        $content = readLocalFile($filepath);
+        if ($content && isset($COASTAL_ZONE_MAPPINGS[$wfo])) {
+            $zones = $COASTAL_ZONE_MAPPINGS[$wfo];
+            $forecasts = parseOffshoreProduct($content, $zones, array());
+            debugLog("WFO " . $wfo . " parsed", array('forecasts_count' => count($forecasts)));
+            $allForecasts = array_merge($allForecasts, $forecasts);
+        } else {
+            debugLog("Skipping WFO " . $wfo . " (file missing or no zone mapping)");
+        }
+    }
+
+    debugLog("All coastal data loaded", array('total_forecasts' => count($allForecasts)));
+
+    if ($DEBUG) {
+        echo json_encode(array(
+            'debug' => $debugLog,
+            'data'  => $allForecasts,
+            'source' => 'local_files',
+            'data_dir' => $LOCAL_DATA_DIR
+        ));
+    } else {
+        echo json_encode($allForecasts);
+    }
+
 } else {
     debugLog("ERROR: Invalid type requested", $type);
     echo json_encode(array('error' => 'Invalid type'));

@@ -48,7 +48,7 @@ define('NWS_USER_AGENT', '(NWS Marine Weather, nws-marine-weather)');
 define('LOCK_FILE',      NWS_CACHE_DIR . '/prefetch.lock');
 define('LOCK_TTL',       300);   // Consider lock stale after 5 min
 define('FETCH_TIMEOUT',  20);    // Seconds per HTTP request
-define('RESULT_TTL',     900);   // 15 min — cache lifetime for result JSON
+define('RESULT_TTL',     7200);  // 2 hours — products update every 6-12h
 
 // Per-type result JSON file names written by this script, read by api.php
 define('RESULT_OFFSHORE',  NWS_CACHE_DIR . '/result_offshore.json');

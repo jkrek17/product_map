@@ -14,9 +14,9 @@ $LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
 
 // NWS API settings
 if (!defined('NWS_API_BASE'))   define('NWS_API_BASE',   'https://api.weather.gov');
-if (!defined('NWS_CACHE_DIR'))  define('NWS_CACHE_DIR',  sys_get_temp_dir() . '/nws_product_cache');
+if (!defined('NWS_CACHE_DIR'))  define('NWS_CACHE_DIR',  __DIR__ . '/cache');
 if (!defined('NWS_CACHE_TTL'))  define('NWS_CACHE_TTL',  900);
-if (!defined('NWS_USER_AGENT')) define('NWS_USER_AGENT', '(OPC Product Map, nws-product-map)');
+if (!defined('NWS_USER_AGENT')) define('NWS_USER_AGENT', '(NWS Marine Weather, nws-marine-weather)');
 
 // =============================================================================
 // NWS API — product→(type, office, match) lookup table

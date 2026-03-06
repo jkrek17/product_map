@@ -1,0 +1,2 @@
+# Block direct HTTP access to cached product files
+Deny from all

@@ -43,8 +43,8 @@
 // ---------------------------------------------------------------------------
 
 define('NWS_API_BASE',   'https://api.weather.gov');
-define('NWS_CACHE_DIR',  sys_get_temp_dir() . '/nws_product_cache');
-define('NWS_USER_AGENT', '(OPC Product Map, nws-product-map)');
+define('NWS_CACHE_DIR',  __DIR__ . '/cache');
+define('NWS_USER_AGENT', '(NWS Marine Weather, nws-marine-weather)');
 define('LOCK_FILE',      NWS_CACHE_DIR . '/prefetch.lock');
 define('LOCK_TTL',       300);   // Consider lock stale after 5 min
 define('FETCH_TIMEOUT',  20);    // Seconds per HTTP request

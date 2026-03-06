@@ -19,8 +19,13 @@ $LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
 $OFFSHORE_FILES = array(
     "NT1" => "NFDOFFNT1.txt",
     "NT2" => "NFDOFFNT2.txt",
+    "NT3" => "MIAOFFNT3.txt",
+    "NT4" => "MIAOFFNT4.txt",
+    "NT5" => "MIAOFFNT5.txt",
     "PZ5" => "NFDOFFPZ5.txt",
-    "PZ6" => "NFDOFFPZ6.txt"
+    "PZ6" => "NFDOFFPZ6.txt",
+    "PZ7" => "MIAOFFPZ7.txt",
+    "PZ8" => "MIAOFFPZ8.txt"
 );
 
 // NAVTEX forecast files (relative to LOCAL_DATA_DIR)
@@ -28,6 +33,9 @@ $NAVTEX_FILES = array(
     "N01" => "NFDOFFN01.txt",
     "N02" => "NFDOFFN02.txt",
     "N03" => "NFDOFFN03.txt",
+    "N04" => "MIAOFFN04.txt",
+    "N05" => "MIAOFFN05.txt",
+    "N06" => "MIAOFFN06.txt",
     "N07" => "NFDOFFN07.txt",
     "N08" => "NFDOFFN08.txt",
     "N09" => "NFDOFFN09.txt"
@@ -55,7 +63,16 @@ $NAVTEX_NAME_TO_ID = array(
     "Cape Hatteras to Murrells Inlet" => "OFFN02_SE",
     // N03 - South Atlantic
     "Murrells Inlet to 31N" => "OFFN03_NE",
-    "South of 31N" => "OFFN03_SE"
+    "South of 31N" => "OFFN03_SE",
+    // N04 - SE Gulf of America + FL Atlantic coast (Miami NAVTEX)
+    "Southeast Gulf of America" => "OFFN04_SE",
+    "Within 200 nm east of the coast of Florida" => "OFFN04_ATL",
+    // N05 - San Juan NAVTEX (PR/VI Atlantic + Caribbean)
+    "San Juan Atlantic Waters" => "OFFN05_ATL",
+    "San Juan Caribbean Waters" => "OFFN05_CAR",
+    // N06 - New Orleans NAVTEX (NW Gulf + NC/NE Gulf)
+    "Northwest Gulf of America" => "OFFN06_NW",
+    "North Central and Northeast Gulf of America" => "OFFN06_NE"
 );
 // =============================================================================
 
@@ -111,12 +128,18 @@ header('Cache-Control: no-cache, must-revalidate');
 $ZONE_MAPPINGS = array(
     "NT1" => array("ANZ800", "ANZ805", "ANZ900", "ANZ810", "ANZ815"),
     "NT2" => array("ANZ820", "ANZ915", "ANZ920", "ANZ905", "ANZ910", "ANZ825", "ANZ828", "ANZ925", "ANZ830", "ANZ833", "ANZ930", "ANZ835", "ANZ935"),
+    "NT3" => array("AMZ040", "AMZ041", "AMZ042", "AMZ043", "AMZ044", "AMZ045", "AMZ046", "AMZ047", "AMZ048", "AMZ049", "AMZ050", "AMZ051", "AMZ052", "AMZ053", "AMZ054", "AMZ055", "AMZ056", "AMZ057", "AMZ058", "AMZ059", "AMZ060", "AMZ061", "AMZ062"),
+    "NT4" => array("GMZ040", "GMZ041", "GMZ045", "GMZ046", "GMZ047", "GMZ048", "GMZ049", "GMZ050", "GMZ056", "GMZ057", "GMZ058"),
+    "NT5" => array("AMZ063", "AMZ064", "AMZ065", "AMZ066", "AMZ067", "AMZ068", "AMZ069", "AMZ070", "AMZ071", "AMZ072", "AMZ073", "AMZ074", "AMZ075", "AMZ076", "AMZ077", "AMZ078", "AMZ079", "AMZ080", "AMZ081", "AMZ082", "AMZ083", "AMZ084", "AMZ085", "AMZ086", "AMZ087", "AMZ088"),
     "PZ5" => array("PZZ800", "PZZ900", "PZZ805", "PZZ905", "PZZ810", "PZZ910", "PZZ815", "PZZ915"),
-    "PZ6" => array("PZZ820", "PZZ920", "PZZ825", "PZZ925", "PZZ830", "PZZ930", "PZZ835", "PZZ935", "PZZ840", "PZZ940", "PZZ945")
+    "PZ6" => array("PZZ820", "PZZ920", "PZZ825", "PZZ925", "PZZ830", "PZZ930", "PZZ835", "PZZ935", "PZZ840", "PZZ940", "PZZ945"),
+    "PZ7" => array("PMZ009", "PMZ011", "PMZ013", "PMZ014", "PMZ016", "PMZ017", "PMZ019", "PMZ021", "PMZ022", "PMZ024", "PMZ025", "PMZ026", "PMZ028", "PMZ029"),
+    "PZ8" => array("PMZ111", "PMZ113", "PMZ115", "PMZ117", "PMZ119", "PMZ121", "PMZ123")
 );
 
 // Zone names
 $ZONE_NAMES = array(
+    // NT1/NT2 - Northwest/Mid Atlantic
     "ANZ800" => "East of Great South Channel and south of Georges Bank",
     "ANZ805" => "Georges Bank between Cape Cod and 68W north of 1000 FM",
     "ANZ810" => "South of Georges Bank between 68W and 65W",
@@ -135,6 +158,70 @@ $ZONE_NAMES = array(
     "ANZ925" => "Virginia Coast - Offshore",
     "ANZ930" => "Cape Hatteras - Offshore",
     "ANZ935" => "South Atlantic - Offshore",
+    // NT3 - Caribbean and Tropical N Atlantic (AMZ040-062)
+    "AMZ040" => "Caribbean N of 18N W of 85W including Yucatan Basin",
+    "AMZ041" => "Caribbean N of 20N E of 85W",
+    "AMZ042" => "Caribbean from 18N-20N between 80W-85W including Cayman Basin",
+    "AMZ043" => "Caribbean from 18N-20N between 76W-80W",
+    "AMZ044" => "Caribbean approaches to the Windward Passage",
+    "AMZ045" => "Gulf of Honduras",
+    "AMZ046" => "Caribbean from 15N to 18N between 80W and 85W",
+    "AMZ047" => "Caribbean from 15N to 18N between 76W and 80W",
+    "AMZ048" => "Caribbean from 15N to 18N between 72W and 76W",
+    "AMZ049" => "Caribbean N of 15N between 68W and 72W",
+    "AMZ050" => "Caribbean N of 15N between 64W and 68W",
+    "AMZ051" => "Offshore Waters Leeward Islands",
+    "AMZ052" => "Tropical N Atlantic from 15N to 19N between 55W and 60W",
+    "AMZ053" => "W Central Caribbean from 11N to 15N W of 80W",
+    "AMZ054" => "Caribbean from 11N to 15N between 76W and 80W including Colombia Basin",
+    "AMZ055" => "Caribbean from 11N to 15N between 72W and 76W",
+    "AMZ056" => "Caribbean S of 15N between 68W and 72W",
+    "AMZ057" => "Caribbean S of 15N between 64W and 68W including Venezuela Basin",
+    "AMZ058" => "Offshore Waters Windward Islands including Trinidad and Tobago",
+    "AMZ059" => "Tropical N Atlantic from 11N to 15N between 55W and 60W",
+    "AMZ060" => "SW Caribbean S of 11N W of 80W",
+    "AMZ061" => "SW Caribbean S of 11N E of 80W including approaches to the Panama Canal",
+    "AMZ062" => "Tropical N Atlantic from 7N to 11N between 55W and 60W",
+    // NT4 - Gulf of America (GMZ)
+    "GMZ040" => "NW Gulf of America including Stetson Bank",
+    "GMZ041" => "SW Louisiana Offshore Waters including Flower Garden Bank Marine Sanctuary",
+    "GMZ045" => "W Central Gulf of America from 22N to 26N between 91W and 94W",
+    "GMZ046" => "Central Gulf of America from 22N to 26N between 87W and 91W",
+    "GMZ047" => "SE Gulf of America from 22N to 26N E of 87W including Straits of Florida",
+    "GMZ048" => "SW Gulf of America S of 22N W of 94W",
+    "GMZ049" => "Central Bay of Campeche",
+    "GMZ050" => "E Bay of Campeche including Campeche Bank",
+    "GMZ056" => "N Central Gulf of America Offshore Waters",
+    "GMZ057" => "NE Gulf of America N of 26N E of 87W",
+    "GMZ058" => "W Central Gulf of America from 22N to 26N W of 94W",
+    // NT5 - SW North Atlantic including the Bahamas (AMZ063-088)
+    "AMZ063" => "Atlantic from 29N to 31N W of 77W",
+    "AMZ064" => "Atlantic from 29N to 31N between 74W and 77W",
+    "AMZ065" => "Atlantic from 29N to 31N between 70W and 74W",
+    "AMZ066" => "Atlantic from 29N to 31N between 65W and 70W",
+    "AMZ067" => "Atlantic from 29N to 31N between 60W and 65W",
+    "AMZ068" => "Atlantic from 29N to 31N between 55W and 60W",
+    "AMZ069" => "Atlantic from 27N to 29N W of 77W",
+    "AMZ070" => "Atlantic from 27N to 29N between 74W and 77W",
+    "AMZ071" => "Atlantic from 27N to 29N between 70W and 74W",
+    "AMZ072" => "Atlantic from 27N to 29N between 65W and 70W",
+    "AMZ073" => "Atlantic from 27N to 29N between 60W and 65W",
+    "AMZ074" => "Atlantic from 27N to 29N between 55W and 60W",
+    "AMZ075" => "Northern Bahamas from 24N to 27N",
+    "AMZ076" => "Atlantic from 22N to 27N E of Bahamas to 70W",
+    "AMZ077" => "Atlantic from 22N to 27N between 65W and 70W",
+    "AMZ078" => "Atlantic from 25N to 27N between 60W and 65W",
+    "AMZ079" => "Atlantic from 25N to 27N between 55W and 60W",
+    "AMZ080" => "Central Bahamas including Cay Sal Bank",
+    "AMZ081" => "Atlantic from 22N to 25N E of Bahamas to 70W",
+    "AMZ082" => "Atlantic from 22N to 25N between 65W and 70W",
+    "AMZ083" => "Atlantic from 22N to 25N between 60W and 65W",
+    "AMZ084" => "Atlantic from 22N to 25N between 55W and 60W",
+    "AMZ085" => "Atlantic S of 22N W of 70W including approaches to the Windward Passage",
+    "AMZ086" => "Atlantic S of 22N between 65W and 70W including Puerto Rico Trench",
+    "AMZ087" => "Atlantic from 19N to 22N between 60W and 65W",
+    "AMZ088" => "Atlantic from 19N to 22N between 55W and 60W",
+    // PZ5/PZ6 - California / Pacific NW
     "PZZ800" => "Point St. George to Cape Mendocino out to 60 NM",
     "PZZ805" => "Cape Mendocino to Point Arena out to 60 NM",
     "PZZ810" => "Point Arena to Pigeon Point out to 60 NM",
@@ -153,7 +240,30 @@ $ZONE_NAMES = array(
     "PZZ930" => "Santa Cruz Island to San Clemente Island 60 to 150 NM offshore",
     "PZZ935" => "San Clemente Island to Mexican Border 60 to 150 NM offshore",
     "PZZ940" => "Oregon Border to WA coast 60 to 150 NM offshore",
-    "PZZ945" => "WA Coast 60 to 150 NM offshore"
+    "PZZ945" => "WA Coast 60 to 150 NM offshore",
+    // PZ7 - Eastern Pacific / Mexico (PMZ)
+    "PMZ009" => "Mexico Border S to 30N to 60 NM offshore",
+    "PMZ011" => "East Pacific within 270 NM S of 30N to Punta Eugenia",
+    "PMZ013" => "Punta Eugenia to Cabo San Lazaro to 250 NM offshore",
+    "PMZ014" => "Cabo San Lazaro to Cabo San Lucas to 250 NM offshore N of 20N",
+    "PMZ016" => "From 17N to 20N between 110W and 115W including the Revillagigedo Islands",
+    "PMZ017" => "Northern Gulf of California",
+    "PMZ019" => "Central Gulf of California",
+    "PMZ021" => "Southern Gulf of California",
+    "PMZ022" => "N of 20N E of 110W including Entrance to the Gulf of California",
+    "PMZ024" => "Colima and Jalisco out 300 NM offshore S of 20N and E of 110W",
+    "PMZ025" => "Michoacan and Guerrero to 250 NM offshore",
+    "PMZ026" => "Oaxaca W of Puerto Angel out 250 NM offshore",
+    "PMZ028" => "Oaxaca E of Puerto Angel out 300 NM including the Gulf of Tehuantepec",
+    "PMZ029" => "Offshore Chiapas E of 94W",
+    // PZ8 - Central America / Colombia / Ecuador (PMZ)
+    "PMZ111" => "Guatemala and El Salvador to 250 NM offshore",
+    "PMZ113" => "El Salvador to North Costa Rica including the Gulfs of Fonseca and Papagayo",
+    "PMZ115" => "North Costa Rica to West Panama to 250 NM offshore",
+    "PMZ117" => "East Panama and Colombia including the Gulf of Panama",
+    "PMZ119" => "Ecuador including the Gulf of Guayaquil to 250 NM offshore",
+    "PMZ121" => "Ecuador between 250 and 500 NM offshore",
+    "PMZ123" => "Offshore Galapagos Islands"
 );
 
 // NAVTEX zones
@@ -168,10 +278,16 @@ $NAVTEX_ZONES = array(
     "OFFN01_SE" => "Cape Cod to Nantucket Shoals and Georges Bank",
     "OFFN01_SW" => "South of New England",
     "OFFN02_NE" => "Sandy Hook to Wallops Island",
-    "OFFN02_E" => "Wallops Island to Cape Hatteras",
+    "OFFN02_E"  => "Wallops Island to Cape Hatteras",
     "OFFN02_SE" => "Cape Hatteras to Murrells Inlet",
     "OFFN03_NE" => "Murrells Inlet to 31N",
-    "OFFN03_SE" => "South of 31N"
+    "OFFN03_SE" => "South of 31N",
+    "OFFN04_SE"  => "Southeast Gulf of America",
+    "OFFN04_ATL" => "Within 200 nm east of the coast of Florida",
+    "OFFN05_ATL" => "San Juan Atlantic Waters",
+    "OFFN05_CAR" => "San Juan Caribbean Waters",
+    "OFFN06_NW"  => "Northwest Gulf of America",
+    "OFFN06_NE"  => "North Central and Northeast Gulf of America"
 );
 
 /**
@@ -197,11 +313,16 @@ function parseNavtexProduct($content, $nameToId, $zoneNames) {
         debugLog("Extracted issue time", $issueTime);
     }
     
+    // Build a combined lookahead from all zone names so each zone section ends
+    // cleanly at the start of the next zone name header (or end of file).
+    $zoneNamePatterns = array_map(function($n) { return preg_quote($n, '/'); }, array_keys($nameToId));
+    $zoneNamesAlternation = implode('|', $zoneNamePatterns);
+
     // Find each zone by its name
     foreach ($nameToId as $zoneName => $zoneId) {
-        // Look for zone name at start of line, followed by forecast content
-        // Zone content ends at next zone name or end of file
-        $pattern = '/^' . preg_quote($zoneName, '/') . '\s*\n(.*?)(?=^[A-Z][a-z].*(?:to|Border|Point|Cape|South|Sandy|Wallops|Murrells)|\z)/ims';
+        // Look for zone name at start of line, followed by forecast content.
+        // Zone content ends at the next known zone name header or end of file.
+        $pattern = '/^' . preg_quote($zoneName, '/') . '\s*\n(.*?)(?=^(?:' . $zoneNamesAlternation . ')\s*$|\z)/ims';
         
         if (preg_match($pattern, $content, $zoneMatch)) {
             $zoneText = $zoneMatch[1];

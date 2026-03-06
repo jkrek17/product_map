@@ -1,5 +1,11 @@
 #!/usr/bin/env php
 <?php
+// Ensure cache files are readable by the web server user (fixes 640→644).
+// Without this, prefetch.php run as a different user than the web server
+// will create files the web server cannot read (common on RHEL/CentOS with
+// the default umask of 0027).
+umask(0022);
+
 /**
  * NWS Marine Forecast Pre-fetcher
  *
@@ -670,6 +676,7 @@ $writes = [
 foreach ($writes as $file => $data) {
     if (!empty($data)) {
         file_put_contents($file, json_encode($data));
+        @chmod($file, 0644);   // ensure web server can read regardless of umask
         log_msg("Wrote " . basename($file) . " (" . count($data) . " records)");
     }
 }

@@ -1,4 +1,7 @@
 <?php
+// Ensure cache files written by this script are readable by all server users.
+umask(0022);
+
 /**
  * OPC Weather Map - Live Data API
  *
@@ -110,6 +113,7 @@ function nwsGetProductText($productId) {
     if (!$data || empty($data['productText'])) return null;
     $text = $data['productText'];
     file_put_contents($cacheFile, $text);
+    @chmod($cacheFile, 0644);
     return $text;
 }
 
@@ -1062,7 +1066,9 @@ function setResultCache($type, $resultFiles, $data) {
     if (!isset($resultFiles[$type])) return;
     if (empty($data)) return;   // Never overwrite good cache with empty data
     nwsCacheDir();
-    file_put_contents($resultFiles[$type], json_encode($data));
+    $file = $resultFiles[$type];
+    file_put_contents($file, json_encode($data));
+    @chmod($file, 0644);
 }
 
 /**

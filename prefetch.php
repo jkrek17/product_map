@@ -163,66 +163,86 @@ function parallelGet(array $urls, int $timeout = FETCH_TIMEOUT): array {
 // ==========================================================================
 
 /**
- * Phase 1: fetch product-list endpoints for each unique (type, office) pair.
- * Phase 2: fetch individual product texts (up to $scanDepth per office).
- * Returns array: matchString (lowercase) => productText
+ * Fetch all OFF and HSF product texts in two parallel phases.
+ *
+ * The NWS API does NOT support location filtering for OFF/HSF product types
+ * (e.g. /products/types/OFF/locations/KWBC returns empty).
+ * Instead we fetch the full type list, group by issuingOffice, take the most
+ * recent $scanDepth items per office, fetch their texts, then match by the
+ * product name string that appears near the top of each product.
+ *
+ * Returns array: matchString => productText
  */
 function fetchAllProductTexts(array $products, int $scanDepth = 20): array {
-    // ---- Phase 1: Build list URLs (one per unique type+office) ----
+    // ---- Phase 1: one request per unique product TYPE (OFF, HSF, etc.) ----
+    $types = array_unique(array_column(array_values($products), 0));
     $listUrls = [];
-    foreach ($products as [$type, $office]) {
-        $key = strtolower("{$type}_{$office}");
-        $listUrls[$key] = NWS_API_BASE . "/products/types/{$type}/locations/{$office}";
+    foreach ($types as $type) {
+        $listUrls[$type] = NWS_API_BASE . "/products/types/{$type}";
     }
 
-    log_msg("Phase 1: fetching " . count($listUrls) . " product lists in parallel...");
-    $listResponses = parallelGet($listUrls);
+    log_msg("Phase 1: fetching " . count($listUrls) . " full product-type lists in parallel...");
+    $listResponses = parallelGet($listUrls, 30);
 
-    // ---- Parse lists → collect up to $scanDepth product IDs per office ----
-    // officeKey => [productId, ...]
-    $productIdsPerOffice = [];
-    foreach ($listResponses as $officeKey => $raw) {
-        if (!$raw) continue;
+    // ---- Parse lists → group by issuingOffice, keep $scanDepth per office ----
+    // Structure: type => [office => [productId, ...]]
+    $byTypeOffice = [];
+    foreach ($listResponses as $type => $raw) {
+        if (!$raw) { log_msg("WARNING: empty response for type $type"); continue; }
         $data  = json_decode($raw, true);
         $items = $data['@graph'] ?? [];
-        $ids   = [];
-        $seen  = [];
+        log_msg("  $type list: " . count($items) . " total items");
+
         foreach ($items as $item) {
-            $pid = $item['id'] ?? '';
-            if (!$pid || in_array($pid, $seen)) continue;
-            $seen[] = $pid;
-            $ids[]  = $pid;
-            if (count($ids) >= $scanDepth) break;
+            $pid    = $item['id']             ?? '';
+            $office = $item['issuingOffice']  ?? '';
+            if (!$pid || !$office) continue;
+
+            if (!isset($byTypeOffice[$type][$office])) {
+                $byTypeOffice[$type][$office] = [];
+            }
+            if (count($byTypeOffice[$type][$office]) < $scanDepth) {
+                $byTypeOffice[$type][$office][] = $pid;
+            }
         }
-        $productIdsPerOffice[$officeKey] = $ids;
     }
 
-    // ---- Phase 2: Fetch all product texts in parallel ----
+    // ---- Build Phase 2 text URLs — only for offices we actually need ----
+    // Figure out which offices each type needs
+    $neededOffices = []; // type => [office, ...]
+    foreach ($products as $matchStr => [$type, $office]) {
+        $neededOffices[$type][] = $office;
+    }
+
     $textUrls = [];
-    foreach ($productIdsPerOffice as $ids) {
-        foreach ($ids as $pid) {
-            $textUrls[$pid] = NWS_API_BASE . "/products/{$pid}";
+    foreach ($neededOffices as $type => $offices) {
+        foreach (array_unique($offices) as $office) {
+            $ids = $byTypeOffice[$type][$office] ?? [];
+            if (empty($ids)) {
+                log_msg("  WARNING: no products found for $type/$office");
+                continue;
+            }
+            foreach ($ids as $pid) {
+                $textUrls[$pid] = NWS_API_BASE . "/products/{$pid}";
+            }
         }
     }
-    // Deduplicate (some products may appear in multiple office lists)
     $textUrls = array_unique($textUrls);
 
     log_msg("Phase 2: fetching " . count($textUrls) . " product texts in parallel...");
     $textResponses = parallelGet($textUrls);
 
     // ---- Match each text to its product by matchString ----
-    $matched = [];  // matchString => text
+    $matched = [];
     foreach ($textResponses as $pid => $raw) {
         if (!$raw) continue;
         $data = json_decode($raw, true);
         $text = $data['productText'] ?? null;
         if (!$text) continue;
-        $upper = strtoupper($text);
 
-        // Check every product to see if this text belongs to it
         foreach ($products as $matchStr => [$type, $office]) {
-            if (isset($matched[$matchStr])) continue;  // Already found
-            if (stripos($upper, strtoupper($matchStr)) !== false) {
+            if (isset($matched[$matchStr])) continue;
+            if (stripos($text, $matchStr) !== false) {
                 $matched[$matchStr] = $text;
             }
         }

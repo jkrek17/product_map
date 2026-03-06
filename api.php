@@ -13,10 +13,10 @@
 $LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
 
 // NWS API settings
-define('NWS_API_BASE', 'https://api.weather.gov');
-define('NWS_CACHE_DIR', sys_get_temp_dir() . '/nws_product_cache');
-define('NWS_CACHE_TTL', 900);   // seconds — products update every few hours
-define('NWS_USER_AGENT', '(OPC Product Map, nws-product-map)');
+if (!defined('NWS_API_BASE'))   define('NWS_API_BASE',   'https://api.weather.gov');
+if (!defined('NWS_CACHE_DIR'))  define('NWS_CACHE_DIR',  sys_get_temp_dir() . '/nws_product_cache');
+if (!defined('NWS_CACHE_TTL'))  define('NWS_CACHE_TTL',  900);
+if (!defined('NWS_USER_AGENT')) define('NWS_USER_AGENT', '(OPC Product Map, nws-product-map)');
 
 // =============================================================================
 // NWS API — product→(type, office, match) lookup table
@@ -320,9 +320,6 @@ function debugLog($message, $data = null) {
     $debugLog[] = $entry;
     error_log("[OPC API DEBUG] " . $message . ($data !== null ? " | Data: " . json_encode($data) : ""));
 }
-
-// When included by prefetch.php, skip all request handling
-if (defined('PREFETCH_INCLUDED')) return;
 
 debugLog("API request started", array(
     'type' => isset($_GET['type']) ? $_GET['type'] : 'not set',
@@ -940,6 +937,10 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
     return $results;
 }
 
+
+// When included by prefetch.php, skip all HTTP request-handling below.
+// All configuration arrays and parsing functions above remain available.
+if (defined('PREFETCH_INCLUDED')) return;
 
 // =============================================================================
 // RESULT CACHE — pre-built JSON written by prefetch.php

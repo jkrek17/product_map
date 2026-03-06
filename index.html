@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OPC Weather Map</title>
+    <title>NWS Marine Weather</title>
     <link rel="stylesheet" href="libs/leaflet/leaflet.css">
     <style>
         * {
@@ -826,8 +826,8 @@
 <body>
     <div class="header">
         <div class="header-title">
-            <h1>OPC Weather Map</h1>
-            <p>Ocean Prediction Center - Marine Forecast Visualization</p>
+            <h1>NWS Marine Weather</h1>
+            <p>Marine Forecast Zones &amp; Warnings</p>
         </div>
         <div class="controls">
             <div class="control-group">
@@ -877,38 +877,43 @@
         &#9650;
     </button>
 
-    <div class="legend">
-        <div class="legend-item"><span class="legend-color lc-none"></span><span>No Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-smw"></span><span>Special Marine Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-sca"></span><span>Small Craft Advisory</span></div>
-        <div class="legend-item"><span class="legend-color lc-gale-warn"></span><span>Gale Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-gale-watch"></span><span>Gale Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-storm-warn"></span><span>Storm Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-storm-watch"></span><span>Storm Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-haz-warn"></span><span>Hazardous Seas Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-haz-watch"></span><span>Hazardous Seas Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-hfw-warn"></span><span>Hurricane Force Wind Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-hfw-watch"></span><span>Hurricane Force Wind Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-hur-warn"></span><span>Hurricane Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-hur-watch"></span><span>Hurricane Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-ts-warn"></span><span>Tropical Storm Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-ts-watch"></span><span>Tropical Storm Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-surge-warn"></span><span>Storm Surge Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-surge-watch"></span><span>Storm Surge Watch</span></div>
-        <div class="legend-item"><span class="legend-color lc-fzspray"></span><span>Freezing Spray</span></div>
-        <div class="legend-item"><span class="legend-color lc-surf-warn"></span><span>High Surf Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-surf-adv"></span><span>High Surf Advisory</span></div>
-        <div class="legend-item"><span class="legend-color lc-wind-adv"></span><span>Wind Advisory</span></div>
-        <div class="legend-item"><span class="legend-color lc-fog"></span><span>Dense Fog Advisory</span></div>
-        <div class="legend-item"><span class="legend-color lc-tsunami"></span><span>Tsunami Warning</span></div>
-        <div class="legend-item"><span class="legend-color lc-mws"></span><span>Marine Weather Statement</span></div>
+    <div class="legend" id="legend">
+        <div class="legend-item" data-warning="NONE"><span class="legend-color lc-none"></span><span>No Warning</span></div>
+        <div class="legend-item" data-warning="MARINE WEATHER STATEMENT"><span class="legend-color lc-mws"></span><span>Marine Weather Statement</span></div>
+        <div class="legend-item" data-warning="DENSE FOG ADVISORY"><span class="legend-color lc-fog"></span><span>Dense Fog Advisory</span></div>
+        <div class="legend-item" data-warning="WIND ADVISORY"><span class="legend-color lc-wind-adv"></span><span>Wind Advisory</span></div>
+        <div class="legend-item" data-warning="LAKE WIND ADVISORY"><span class="legend-color lc-wind-adv"></span><span>Lake Wind Advisory</span></div>
+        <div class="legend-item" data-warning="BRISK WIND ADVISORY"><span class="legend-color lc-wind-adv"></span><span>Brisk Wind Advisory</span></div>
+        <div class="legend-item" data-warning="SMALL CRAFT ADVISORY"><span class="legend-color lc-sca"></span><span>Small Craft Advisory</span></div>
+        <div class="legend-item" data-warning="HIGH SURF ADVISORY"><span class="legend-color lc-surf-adv"></span><span>High Surf Advisory</span></div>
+        <div class="legend-item" data-warning="HIGH SURF WARNING"><span class="legend-color lc-surf-warn"></span><span>High Surf Warning</span></div>
+        <div class="legend-item" data-warning="FREEZING SPRAY ADVISORY"><span class="legend-color lc-fzspray"></span><span>Freezing Spray Advisory</span></div>
+        <div class="legend-item" data-warning="HEAVY FREEZING SPRAY WARNING"><span class="legend-color lc-fzspray"></span><span>Heavy Freezing Spray Warning</span></div>
+        <div class="legend-item" data-warning="SPECIAL MARINE WARNING"><span class="legend-color lc-smw"></span><span>Special Marine Warning</span></div>
+        <div class="legend-item" data-warning="GALE WATCH"><span class="legend-color lc-gale-watch"></span><span>Gale Watch</span></div>
+        <div class="legend-item" data-warning="GALE WARNING"><span class="legend-color lc-gale-warn"></span><span>Gale Warning</span></div>
+        <div class="legend-item" data-warning="HAZARDOUS SEAS WATCH"><span class="legend-color lc-haz-watch"></span><span>Hazardous Seas Watch</span></div>
+        <div class="legend-item" data-warning="HAZARDOUS SEAS WARNING"><span class="legend-color lc-haz-warn"></span><span>Hazardous Seas Warning</span></div>
+        <div class="legend-item" data-warning="STORM SURGE WATCH"><span class="legend-color lc-surge-watch"></span><span>Storm Surge Watch</span></div>
+        <div class="legend-item" data-warning="STORM SURGE WARNING"><span class="legend-color lc-surge-warn"></span><span>Storm Surge Warning</span></div>
+        <div class="legend-item" data-warning="STORM WATCH"><span class="legend-color lc-storm-watch"></span><span>Storm Watch</span></div>
+        <div class="legend-item" data-warning="STORM WARNING"><span class="legend-color lc-storm-warn"></span><span>Storm Warning</span></div>
+        <div class="legend-item" data-warning="TROPICAL STORM WATCH"><span class="legend-color lc-ts-watch"></span><span>Tropical Storm Watch</span></div>
+        <div class="legend-item" data-warning="TROPICAL STORM WARNING"><span class="legend-color lc-ts-warn"></span><span>Tropical Storm Warning</span></div>
+        <div class="legend-item" data-warning="HURRICANE FORCE WIND WATCH"><span class="legend-color lc-hfw-watch"></span><span>Hurricane Force Wind Watch</span></div>
+        <div class="legend-item" data-warning="HURRICANE FORCE WIND WARNING"><span class="legend-color lc-hfw-warn"></span><span>Hurricane Force Wind Warning</span></div>
+        <div class="legend-item" data-warning="HURRICANE WATCH"><span class="legend-color lc-hur-watch"></span><span>Hurricane Watch</span></div>
+        <div class="legend-item" data-warning="HURRICANE WARNING"><span class="legend-color lc-hur-warn"></span><span>Hurricane Warning</span></div>
+        <div class="legend-item" data-warning="TSUNAMI ADVISORY"><span class="legend-color lc-tsunami"></span><span>Tsunami Advisory</span></div>
+        <div class="legend-item" data-warning="TSUNAMI WATCH"><span class="legend-color lc-tsunami"></span><span>Tsunami Watch</span></div>
+        <div class="legend-item" data-warning="TSUNAMI WARNING"><span class="legend-color lc-tsunami"></span><span>Tsunami Warning</span></div>
     </div>
 
     <!-- About/Help Modal -->
     <div class="modal-overlay" id="aboutModal">
         <div class="modal">
             <div class="modal-header">
-                <h2>About OPC Weather Map</h2>
+                <h2>About NWS Marine Weather</h2>
                 <button type="button" class="modal-close" id="modalClose">&times;</button>
             </div>
             <div class="modal-body">
@@ -1064,6 +1069,33 @@
                 }
             }
             return '#808080';
+        }
+
+        /**
+         * Show only legend items whose warning type is present in the current
+         * forecastData. "No Warning" (NONE) is always visible.
+         * Called after forecast data loads or changes.
+         */
+        function updateLegend() {
+            // Collect the set of active warning strings (uppercased)
+            var active = {};
+            active['NONE'] = true;
+            if (forecastData && forecastData.length) {
+                forecastData.forEach(function(f) {
+                    if (f.warning) active[f.warning.toUpperCase()] = true;
+                });
+            }
+
+            var items = document.querySelectorAll('#legend .legend-item');
+            var anyActive = false;
+            items.forEach(function(item) {
+                var w = (item.getAttribute('data-warning') || '').toUpperCase();
+                var show = (w === 'NONE') || active.hasOwnProperty(w);
+                item.style.display = show ? '' : 'none';
+                if (show && w !== 'NONE') anyActive = true;
+            });
+
+            // If only "No Warning" is visible, keep it to confirm data loaded
         }
 
         function initMap() {
@@ -1251,6 +1283,7 @@
                 var geoJson = results[0];
                 var data    = results[1] || [];
                 forecastData = data;
+                updateLegend();
                 if (geoJson) displayZones(geoJson, 'ID');
                 document.getElementById('forecastPanel').innerHTML =
                     '<h3>Forecast Details</h3><div class="no-data">Click on a zone to view forecast details</div>';
@@ -1408,6 +1441,7 @@
                         console.log('[DEBUG] Refresh first item:', JSON.stringify(data[0], null, 2));
                     }
                     forecastData = data;
+                    updateLegend();
                     loadZones();
                     btn.textContent = 'Refresh Data';
                     btn.disabled = false;
@@ -1423,7 +1457,7 @@
 
         document.addEventListener('DOMContentLoaded', function() {
             console.log('='.repeat(60));
-            console.log('[DEBUG] OPC Weather Map initializing...');
+            console.log('[DEBUG] NWS Marine Weather initializing...');
             console.log('[DEBUG] Open browser console (F12) to see debug messages');
             console.log('[DEBUG] Add ?debug=1 to API URL for server-side debugging');
             console.log('[DEBUG] Bookmarkable URLs: ?zone=ANZ800&product=offshore&basin=atlantic');
@@ -1450,7 +1484,8 @@
             }
             
             initMap();
-            
+            updateLegend(); // Start with only "No Warning" visible until data loads
+
             // Set initial map view based on basin
             var basin = document.getElementById('basin').value;
             if      (basin === 'gulf')       map.setView([25, -90],  5);

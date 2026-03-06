@@ -800,7 +800,8 @@
                     <option value="gulf">Gulf / Caribbean</option>
                     <option value="tropical">Tropical Atlantic</option>
                     <option value="pacific">E Pacific</option>
-                    <option value="hawaii">Hawaii / C Pacific</option>
+                    <!-- <option value="hawaii">Hawaii / C Pacific</option> -->
+                    <!-- <option value="alaska">Alaska / Bering Sea</option> -->
                 </select>
             </div>
             <div class="control-group">
@@ -1298,11 +1299,12 @@
 
         function changeBasin() {
             var basin = document.getElementById('basin').value;
-            if (basin === 'atlantic')  map.flyTo([38, -72], 5);
-            else if (basin === 'gulf')     map.flyTo([25, -90], 5);
-            else if (basin === 'tropical') map.flyTo([18, -68], 5);
-            else if (basin === 'pacific')  map.flyTo([20, -108], 5);
-            else if (basin === 'hawaii')   map.flyTo([22, -158], 6);
+            if      (basin === 'atlantic')  map.flyTo([38, -72], 5);
+            else if (basin === 'gulf')      map.flyTo([25, -90], 5);
+            else if (basin === 'tropical')  map.flyTo([18, -68], 5);
+            else if (basin === 'pacific')   map.flyTo([20, -108], 5);
+            // else if (basin === 'hawaii')    map.flyTo([22, -158], 6);
+            // else if (basin === 'alaska')    map.flyTo([57, -153], 5);
 
             // Update URL with new basin
             updateUrl(currentZone, document.getElementById('product').value, basin);
@@ -1361,7 +1363,7 @@
             if (params.product && (params.product === 'offshore' || params.product === 'navtex')) {
                 document.getElementById('product').value = params.product;
             }
-            var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific', 'hawaii'];
+            var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific']; // 'hawaii', 'alaska' disabled
             if (params.basin && validBasins.indexOf(params.basin) !== -1) {
                 document.getElementById('basin').value = params.basin;
             }
@@ -1379,7 +1381,8 @@
             if      (basin === 'gulf')     map.setView([25, -90], 5);
             else if (basin === 'tropical') map.setView([18, -68], 5);
             else if (basin === 'pacific')  map.setView([20, -108], 5);
-            else if (basin === 'hawaii')   map.setView([22, -158], 6);
+            // else if (basin === 'hawaii')   map.setView([22, -158], 6);
+            // else if (basin === 'alaska')   map.setView([57, -153], 5);
             
             document.getElementById('basin').addEventListener('change', changeBasin);
             document.getElementById('product').addEventListener('change', function() {

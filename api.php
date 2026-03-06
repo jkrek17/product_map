@@ -25,7 +25,14 @@ $OFFSHORE_FILES = array(
     "PZ5" => "NFDOFFPZ5.txt",
     "PZ6" => "NFDOFFPZ6.txt",
     "PZ7" => "MIAOFFPZ7.txt",
-    "PZ8" => "MIAOFFPZ8.txt"
+    "PZ8" => "MIAOFFPZ8.txt",
+    // Hawaii / Central Pacific -- disabled, uncomment when product files are available
+    // "PH"  => "HFOOFFPH.txt",         // PHZ180 - Hawaiian Offshore Waters
+    // Alaska -- disabled, uncomment when product files are available
+    // "PKG" => "AFCOFFPKG.txt",        // PKZ311/PKZ312 - Gulf of Alaska (AFC Anchorage)
+    // "PKB" => "AFCOFFPKB.txt",        // PKZ351/PKZ352 - Gulf of Alaska offshore (AFC)
+    // "PKS" => "AJKOFFPKS.txt",        // PKZ411-PKZ414 - Bering Sea (AJK Juneau)
+    // "PKA" => "AFGOFFPKA.txt",        // PKZ500-PKZ510 - Arctic (AFG Fairbanks)
 );
 
 // NAVTEX forecast files (relative to LOCAL_DATA_DIR)
@@ -134,7 +141,14 @@ $ZONE_MAPPINGS = array(
     "PZ5" => array("PZZ800", "PZZ900", "PZZ805", "PZZ905", "PZZ810", "PZZ910", "PZZ815", "PZZ915"),
     "PZ6" => array("PZZ820", "PZZ920", "PZZ825", "PZZ925", "PZZ830", "PZZ930", "PZZ835", "PZZ935", "PZZ840", "PZZ940", "PZZ945"),
     "PZ7" => array("PMZ009", "PMZ011", "PMZ013", "PMZ014", "PMZ016", "PMZ017", "PMZ019", "PMZ021", "PMZ022", "PMZ024", "PMZ025", "PMZ026", "PMZ028", "PMZ029"),
-    "PZ8" => array("PMZ111", "PMZ113", "PMZ115", "PMZ117", "PMZ119", "PMZ121", "PMZ123")
+    "PZ8" => array("PMZ111", "PMZ113", "PMZ115", "PMZ117", "PMZ119", "PMZ121", "PMZ123"),
+    // Hawaii -- disabled
+    // "PH"  => array("PHZ180"),
+    // Alaska -- disabled
+    // "PKG" => array("PKZ311", "PKZ312"),
+    // "PKB" => array("PKZ351", "PKZ352"),
+    // "PKS" => array("PKZ411", "PKZ412", "PKZ413", "PKZ414"),
+    // "PKA" => array("PKZ500", "PKZ505", "PKZ510"),
 );
 
 // Zone names

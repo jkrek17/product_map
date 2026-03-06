@@ -953,7 +953,7 @@ $RESULT_FILES = array(
 );
 
 /**
- * Return pre-built result JSON if it is fresh, otherwise null.
+ * Return pre-built result JSON if it is fresh (within TTL), otherwise null.
  */
 function getResultCache($type, $resultFiles) {
     if (!isset($resultFiles[$type])) return null;
@@ -961,14 +961,29 @@ function getResultCache($type, $resultFiles) {
     if (!file_exists($file)) return null;
     if ((time() - filemtime($file)) >= NWS_CACHE_TTL) return null;
     $data = @file_get_contents($file);
-    return $data ?: null;
+    // Don't serve an empty result (2 bytes = "[]")
+    return ($data && strlen($data) > 5) ? $data : null;
 }
 
 /**
- * Write a result to the cache file so future requests are instant.
+ * Return stale result JSON regardless of TTL — used for stale-while-revalidate.
+ * Returns null only if the file doesn't exist or is empty.
+ */
+function getStaleResultCache($type, $resultFiles) {
+    if (!isset($resultFiles[$type])) return null;
+    $file = $resultFiles[$type];
+    if (!file_exists($file)) return null;
+    $data = @file_get_contents($file);
+    return ($data && strlen($data) > 5) ? $data : null;
+}
+
+/**
+ * Write a result to the cache file — only if the result is non-empty.
+ * This prevents a failed live-fetch from overwriting good prefetch data.
  */
 function setResultCache($type, $resultFiles, $data) {
     if (!isset($resultFiles[$type])) return;
+    if (empty($data)) return;   // Never overwrite good cache with empty data
     nwsCacheDir();
     file_put_contents($resultFiles[$type], json_encode($data));
 }
@@ -1043,10 +1058,12 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
-    // Serve from result cache if fresh; background-refresh if stale
     $cached = getResultCache('offshore', $RESULT_FILES);
     if ($cached) { echo $cached; exit; }
+    // Stale-while-revalidate: serve existing data instantly, refresh in background
     triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('offshore', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
     debugLog("Loading offshore data (NWS API → local fallback)");
     $allForecasts = array();
@@ -1074,6 +1091,8 @@ if ($type === 'offshore') {
     $cached = getResultCache('navtex', $RESULT_FILES);
     if ($cached) { echo $cached; exit; }
     triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('navtex', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
     debugLog("Loading NAVTEX data (NWS API → local fallback)");
     $allForecasts = array();
@@ -1101,6 +1120,8 @@ if ($type === 'offshore') {
     $cached = getResultCache('coastal', $RESULT_FILES);
     if ($cached) { echo $cached; exit; }
     triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('coastal', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
     debugLog("Loading coastal data (NWS API → local fallback)");
     $allForecasts = array();
@@ -1126,6 +1147,8 @@ if ($type === 'offshore') {
     $cached = getResultCache('highseas', $RESULT_FILES);
     if ($cached) { echo $cached; exit; }
     triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('highseas', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
     debugLog("Loading high seas data (NWS API → local fallback)");
 

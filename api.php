@@ -35,12 +35,12 @@ $NWS_PRODUCT_API = array(
     "PZ7"  => array("OFF", "KNHC", "OFFPZ7"),
     "PZ8"  => array("OFF", "KNHC", "OFFPZ8"),
     // ---- Offshore (OFF) — Hawaii (PHFO) ----
-    "PH"   => array("OFF", "PHFO", "OFFPH"),
-    // ---- Offshore (OFF) — Alaska (PAFC / PAJK / PAFG) ----
-    "PKG"  => array("OFF", "PAFC", "OFFPKG"),
-    "PKB"  => array("OFF", "PAFC", "OFFPKB"),
-    "PKS"  => array("OFF", "PAJK", "OFFPKS"),
-    "PKA"  => array("OFF", "PAFG", "OFFPKA"),
+    "PH"   => array("OFF", "PHFO", "OFFHFO"),
+    // ---- Offshore (OFF) — Alaska (PAJK / PAFC / PAFG) ----
+    "PKG"  => array("OFF", "PAJK", "OFFAJK"),  // Gulf of Alaska (Juneau)
+    "PKB"  => array("OFF", "PAJK", "OFFAER"),  // Eastern Gulf / SE Alaska (Juneau)
+    "PKS"  => array("OFF", "PAFC", "OFFALU"),  // Aleutians / Bering Sea (Anchorage)
+    "PKA"  => array("OFF", "PAFG", "OFFAFG"),  // Arctic (Fairbanks)
     // ---- NAVTEX (OFF) — OPC Pacific (KWNM) ----
     "N07"  => array("OFF", "KWNM", "OFFN07"),
     "N08"  => array("OFF", "KWNM", "OFFN08"),

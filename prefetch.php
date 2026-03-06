@@ -75,12 +75,12 @@ $PRODUCTS = [
     'PZ7'    => ['OFF', 'KNHC', 'OFFPZ7'],
     'PZ8'    => ['OFF', 'KNHC', 'OFFPZ8'],
     // Offshore — Hawaii (PHFO)
-    'PH'     => ['OFF', 'PHFO', 'OFFPH'],
+    'PH'     => ['OFF', 'PHFO', 'OFFHFO'],
     // Offshore — Alaska
-    'PKG'    => ['OFF', 'PAFC', 'OFFPKG'],
-    'PKB'    => ['OFF', 'PAFC', 'OFFPKB'],
-    'PKS'    => ['OFF', 'PAJK', 'OFFPKS'],
-    'PKA'    => ['OFF', 'PAFG', 'OFFPKA'],
+    'PKG'    => ['OFF', 'PAJK', 'OFFAJK'],   // Gulf of Alaska (Juneau)
+    'PKB'    => ['OFF', 'PAJK', 'OFFAER'],   // Eastern Gulf / SE Alaska (Juneau)
+    'PKS'    => ['OFF', 'PAFC', 'OFFALU'],   // Aleutians / Bering Sea (Anchorage)
+    'PKA'    => ['OFF', 'PAFG', 'OFFAFG'],   // Arctic (Fairbanks)
     // NAVTEX — OPC Atlantic (KWBC)
     'N01'    => ['OFF', 'KWBC', 'OFFN01'],
     'N02'    => ['OFF', 'KWBC', 'OFFN02'],

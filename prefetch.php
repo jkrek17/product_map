@@ -418,6 +418,8 @@ function pf_expandZoneHeader(string $header): array {
 /** Build a zoneId => sectionText map from any product text. */
 function pf_buildZoneSectionMap(string $content): array {
     $map      = [];
+    // MWW products end sections with && instead of $$ — normalise
+    $content  = preg_replace('/\n&&\s*\n/', "\n\$\$\n", $content);
     $sections = preg_split('/\n\$\$[ \t]*(?:\n|$)/', $content);
 
     foreach ($sections as $section) {
@@ -492,6 +494,29 @@ function pf_parseZoneForecast(string $content, array $zones, array $zoneNames): 
             }
 
             $forecast[] = ['Day' => ucwords(strtolower($periodName)), 'Winds' => $winds, 'Seas' => $seas, 'Weather' => $weather];
+        }
+
+        // MWW (Marine Weather Watch) fallback — uses "* WHAT..." bullets not ".TODAY..." periods
+        if (empty($forecast) && strpos($zoneText, '* WHAT') !== false) {
+            if (preg_match('/\*\s*WHAT\s*\.\.\.(.*?)(?=\*\s*WHERE|\*\s*WHEN|\*\s*IMPACTS|PRECAUTIONARY|$)/si', $zoneText, $wm)) {
+                $what  = preg_replace('/\s+/', ' ', trim($wm[1]));
+                $winds = 'Winds variable';
+                if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+winds?\s+\d+\s+to\s+\d+\s*kt)/i', $what, $ww))
+                    $winds = ucfirst(strtolower(trim($ww[0])));
+                elseif (preg_match('/winds?\s+\d+\s+to\s+\d+\s*kt/i', $what, $ww))
+                    $winds = ucfirst(strtolower(trim($ww[0])));
+                $seas = 'Seas variable';
+                if (preg_match('/seas?\s+(\d+)\s+to\s+(\d+)\s*ft/i', $what, $sw))
+                    $seas = "Seas {$sw[1]} to {$sw[2]} ft";
+                elseif (preg_match('/seas?\s+around\s+(\d+)\s*ft/i', $what, $sw))
+                    $seas = "Seas around {$sw[1]} ft";
+                $label = 'Active';
+                if (preg_match('/\*\s*WHEN\s*\.\.\.(.*?)(?=\*|\z)/si', $zoneText, $wh)) {
+                    if (preg_match('/until\s+(.{5,40}?)(?:\.|For\s)/i', $wh[1], $uh))
+                        $label = 'Until ' . ucfirst(strtolower(trim($uh[1])));
+                }
+                $forecast[] = ['Day' => $label, 'Winds' => $winds, 'Seas' => $seas, 'Weather' => 'N/A'];
+            }
         }
 
         if (empty($forecast)) {

@@ -879,6 +879,9 @@ function expandZoneHeader($header) {
  */
 function buildZoneSectionMap($content) {
     $map      = array();
+    // MWW products use && as the section terminator (followed by $$).
+    // Normalise && to $$ so the splitter works for both formats.
+    $content  = preg_replace('/\n&&\s*\n/', "\n\$\$\n", $content);
     $sections = preg_split('/\n\$\$[ \t]*(?:\n|$)/', $content);
 
     foreach ($sections as $section) {
@@ -998,17 +1001,55 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
             );
         }
         
-        // Ensure forecast data exists
+        // If no standard periods found, try MWW (Marine Weather Watch) bullet format:
+        // Uses "* WHAT...", "* WHEN..." instead of ".TODAY..." periods
+        if (empty($zoneData['forecast']) && strpos($zoneText, '* WHAT') !== false) {
+            $whatMatch = array();
+            if (preg_match('/\*\s*WHAT\s*\.\.\.(.*?)(?=\*\s*WHERE|\*\s*WHEN|\*\s*IMPACTS|PRECAUTIONARY|$)/si', $zoneText, $whatMatch)) {
+                $what = preg_replace('/\s+/', ' ', trim($whatMatch[1]));
+
+                // Extract winds from WHAT section
+                $winds = 'Winds variable';
+                if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+winds?\s+\d+\s+to\s+\d+\s*kt)/i', $what, $wm)) {
+                    $winds = ucfirst(strtolower(trim($wm[0])));
+                } elseif (preg_match('/winds?\s+\d+\s+to\s+\d+\s*kt/i', $what, $wm)) {
+                    $winds = ucfirst(strtolower(trim($wm[0])));
+                }
+
+                // Extract seas from WHAT section
+                $seas = 'Seas variable';
+                if (preg_match('/seas?\s+(\d+)\s+to\s+(\d+)\s*ft/i', $what, $sm)) {
+                    $seas = "Seas {$sm[1]} to {$sm[2]} ft";
+                } elseif (preg_match('/seas?\s+around\s+(\d+)\s*ft/i', $what, $sm)) {
+                    $seas = "Seas around {$sm[1]} ft";
+                }
+
+                // Extract timing label from WHEN section or warning headline
+                $label = 'Active';
+                $whenMatch = array();
+                if (preg_match('/\*\s*WHEN\s*\.\.\.(.*?)(?=\*\s*IMPACTS|PRECAUTIONARY|$)/si', $zoneText, $whenMatch)) {
+                    $when = preg_replace('/\s+/', ' ', trim($whenMatch[1]));
+                    // Shorten to first meaningful phrase
+                    if (preg_match('/until\s+(.{5,40}?)(?:\.|For\s)/i', $when, $wh)) {
+                        $label = 'Until ' . ucfirst(strtolower(trim($wh[1])));
+                    }
+                }
+
+                $zoneData['forecast'][] = array(
+                    'Day'     => $label,
+                    'Winds'   => $winds,
+                    'Seas'    => $seas,
+                    'Weather' => 'N/A'
+                );
+            }
+        }
+
+        // Final fallback placeholder
         if (empty($zoneData['forecast'])) {
-            debugLog("WARNING: No forecast periods found for zone " . $zone . ", adding placeholder");
             $zoneData['forecast'][] = array(
-                'Day' => 'Today',
-                'Winds' => 'Data unavailable',
-                'Seas' => 'Data unavailable',
-                'Weather' => 'N/A'
+                'Day' => 'Today', 'Winds' => 'Data unavailable',
+                'Seas' => 'Data unavailable', 'Weather' => 'N/A'
             );
-        } else {
-            debugLog("Zone " . $zone . " has " . count($zoneData['forecast']) . " forecast periods");
         }
         
         $results[] = $zoneData;

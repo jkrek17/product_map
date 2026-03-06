@@ -321,6 +321,9 @@ function debugLog($message, $data = null) {
     error_log("[OPC API DEBUG] " . $message . ($data !== null ? " | Data: " . json_encode($data) : ""));
 }
 
+// When included by prefetch.php, skip all request handling
+if (defined('PREFETCH_INCLUDED')) return;
+
 debugLog("API request started", array(
     'type' => isset($_GET['type']) ? $_GET['type'] : 'not set',
     'debug' => $DEBUG,
@@ -938,6 +941,59 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
 }
 
 
+// =============================================================================
+// RESULT CACHE — pre-built JSON written by prefetch.php
+// =============================================================================
+$RESULT_FILES = array(
+    'offshore' => NWS_CACHE_DIR . '/result_offshore.json',
+    'navtex'   => NWS_CACHE_DIR . '/result_navtex.json',
+    'coastal'  => NWS_CACHE_DIR . '/result_coastal.json',
+    'highseas' => NWS_CACHE_DIR . '/result_highseas.json',
+);
+
+/**
+ * Return pre-built result JSON if it is fresh, otherwise null.
+ */
+function getResultCache($type, $resultFiles) {
+    if (!isset($resultFiles[$type])) return null;
+    $file = $resultFiles[$type];
+    if (!file_exists($file)) return null;
+    if ((time() - filemtime($file)) >= NWS_CACHE_TTL) return null;
+    $data = @file_get_contents($file);
+    return $data ?: null;
+}
+
+/**
+ * Write a result to the cache file so future requests are instant.
+ */
+function setResultCache($type, $resultFiles, $data) {
+    if (!isset($resultFiles[$type])) return;
+    nwsCacheDir();
+    file_put_contents($resultFiles[$type], json_encode($data));
+}
+
+/**
+ * Fire prefetch.php as a background process (non-blocking).
+ * Used for stale-while-revalidate — users get old data immediately,
+ * next request gets fresh data after prefetch completes.
+ */
+function triggerBackgroundPrefetch() {
+    $lockFile = NWS_CACHE_DIR . '/prefetch.lock';
+    // Don't trigger if a prefetch is already running
+    if (file_exists($lockFile) && (time() - filemtime($lockFile)) < 300) return;
+
+    $script = __DIR__ . '/prefetch.php';
+    if (!file_exists($script)) return;
+
+    // Write a provisional lock so we don't double-trigger
+    @file_put_contents($lockFile, 'triggered-by-api ' . date('c'));
+
+    // Spawn as background process (works on Linux/Mac servers)
+    @exec('php ' . escapeshellarg($script) . ' > /dev/null 2>&1 &');
+
+    debugLog("Triggered background prefetch");
+}
+
 // Main execution
 $type = isset($_GET['type']) ? $_GET['type'] : 'offshore';
 debugLog("Processing request", array('type' => $type));
@@ -986,6 +1042,11 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
+    // Serve from result cache if fresh; background-refresh if stale
+    $cached = getResultCache('offshore', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+
     debugLog("Loading offshore data (NWS API → local fallback)");
     $allForecasts = array();
 
@@ -1003,11 +1064,16 @@ if ($type === 'offshore') {
     }
 
     debugLog("Offshore complete", array('total' => count($allForecasts)));
+    if (!$DEBUG) setResultCache('offshore', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'navtex') {
+    $cached = getResultCache('navtex', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+
     debugLog("Loading NAVTEX data (NWS API → local fallback)");
     $allForecasts = array();
 
@@ -1025,11 +1091,16 @@ if ($type === 'offshore') {
     }
 
     debugLog("NAVTEX complete", array('total' => count($allForecasts)));
+    if (!$DEBUG) setResultCache('navtex', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'coastal') {
+    $cached = getResultCache('coastal', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+
     debugLog("Loading coastal data (NWS API → local fallback)");
     $allForecasts = array();
 
@@ -1045,11 +1116,16 @@ if ($type === 'offshore') {
     }
 
     debugLog("Coastal complete", array('total' => count($allForecasts)));
+    if (!$DEBUG) setResultCache('coastal', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'highseas') {
+    $cached = getResultCache('highseas', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+
     debugLog("Loading high seas data (NWS API → local fallback)");
 
     // Extract issue time from product text
@@ -1090,6 +1166,7 @@ if ($type === 'offshore') {
     }
 
     debugLog("High seas complete", array('total' => count($allForecasts)));
+    if (!$DEBUG) setResultCache('highseas', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);

@@ -1172,7 +1172,10 @@ if ($type === 'offshore') {
 
     foreach ($COASTAL_FILES as $wfo => $filename) {
         // CWF: one product per WFO, no matchStr needed
-        $content = fetchProductContent('CWF', $wfo, null, $LOCAL_DATA_DIR . '/' . $filename);
+        // AJK uses MWW (Marine Weather Watch) which covers all PKZ coastal zones.
+        // AFC/AFG have no API product; they fall back to local /shtml/ files only.
+        $coastalProductType = ($wfo === 'AJK') ? 'MWW' : 'CWF';
+        $content = fetchProductContent($coastalProductType, $wfo, null, $LOCAL_DATA_DIR . '/' . $filename);
 
         if ($content && isset($COASTAL_ZONE_MAPPINGS[$wfo])) {
             $forecasts = parseOffshoreProduct($content, $COASTAL_ZONE_MAPPINGS[$wfo], array());

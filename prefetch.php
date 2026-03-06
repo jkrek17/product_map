@@ -102,6 +102,16 @@ $PRODUCTS = [
 ];
 
 // CWF product per WFO (one product per WFO, no matchString needed)
+// WFOs that use a non-CWF product type for coastal marine forecasts
+// AJK uses MWW (Marine Weather Watch) which covers all 24 PKZ coastal zones;
+// CWF from AJK only covers nearshore zones.
+// AFC/AFG have NO coastal marine product in api.weather.gov — their PKZ zones
+// (PKZ710-787 for AFC, PKZ801-861 for AFG) are only available from local
+// /shtml/ files (AFCCWFAFC.txt, AFGCWFAFG.txt) on the server.
+$COASTAL_PRODUCT_TYPES = [
+    'AJK' => 'MWW',   // Marine Weather Watch — covers all SE Alaska PKZ zones
+];
+
 $COASTAL_WFOS = [
     'BOX','GYX','CAR','OKX','PHI','LWX','AKQ',
     'MHX','ILM','CHS','JAX','MLB','MFL','SJU',
@@ -255,13 +265,15 @@ function fetchAllProductTexts(array $products, int $scanDepth = 20): array {
  * Fetch all CWF products (one per WFO) in two parallel phases.
  * Returns array: wfo => productText
  */
-function fetchAllCWFTexts(array $wfos): array {
+function fetchAllCWFTexts(array $wfos, array $productTypes = []): array {
     // Phase 1: all list endpoints in parallel
+    // Most WFOs use CWF; some (e.g. AJK) use a different product type
     $listUrls = [];
     foreach ($wfos as $wfo) {
-        $listUrls[$wfo] = NWS_API_BASE . "/products/types/CWF/locations/{$wfo}";
+        $ptype = $productTypes[$wfo] ?? 'CWF';
+        $listUrls[$wfo] = NWS_API_BASE . "/products/types/{$ptype}/locations/{$wfo}";
     }
-    log_msg("Coastal Phase 1: fetching " . count($listUrls) . " CWF lists in parallel...");
+    log_msg("Coastal Phase 1: fetching " . count($listUrls) . " coastal product lists in parallel...");
     $listResponses = parallelGet($listUrls);
 
     // Extract most recent product ID per WFO
@@ -588,7 +600,7 @@ foreach ($highseasDefs as [$zoneId, $zoneName]) {
 // COASTAL
 // ==========================================================================
 log_msg("=== Fetching coastal products (" . count($COASTAL_WFOS) . " WFOs) ===");
-$coastalTexts  = fetchAllCWFTexts($COASTAL_WFOS);
+$coastalTexts  = fetchAllCWFTexts($COASTAL_WFOS, $COASTAL_PRODUCT_TYPES);
 $coastalResult = [];
 foreach ($coastalTexts as $wfo => $text) {
     $zones = $COASTAL_ZONE_MAPPINGS[$wfo] ?? [];

@@ -99,6 +99,9 @@ $PRODUCTS = [
     'N07'    => ['OFF', 'KWNM', 'OFFN07'],
     'N08'    => ['OFF', 'KWNM', 'OFFN08'],
     'N09'    => ['OFF', 'KWNM', 'OFFN09'],
+    // AJK MWW — supplements CWF for SE Alaska offshore coastal zones (PKZ641-672).
+    // MWW is alert-only so these zones only appear when active conditions exist.
+    // AJK MWW fetched separately in coastal section (no stable matchStr for MWW)
     // Great Lakes open-water forecast (GLF) — 5 products covering open-lake zones.
     // Near-shore Great Lakes zones (LHZ, most LMZ/LEZ/LSZ) are not accessible
     // through any NWS API marine product.
@@ -122,11 +125,10 @@ $PRODUCTS = [
 ];
 
 // CWF product per WFO (one product per WFO, no matchString needed)
-// WFOs that use a non-CWF product type for coastal marine forecasts.
-// AJK uses MWW which covers all 24 SE Alaska PKZ coastal zones.
-$COASTAL_PRODUCT_TYPES = [
-    'AJK' => 'MWW',
-];
+// WFOs that use a non-standard product type for their primary coastal forecast.
+// AJK reverted to CWF — CWF covers PKZ011-036 (nearshore, routine forecasts).
+// PKZ641-672 (offshore coastal) are supplemented via AJK_MWW in $PRODUCTS below.
+$COASTAL_PRODUCT_TYPES = [];   // all WFOs use CWF by default
 
 // AFC (Anchorage) and AFG (Fairbanks) cannot be fetched via
 // types/CWF/locations/AFC — the NWS API location filter is broken for
@@ -687,6 +689,21 @@ foreach ($coastalTexts as $wfo => $text) {
     $coastalResult = array_merge($coastalResult, $parsed);
 }
 log_msg("Coastal: " . count($coastalTexts) . " WFOs fetched → " . count($coastalResult) . " zones parsed");
+
+// AJK MWW supplement — adds PKZ641-672 offshore coastal when active conditions exist
+// MWW products don't have a sub-product name, so fetch most recent directly
+$ajkMwwTexts = fetchAllCWFTexts(['AJK'], ['AJK' => 'MWW']);
+if (!empty($ajkMwwTexts['AJK'])) {
+    $sectionMap = pf_buildZoneSectionMap($ajkMwwTexts['AJK']);
+    $zones = array_keys($sectionMap);
+    if (!empty($zones)) {
+        $parsed = pf_parseZoneForecast($ajkMwwTexts['AJK'], $zones, []);
+        $coastalResult = array_merge($coastalResult, $parsed);
+        log_msg("OK MWW AJK supplement → " . count($parsed) . " zones");
+    }
+} else {
+    log_msg("AJK MWW: no active conditions (normal on calm days)");
+}
 
 // Great Lakes open-water GLF products — zone IDs auto-discovered from text
 log_msg("=== Parsing Great Lakes GLF products ===");

@@ -1258,9 +1258,9 @@ if ($type === 'offshore') {
 
     foreach ($COASTAL_FILES as $wfo => $filename) {
         // CWF: one product per WFO, no matchStr needed
-        // AJK uses MWW (Marine Weather Watch) which covers all PKZ coastal zones.
-        // AFC/AFG have no API product; they fall back to local /shtml/ files only.
-        $coastalProductType = ($wfo === 'AJK') ? 'MWW' : 'CWF';
+        // All WFOs use CWF. AJK CWF covers PKZ011-036 (nearshore routine).
+        // PKZ641-672 are supplemented from MWW in the extraCoastal loop below.
+        $coastalProductType = 'CWF';
         $content = fetchProductContent($coastalProductType, $wfo, null, $LOCAL_DATA_DIR . '/' . $filename);
 
         if ($content) {
@@ -1275,7 +1275,7 @@ if ($type === 'offshore') {
         }
     }
 
-    // Great Lakes GLF + Alaska CWF — fetched via full type lists; zone IDs from text
+    // Supplemental products: GLF (Great Lakes open-water), Alaska CWF
     $extraCoastal = array('GLFLO','GLFLS','GLFLM','GLFLE','GLFSC',
                           'CWFAER','CWFALU','CWFNSB','CWFWCZ');
     foreach ($extraCoastal as $matchStr) {
@@ -1290,6 +1290,17 @@ if ($type === 'offshore') {
                 debugLog("Extra coastal {$matchStr} parsed", array('count' => count($forecasts)));
                 $allForecasts = array_merge($allForecasts, $forecasts);
             }
+        }
+    }
+
+    // AJK MWW supplement for PKZ641-672 (only present when active conditions exist)
+    $ajkMww = fetchProductContent('MWW', 'AJK', null);
+    if ($ajkMww) {
+        $sectionMap = buildZoneSectionMap($ajkMww);
+        $zones = array_keys($sectionMap);
+        if (!empty($zones)) {
+            $forecasts = parseOffshoreProduct($ajkMww, $zones, array());
+            $allForecasts = array_merge($allForecasts, $forecasts);
         }
     }
 

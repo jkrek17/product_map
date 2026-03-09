@@ -477,17 +477,22 @@ function pf_parseZoneForecast(string $content, array $zones, array $zoneNames): 
 
             $clean = preg_replace('/\s+/', ' ', $periodText);
 
-            // Winds
+            // Winds — handles "N to N kt", "N kt", "around N kt"
             $winds = 'Variable winds';
-            if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:WINDS?\s+)?(\d+)\s*(?:TO\s*)?(\d+)?\s*KT)/i', $clean, $wm)) {
+            if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+WINDS?\s+(?:AROUND\s+)?\d+(?:\s+TO\s+\d+)?\s*KT)/i', $clean, $wm)) {
+                $winds = ucfirst(strtolower(trim($wm[0])));
+            } elseif (preg_match('/(WINDS?\s+AROUND\s+\d+\s*KT|WINDS?\s+\d+\s+TO\s+\d+\s*KT|\d+\s+TO\s+\d+\s*KT)/i', $clean, $wm)) {
                 $winds = ucfirst(strtolower(trim($wm[0])));
             }
 
-            // Seas
+            // Seas — handles "Waves flat", "Waves N ft or less", "Waves N to N ft", "Seas N ft"
             $seas = 'Seas variable';
-            if (preg_match('/(?:SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s*(?:TO\s*)?(\d+)?\s*FT/i', $clean, $sm)) {
-                $lo = $sm[1]; $hi = isset($sm[2]) && $sm[2] ? $sm[2] : $lo;
-                $seas = "Seas $lo to $hi ft";
+            if (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+FLAT/i', $clean)) {
+                $seas = 'Seas flat';
+            } elseif (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s+TO\s+(\d+)\s*FT/i', $clean, $sm)) {
+                $seas = "Seas {$sm[1]} to {$sm[2]} ft";
+            } elseif (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+(?:AROUND\s+)?(\d+)\s*FT/i', $clean, $sm)) {
+                $seas = "Seas {$sm[1]} ft";
             } elseif (preg_match('/(\d+)\s+TO\s+(\d+)\s*FT/i', $clean, $sm2)) {
                 $seas = "Seas {$sm2[1]} to {$sm2[2]} ft";
             }

@@ -976,15 +976,22 @@ function parseOffshoreProduct($content, $zones, $zoneNames) {
 
             $cleanText = preg_replace('/\s+/', ' ', $periodText);
 
+            // Winds — handles range "N to N kt", single "N kt", and "around N kt"
             $winds = 'Variable winds';
-            if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+(?:WINDS?\s+)?(\d+)\s*(?:TO\s*)?(\d+)?\s*KT)/i', $cleanText, $wm)) {
+            if (preg_match('/([NSEW]{1,2}(?:\s+TO\s+[NSEW]{1,2})?\s+WINDS?\s+(?:AROUND\s+)?\d+(?:\s+TO\s+\d+)?\s*KT)/i', $cleanText, $wm)) {
+                $winds = ucfirst(strtolower(trim($wm[0])));
+            } elseif (preg_match('/(WINDS?\s+AROUND\s+\d+\s*KT|WINDS?\s+\d+\s+TO\s+\d+\s*KT|\d+\s+TO\s+\d+\s*KT)/i', $cleanText, $wm)) {
                 $winds = ucfirst(strtolower(trim($wm[0])));
             }
 
+            // Seas — handles "Waves N ft", "Waves N to N ft", "Waves flat", "Waves N ft or less"
             $seas = 'Seas variable';
-            if (preg_match('/(?:SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s*(?:TO\s*)?(\d+)?\s*FT/i', $cleanText, $sm)) {
-                $lo = $sm[1]; $hi = isset($sm[2]) && $sm[2] ? $sm[2] : $lo;
-                $seas = "Seas $lo to $hi ft";
+            if (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+FLAT/i', $cleanText)) {
+                $seas = 'Seas flat';
+            } elseif (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+(\d+)\s+TO\s+(\d+)\s*FT/i', $cleanText, $sm)) {
+                $seas = "Seas {$sm[1]} to {$sm[2]} ft";
+            } elseif (preg_match('/(?:WAVES?|SEAS?|COMBINED\s+SEAS?)\s+(?:AROUND\s+)?(\d+)\s*FT/i', $cleanText, $sm)) {
+                $seas = "Seas {$sm[1]} ft";
             } elseif (preg_match('/(\d+)\s+TO\s+(\d+)\s*FT/i', $cleanText, $sm2)) {
                 $seas = "Seas {$sm2[1]} to {$sm2[2]} ft";
             }

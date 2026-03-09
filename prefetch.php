@@ -99,6 +99,14 @@ $PRODUCTS = [
     'N07'    => ['OFF', 'KWNM', 'OFFN07'],
     'N08'    => ['OFF', 'KWNM', 'OFFN08'],
     'N09'    => ['OFF', 'KWNM', 'OFFN09'],
+    // Great Lakes open-water forecast (GLF) — 5 products covering open-lake zones.
+    // Near-shore Great Lakes zones (LHZ, most LMZ/LEZ/LSZ) are not accessible
+    // through any NWS API marine product.
+    'GLFLO' => ['GLF', 'KBUF', 'GLFLO'],   // Lake Ontario (Buffalo)
+    'GLFLS' => ['GLF', 'KMQT', 'GLFLS'],   // Lake Superior (Marquette)
+    'GLFLM' => ['GLF', 'KMKX', 'GLFLM'],   // Lake Michigan (Milwaukee)
+    'GLFLE' => ['GLF', 'KCLE', 'GLFLE'],   // Lake Erie (Cleveland)
+    'GLFSC' => ['GLF', 'KDTX', 'GLFSC'],   // Lake St. Clair (Detroit)
     // Alaska coastal CWF — fetched via full types/CWF list (location filter
     // broken for PAFC/PAFG; these are parsed in the coastal section below)
     'CWFAER' => ['CWF', 'PAFC', 'CWFAER'],   // N Gulf, Kodiak, Cook Inlet
@@ -600,10 +608,10 @@ include __DIR__ . '/api.php';
 log_msg("=== Fetching offshore + NAVTEX products ===");
 
 // Map matchString => [type, office] for the two-phase fetcher
-// Include OFF, HSF, and CWF (Alaska coastal — PAFC/PAFG location filter broken)
+// Include OFF, HSF, CWF (Alaska), and GLF (Great Lakes open-water)
 $offshoreMatchMap = [];
 foreach ($PRODUCTS as $key => [$type, $office, $match]) {
-    if (in_array($type, ['OFF', 'HSF', 'CWF'])) {
+    if (in_array($type, ['OFF', 'HSF', 'CWF', 'GLF'])) {
         $offshoreMatchMap[$match] = [$type, $office];
     }
 }
@@ -670,12 +678,28 @@ log_msg("=== Fetching coastal products (" . count($COASTAL_WFOS) . " WFOs) ===")
 $coastalTexts  = fetchAllCWFTexts($COASTAL_WFOS, $COASTAL_PRODUCT_TYPES);
 $coastalResult = [];
 foreach ($coastalTexts as $wfo => $text) {
-    $zones = $COASTAL_ZONE_MAPPINGS[$wfo] ?? [];
+    // Build the zone list from the product text itself rather than the shapefile
+    // mapping — the CWF often uses different zone IDs than the shapefile assigns.
+    $sectionMap = pf_buildZoneSectionMap($text);
+    $zones = array_keys($sectionMap);
     if (empty($zones)) continue;
     $parsed = pf_parseZoneForecast($text, $zones, []);
     $coastalResult = array_merge($coastalResult, $parsed);
 }
 log_msg("Coastal: " . count($coastalTexts) . " WFOs fetched → " . count($coastalResult) . " zones parsed");
+
+// Great Lakes open-water GLF products — zone IDs auto-discovered from text
+log_msg("=== Parsing Great Lakes GLF products ===");
+foreach (['GLFLO','GLFLS','GLFLM','GLFLE','GLFSC'] as $matchStr) {
+    $text = $productTexts[$matchStr] ?? null;
+    if (!$text) { log_msg("MISS GLF: $matchStr"); continue; }
+    $sectionMap = pf_buildZoneSectionMap($text);
+    $zones = array_keys($sectionMap);
+    if (empty($zones)) continue;
+    $parsed = pf_parseZoneForecast($text, $zones, []);
+    $coastalResult = array_merge($coastalResult, $parsed);
+    log_msg("OK GLF: $matchStr → " . count($parsed) . " zones");
+}
 
 // Alaska CWF products (CWFAER/CWFALU/CWFNSB/CWFWCZ) — fetched in the
 // offshore/navtex batch above via the full types/CWF list

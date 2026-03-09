@@ -56,6 +56,12 @@ $NWS_PRODUCT_API = array(
     "N04"  => array("OFF", "KNHC", "OFFN04"),
     "N05"  => array("OFF", "KNHC", "OFFN05"),
     "N06"  => array("OFF", "KNHC", "OFFN06"),
+    // ---- Great Lakes open-water (GLF) ----
+    "GLFLO" => array("GLF", "KBUF", "GLFLO"),  // Lake Ontario
+    "GLFLS" => array("GLF", "KMQT", "GLFLS"),  // Lake Superior
+    "GLFLM" => array("GLF", "KMKX", "GLFLM"),  // Lake Michigan
+    "GLFLE" => array("GLF", "KCLE", "GLFLE"),  // Lake Erie
+    "GLFSC" => array("GLF", "KDTX", "GLFSC"),  // Lake St. Clair
     // ---- Alaska coastal CWF (full types/CWF list — location filter broken for PAFC/PAFG) ----
     "CWFAER" => array("CWF", "PAFC", "CWFAER"),  // N Gulf, Kodiak, Cook Inlet
     "CWFALU" => array("CWF", "PAFC", "CWFALU"),  // SW Alaska, Bristol Bay, Aleutians
@@ -1257,24 +1263,33 @@ if ($type === 'offshore') {
         $coastalProductType = ($wfo === 'AJK') ? 'MWW' : 'CWF';
         $content = fetchProductContent($coastalProductType, $wfo, null, $LOCAL_DATA_DIR . '/' . $filename);
 
-        if ($content && isset($COASTAL_ZONE_MAPPINGS[$wfo])) {
-            $forecasts = parseOffshoreProduct($content, $COASTAL_ZONE_MAPPINGS[$wfo], array());
-            debugLog("Coastal WFO {$wfo} parsed", array('count' => count($forecasts)));
-            $allForecasts = array_merge($allForecasts, $forecasts);
+        if ($content) {
+            // Use zones from the product text itself — more reliable than shapefile mapping
+            $sectionMap = buildZoneSectionMap($content);
+            $zones = array_keys($sectionMap);
+            if (!empty($zones)) {
+                $forecasts = parseOffshoreProduct($content, $zones, array());
+                debugLog("Coastal WFO {$wfo} parsed", array('count' => count($forecasts)));
+                $allForecasts = array_merge($allForecasts, $forecasts);
+            }
         }
     }
 
-    // Alaska CWF products (CWFAER/CWFALU/CWFNSB/CWFWCZ) — fetched via the
-    // full types/CWF list since location filter is broken for PAFC/PAFG
-    foreach ($ALASKA_COASTAL_ZONES as $matchStr => $zones) {
+    // Great Lakes GLF + Alaska CWF — fetched via full type lists; zone IDs from text
+    $extraCoastal = array('GLFLO','GLFLS','GLFLM','GLFLE','GLFSC',
+                          'CWFAER','CWFALU','CWFNSB','CWFWCZ');
+    foreach ($extraCoastal as $matchStr) {
         $apiCfg  = isset($NWS_PRODUCT_API[$matchStr]) ? $NWS_PRODUCT_API[$matchStr] : null;
-        $content = $apiCfg
-            ? fetchProductContent($apiCfg[0], $apiCfg[1], $apiCfg[2])
-            : null;
+        if (!$apiCfg) continue;
+        $content = fetchProductContent($apiCfg[0], $apiCfg[1], $apiCfg[2]);
         if ($content) {
-            $forecasts = parseOffshoreProduct($content, $zones, array());
-            debugLog("Alaska coastal {$matchStr} parsed", array('count' => count($forecasts)));
-            $allForecasts = array_merge($allForecasts, $forecasts);
+            $sectionMap = buildZoneSectionMap($content);
+            $zones = array_keys($sectionMap);
+            if (!empty($zones)) {
+                $forecasts = parseOffshoreProduct($content, $zones, array());
+                debugLog("Extra coastal {$matchStr} parsed", array('count' => count($forecasts)));
+                $allForecasts = array_merge($allForecasts, $forecasts);
+            }
         }
     }
 

@@ -1149,6 +1149,9 @@
             zonesLayer = L.layerGroup().addTo(map);
 
             L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);
+
+            // Pointer left the map — mouseout on polygons is often missed (especially over ocean tiles).
+            map.getContainer().addEventListener('mouseleave', clearHoverHighlight);
         }
 
         function geoJsonFileForProduct(product) {
@@ -1181,6 +1184,7 @@
 
         // Track selected zone layer and click marker globally
         var selectedLayer  = null;
+        var hoverLayer     = null;   // layer under cursor (Leaflet often skips mouseout on overlap / map exit)
         var clickMarker    = null;
         var activeGeoLayer = null;   // ref to current L.geoJSON for resetStyle()
 
@@ -1195,16 +1199,35 @@
             };
         }
 
+        function forecastWarningForZone(zoneId) {
+            var forecast = forecastData.find(function(f) {
+                return f.zone === zoneId;
+            });
+            return forecast ? forecast.warning : 'NONE';
+        }
+
+        /** Base (non-hover) style — do not use resetStyle(); it breaks after bringToFront / missed mouseout. */
+        function restoreZoneLayerStyle(layer, zoneId) {
+            if (!layer || layer === selectedLayer) return;
+            layer.setStyle(zoneStyle(forecastWarningForZone(zoneId), false));
+        }
+
+        function clearHoverHighlight() {
+            if (hoverLayer && hoverLayer !== selectedLayer) {
+                restoreZoneLayerStyle(hoverLayer, hoverLayer._marineZoneId);
+            }
+            hoverLayer = null;
+        }
+
         function setSelectedLayer(layer, zoneId) {
+            clearHoverHighlight();
             // Deselect previous
             if (selectedLayer && selectedLayer !== layer) {
-                if (activeGeoLayer) activeGeoLayer.resetStyle(selectedLayer);
+                restoreZoneLayerStyle(selectedLayer, selectedLayer._marineZoneId);
             }
             selectedLayer = layer;
             if (layer) {
-                var forecast = forecastData.find(function(f) { return f.zone === zoneId; });
-                var warning  = forecast ? forecast.warning : 'NONE';
-                layer.setStyle(zoneStyle(warning, true));
+                layer.setStyle(zoneStyle(forecastWarningForZone(zoneId), true));
                 layer.bringToFront();
             }
         }
@@ -1226,6 +1249,7 @@
             geoJson = filterGeoJsonForMap(geoJson, idField);
             zonesLayer.clearLayers();
             selectedLayer  = null;
+            hoverLayer     = null;
             activeGeoLayer = null;
             if (clickMarker) { map.removeLayer(clickMarker); clickMarker = null; }
 
@@ -1244,10 +1268,15 @@
                 onEachFeature: function(feature, layer) {
                     var zoneId   = feature.properties[idField] || feature.properties.ID || feature.properties.Name;
                     var zoneName = feature.properties.NAME || feature.properties.Name || feature.properties.name || zoneId;
+                    layer._marineZoneId = zoneId;
 
                     layer.on({
                         mouseover: function(e) {
                             if (e.target === selectedLayer) return;
+                            if (hoverLayer && hoverLayer !== e.target && hoverLayer !== selectedLayer) {
+                                restoreZoneLayerStyle(hoverLayer, hoverLayer._marineZoneId);
+                            }
+                            hoverLayer = e.target;
                             e.target.setStyle({
                                 fillOpacity: 0.65,
                                 color:       '#ffffff',
@@ -1258,7 +1287,8 @@
                         },
                         mouseout: function(e) {
                             if (e.target === selectedLayer) return;
-                            if (activeGeoLayer) activeGeoLayer.resetStyle(e.target);
+                            restoreZoneLayerStyle(e.target, zoneId);
+                            if (hoverLayer === e.target) hoverLayer = null;
                         },
                         click: function(e) {
                             setSelectedLayer(e.target, zoneId);

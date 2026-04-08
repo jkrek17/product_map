@@ -1158,6 +1158,29 @@
                 maxZoom: 13
             }).addTo(map);
 
+            // US state outlines (Natural Earth 1:110m, public domain) — under zones, non-interactive
+            var statesPane = map.createPane('statesOutline');
+            statesPane.style.zIndex = 250;
+            statesPane.style.pointerEvents = 'none';
+
+            fetch('assets/us-states-outline.geojson')
+                .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+                .then(function(geo) {
+                    L.geoJSON(geo, {
+                        pane: 'statesOutline',
+                        interactive: false,
+                        style: {
+                            color:         '#a8b8d0',
+                            weight:        0.9,
+                            opacity:       0.45,
+                            fillOpacity:   0,
+                            lineCap:       'round',
+                            lineJoin:      'round'
+                        }
+                    }).addTo(map);
+                })
+                .catch(function() { /* optional layer */ });
+
             zonesLayer = L.layerGroup().addTo(map);
 
             L.control.scale({ imperial: true, metric: true, position: 'bottomright' }).addTo(map);

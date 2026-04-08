@@ -1199,9 +1199,11 @@
             };
         }
 
-        function forecastWarningForZone(zoneId) {
+        function forecastWarningForZone(zoneId, featureProps) {
             var forecast = forecastData.find(function(f) {
-                return f.zone === zoneId;
+                if (f.zone === zoneId) return true;
+                if (featureProps && (f.zone === featureProps.Name || f.name === featureProps.Name)) return true;
+                return false;
             });
             return forecast ? forecast.warning : 'NONE';
         }
@@ -1209,7 +1211,8 @@
         /** Base (non-hover) style — do not use resetStyle(); it breaks after bringToFront / missed mouseout. */
         function restoreZoneLayerStyle(layer, zoneId) {
             if (!layer || layer === selectedLayer) return;
-            layer.setStyle(zoneStyle(forecastWarningForZone(zoneId), false));
+            var props = layer.feature && layer.feature.properties;
+            layer.setStyle(zoneStyle(forecastWarningForZone(zoneId, props), false));
         }
 
         function clearHoverHighlight() {
@@ -1227,7 +1230,8 @@
             }
             selectedLayer = layer;
             if (layer) {
-                layer.setStyle(zoneStyle(forecastWarningForZone(zoneId), true));
+                var selProps = layer.feature && layer.feature.properties;
+                layer.setStyle(zoneStyle(forecastWarningForZone(zoneId, selProps), true));
                 layer.bringToFront();
             }
         }

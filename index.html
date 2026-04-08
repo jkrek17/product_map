@@ -1215,7 +1215,7 @@
 
         /** Base (non-hover) style — do not use resetStyle(); it breaks after bringToFront / missed mouseout. */
         function restoreZoneLayerStyle(layer, zoneId) {
-            if (!layer || layer === selectedLayer) return;
+            if (!layer) return;
             var props = layer.feature && layer.feature.properties;
             layer.setStyle(zoneStyle(forecastWarningForZone(zoneId, props), false));
         }

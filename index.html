@@ -403,16 +403,6 @@
         .lc-tsunami     { background: #fd6347; }
         .lc-mws         { background: #ffefd5; border: 1px solid #888; }
 
-        /* Click marker — pulsing dot */
-        .zone-click-marker {
-            animation: markerPulse 1.6s ease-out forwards;
-        }
-        @keyframes markerPulse {
-            0%   { opacity: 1;   transform: scale(1);   }
-            60%  { opacity: 0.9; transform: scale(1.35);}
-            100% { opacity: 1;   transform: scale(1);   }
-        }
-
         .no-data {
             text-align: center;
             padding: 50px 25px;
@@ -1244,8 +1234,7 @@
                 weight:      2.5,
                 fillColor:   '#e94560',
                 fillOpacity: 1,
-                opacity:     1,
-                className:   'zone-click-marker'
+                opacity:     1
             }).addTo(map);
         }
 

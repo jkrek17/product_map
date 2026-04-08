@@ -609,6 +609,11 @@ include __DIR__ . '/api.php';
 // After include, $ZONE_MAPPINGS, $ZONE_NAMES, $COASTAL_ZONE_MAPPINGS,
 // $NAVTEX_NAME_TO_ID, $NAVTEX_ZONES are all available.
 
+if (function_exists('marineDataSourceIsLocal') && marineDataSourceIsLocal()) {
+    log_msg('MARINE_DATA_SOURCE=shtml — prefetch skipped (api.php reads /shtml only).');
+    exit(0);
+}
+
 // ==========================================================================
 // OFFSHORE + NAVTEX
 // ==========================================================================

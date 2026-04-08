@@ -37,19 +37,6 @@ JSON forecast arrays. Primary source: **NWS API**, with responses cached under `
 - **`assets/ui-config.json`** — `products.*.showInDropdown`, `regions.*.showInDropdown`, `map.excludeZoneIdPrefixes`.
 - **`api.php`** (top) — `$LOCAL_DATA_DIR`, NWS cache TTL, user agent.
 
-### API vs `/shtml/` files only
-
-Forecast text is loaded either from **api.weather.gov** (with `cache/` prefetch JSON and per-product caches) or **only** from files under `$LOCAL_DATA_DIR` (usually `DocumentRoot/shtml`).
-
-| Mode | How to enable |
-|------|----------------|
-| **NWS API** (default) | `MARINE_DATA_SOURCE` unset, or `nws`, or uncomment `define('MARINE_DATA_SOURCE', 'nws');` in `api.php` |
-| **Local files only** | Uncomment `define('MARINE_DATA_SOURCE', 'shtml');` in `api.php`, **or** set environment `MARINE_DATA_SOURCE=shtml` for PHP |
-
-In **`shtml`** mode: no NWS HTTP calls, no reading `result_*.json` prefetch files, no background prefetch trigger. **`prefetch.php` exits immediately** (nothing to warm). Products that have no matching file under `/shtml/` simply contribute no data (High Seas has no bundled local filenames today).
-
-In **`nws`** mode: `fetchProductContent` tries the API first, then falls back to the paired `/shtml/` file when provided.
-
 ## File structure
 
 ```

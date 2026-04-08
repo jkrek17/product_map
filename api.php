@@ -5,31 +5,15 @@ umask(0022);
 /**
  * OPC Weather Map - Live Data API
  *
- * Data source (see MARINE_DATA_SOURCE below):
- *   nws   — api.weather.gov, with optional prefetch JSON + per-product cache; /shtml/ fallback if a fetch fails
- *   shtml — only files under $LOCAL_DATA_DIR (no API, no prefetch result cache)
+ * Data source priority for every product:
+ *   1. NWS public API  (api.weather.gov) — live, cached locally for 15 min
+ *   2. Local /shtml/ files              — fallback if API unreachable
  */
 
 // =============================================================================
 // CONFIGURATION
 // =============================================================================
 $LOCAL_DATA_DIR = $_SERVER['DOCUMENT_ROOT'] . "/shtml";
-
-// Data source: 'nws' (api.weather.gov + cache) or 'shtml' (files in $LOCAL_DATA_DIR only).
-// Easiest flip: uncomment ONE line below (overrides environment).
-// define('MARINE_DATA_SOURCE', 'nws');
-// define('MARINE_DATA_SOURCE', 'shtml');
-if (!defined('MARINE_DATA_SOURCE')) {
-    $mds = getenv('MARINE_DATA_SOURCE');
-    define('MARINE_DATA_SOURCE', ($mds !== false && $mds !== '') ? $mds : 'nws');
-}
-
-/**
- * @return bool true when forecasts are read only from $LOCAL_DATA_DIR (no NWS API)
- */
-function marineDataSourceIsLocal() {
-    return strtolower(trim((string) MARINE_DATA_SOURCE)) === 'shtml';
-}
 
 // NWS API settings
 if (!defined('NWS_API_BASE'))   define('NWS_API_BASE',   'https://api.weather.gov');
@@ -145,10 +129,6 @@ function nwsGetProductText($productId) {
  * Falls back to $localFilepath if the API is unreachable or returns nothing.
  */
 function fetchProductContent($type, $office, $matchStr, $localFilepath = null) {
-    if (marineDataSourceIsLocal()) {
-        return $localFilepath ? (readLocalFile($localFilepath) ?: null) : null;
-    }
-
     // Per-product cache (keyed by type+office+match)
     $cacheKey  = strtolower("{$type}_{$office}" . ($matchStr ? "_{$matchStr}" : ''));
     $cacheFile = nwsCacheDir() . '/match_' . md5($cacheKey) . '.txt';
@@ -1151,8 +1131,6 @@ function setResultCache($type, $resultFiles, $data) {
  * next request gets fresh data after prefetch completes.
  */
 function triggerBackgroundPrefetch() {
-    if (marineDataSourceIsLocal()) return;
-
     $lockFile = NWS_CACHE_DIR . '/prefetch.lock';
     // Don't trigger if a prefetch is already running
     if (file_exists($lockFile) && (time() - filemtime($lockFile)) < 300) return;
@@ -1180,8 +1158,6 @@ if ($type === 'diagnose') {
     $diagnostics = array(
         'php_version' => PHP_VERSION,
         'server_time' => date('Y-m-d H:i:s T'),
-        'marine_data_source' => MARINE_DATA_SOURCE,
-        'marine_data_source_local_only' => marineDataSourceIsLocal(),
         'local_data_dir' => $LOCAL_DATA_DIR,
         'local_data_dir_exists' => is_dir($LOCAL_DATA_DIR),
         'offshore_files' => array(),
@@ -1219,16 +1195,14 @@ if ($type === 'diagnose') {
 }
 
 if ($type === 'offshore') {
-    if (!marineDataSourceIsLocal()) {
-        $cached = getResultCache('offshore', $RESULT_FILES);
-        if ($cached) { echo $cached; exit; }
-        // Stale-while-revalidate: serve existing data instantly, refresh in background
-        triggerBackgroundPrefetch();
-        $stale = getStaleResultCache('offshore', $RESULT_FILES);
-        if ($stale) { echo $stale; exit; }
-    }
+    $cached = getResultCache('offshore', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    // Stale-while-revalidate: serve existing data instantly, refresh in background
+    triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('offshore', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
-    debugLog("Loading offshore data", array('source' => marineDataSourceIsLocal() ? 'shtml' : 'nws'));
+    debugLog("Loading offshore data (NWS API → local fallback)");
     $allForecasts = array();
 
     foreach ($OFFSHORE_FILES as $product => $filename) {
@@ -1245,21 +1219,19 @@ if ($type === 'offshore') {
     }
 
     debugLog("Offshore complete", array('total' => count($allForecasts)));
-    if (!$DEBUG && !marineDataSourceIsLocal()) setResultCache('offshore', $RESULT_FILES, $allForecasts);
+    if (!$DEBUG) setResultCache('offshore', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'navtex') {
-    if (!marineDataSourceIsLocal()) {
-        $cached = getResultCache('navtex', $RESULT_FILES);
-        if ($cached) { echo $cached; exit; }
-        triggerBackgroundPrefetch();
-        $stale = getStaleResultCache('navtex', $RESULT_FILES);
-        if ($stale) { echo $stale; exit; }
-    }
+    $cached = getResultCache('navtex', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('navtex', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
-    debugLog("Loading NAVTEX data", array('source' => marineDataSourceIsLocal() ? 'shtml' : 'nws'));
+    debugLog("Loading NAVTEX data (NWS API → local fallback)");
     $allForecasts = array();
 
     foreach ($NAVTEX_FILES as $product => $filename) {
@@ -1276,21 +1248,19 @@ if ($type === 'offshore') {
     }
 
     debugLog("NAVTEX complete", array('total' => count($allForecasts)));
-    if (!$DEBUG && !marineDataSourceIsLocal()) setResultCache('navtex', $RESULT_FILES, $allForecasts);
+    if (!$DEBUG) setResultCache('navtex', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'coastal') {
-    if (!marineDataSourceIsLocal()) {
-        $cached = getResultCache('coastal', $RESULT_FILES);
-        if ($cached) { echo $cached; exit; }
-        triggerBackgroundPrefetch();
-        $stale = getStaleResultCache('coastal', $RESULT_FILES);
-        if ($stale) { echo $stale; exit; }
-    }
+    $cached = getResultCache('coastal', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('coastal', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
-    debugLog("Loading coastal data", array('source' => marineDataSourceIsLocal() ? 'shtml' : 'nws'));
+    debugLog("Loading coastal data (NWS API → local fallback)");
     $allForecasts = array();
 
     foreach ($COASTAL_FILES as $wfo => $filename) {
@@ -1342,21 +1312,19 @@ if ($type === 'offshore') {
     }
 
     debugLog("Coastal complete", array('total' => count($allForecasts)));
-    if (!$DEBUG && !marineDataSourceIsLocal()) setResultCache('coastal', $RESULT_FILES, $allForecasts);
+    if (!$DEBUG) setResultCache('coastal', $RESULT_FILES, $allForecasts);
     echo $DEBUG
         ? json_encode(array('debug' => $debugLog, 'data' => $allForecasts))
         : json_encode($allForecasts);
 
 } elseif ($type === 'highseas') {
-    if (!marineDataSourceIsLocal()) {
-        $cached = getResultCache('highseas', $RESULT_FILES);
-        if ($cached) { echo $cached; exit; }
-        triggerBackgroundPrefetch();
-        $stale = getStaleResultCache('highseas', $RESULT_FILES);
-        if ($stale) { echo $stale; exit; }
-    }
+    $cached = getResultCache('highseas', $RESULT_FILES);
+    if ($cached) { echo $cached; exit; }
+    triggerBackgroundPrefetch();
+    $stale = getStaleResultCache('highseas', $RESULT_FILES);
+    if ($stale) { echo $stale; exit; }
 
-    debugLog("Loading high seas data", array('source' => marineDataSourceIsLocal() ? 'shtml' : 'nws'));
+    debugLog("Loading high seas data (NWS API → local fallback)");
 
     // Extract issue time from product text
     function extractIssueTime($text) {
@@ -1382,8 +1350,7 @@ if ($type === 'offshore') {
     $allForecasts = array();
     foreach ($highSeasZones as $zone) {
         $cfg  = $zone['api'];
-        // No stable shtml filenames for HSF in repo — local mode returns [] unless you add files and extend this block
-        $text = fetchProductContent($cfg[0], $cfg[1], $cfg[2], null);
+        $text = fetchProductContent($cfg[0], $cfg[1], $cfg[2]);
         if ($text) {
             $allForecasts[] = array(
                 'zone'    => $zone['id'],

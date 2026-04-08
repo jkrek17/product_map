@@ -962,20 +962,27 @@
         /**
          * UI toggles: edit assets/ui-config.json to show or hide dropdown entries.
          * Hidden options stay in the DOM so ?product=coastal and ?basin=hawaii still work.
+         * map.excludeZoneIdPrefixes: zone IDs starting with any of these strings are not drawn.
+         * Use [] to plot all zones (including Hawaii PHZ* and Alaska PKZ*).
          */
         var UI_CONFIG_FALLBACK = {
             products: { coastal: { showInDropdown: false } },
-            regions: { hawaii: { showInDropdown: false }, alaska: { showInDropdown: false } }
+            regions: { hawaii: { showInDropdown: false }, alaska: { showInDropdown: false } },
+            map: { excludeZoneIdPrefixes: ['PHZ', 'PKZ'] }
         };
+
+        var activeUiConfig = null;
 
         function mergeUiConfig(fetched) {
             var o = Object.assign({}, UI_CONFIG_FALLBACK, fetched || {});
             o.products = Object.assign({}, UI_CONFIG_FALLBACK.products, (fetched && fetched.products) || {});
             o.regions = Object.assign({}, UI_CONFIG_FALLBACK.regions, (fetched && fetched.regions) || {});
+            o.map = Object.assign({}, UI_CONFIG_FALLBACK.map, (fetched && fetched.map) || {});
             return o;
         }
 
         function applyUiConfig(cfg) {
+            activeUiConfig = cfg;
             var pc = (cfg.products && cfg.products.coastal) || {};
             var optCoastal = document.querySelector('#product option[value="coastal"]');
             if (optCoastal) optCoastal.hidden = pc.showInDropdown === false;
@@ -986,6 +993,23 @@
             var optAk = document.querySelector('#basin option[value="alaska"]');
             if (optHi) optHi.hidden = rh.showInDropdown === false;
             if (optAk) optAk.hidden = ra.showInDropdown === false;
+        }
+
+        function filterGeoJsonForMap(geoJson, idField) {
+            if (!geoJson || !geoJson.features || !geoJson.features.length) return geoJson;
+            var cfg = activeUiConfig || mergeUiConfig(null);
+            var prefixes = (cfg.map && cfg.map.excludeZoneIdPrefixes) || [];
+            if (!prefixes.length) return geoJson;
+            var field = idField || 'ID';
+            var features = geoJson.features.filter(function(feature) {
+                var z = String(feature.properties[field] || feature.properties.ID || feature.properties.id || feature.properties.Name || '');
+                if (!z) return true;
+                for (var i = 0; i < prefixes.length; i++) {
+                    if (z.indexOf(prefixes[i]) === 0) return false;
+                }
+                return true;
+            });
+            return { type: geoJson.type, features: features };
         }
 
         // URL Parameter functions for bookmarkable URLs
@@ -1199,6 +1223,7 @@
         }
 
         function displayZones(geoJson, idField) {
+            geoJson = filterGeoJsonForMap(geoJson, idField);
             zonesLayer.clearLayers();
             selectedLayer  = null;
             activeGeoLayer = null;

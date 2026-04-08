@@ -959,6 +959,35 @@
         var currentZone = null;
         var pendingZoneFromUrl = null;
 
+        /**
+         * UI toggles: edit assets/ui-config.json to show or hide dropdown entries.
+         * Hidden options stay in the DOM so ?product=coastal and ?basin=hawaii still work.
+         */
+        var UI_CONFIG_FALLBACK = {
+            products: { coastal: { showInDropdown: false } },
+            regions: { hawaii: { showInDropdown: false }, alaska: { showInDropdown: false } }
+        };
+
+        function mergeUiConfig(fetched) {
+            var o = Object.assign({}, UI_CONFIG_FALLBACK, fetched || {});
+            o.products = Object.assign({}, UI_CONFIG_FALLBACK.products, (fetched && fetched.products) || {});
+            o.regions = Object.assign({}, UI_CONFIG_FALLBACK.regions, (fetched && fetched.regions) || {});
+            return o;
+        }
+
+        function applyUiConfig(cfg) {
+            var pc = (cfg.products && cfg.products.coastal) || {};
+            var optCoastal = document.querySelector('#product option[value="coastal"]');
+            if (optCoastal) optCoastal.hidden = pc.showInDropdown === false;
+
+            var rh = (cfg.regions && cfg.regions.hawaii) || {};
+            var ra = (cfg.regions && cfg.regions.alaska) || {};
+            var optHi = document.querySelector('#basin option[value="hawaii"]');
+            var optAk = document.querySelector('#basin option[value="alaska"]');
+            if (optHi) optHi.hidden = rh.showInDropdown === false;
+            if (optAk) optAk.hidden = ra.showInDropdown === false;
+        }
+
         // URL Parameter functions for bookmarkable URLs
         function getUrlParams() {
             var params = {};
@@ -1414,89 +1443,96 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
-            // Parse URL parameters
-            var params = getUrlParams();
+            function finishInit() {
+                // Parse URL parameters
+                var params = getUrlParams();
 
-            var validProducts = ['offshore', 'coastal', 'navtex', 'highseas'];
-            if (params.product && validProducts.indexOf(params.product) !== -1) {
-                document.getElementById('product').value = params.product;
-            }
-            var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific', 'hawaii', 'alaska', 'greatlakes'];
-            if (params.basin && validBasins.indexOf(params.basin) !== -1) {
-                document.getElementById('basin').value = params.basin;
-            }
-            if (params.zone) {
-                pendingZoneFromUrl = params.zone;
-            }
-            
-            initMap();
-            updateLegend(); // Start with only "No Warning" visible until data loads
+                var validProducts = ['offshore', 'coastal', 'navtex', 'highseas'];
+                if (params.product && validProducts.indexOf(params.product) !== -1) {
+                    document.getElementById('product').value = params.product;
+                }
+                var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific', 'hawaii', 'alaska', 'greatlakes'];
+                if (params.basin && validBasins.indexOf(params.basin) !== -1) {
+                    document.getElementById('basin').value = params.basin;
+                }
+                if (params.zone) {
+                    pendingZoneFromUrl = params.zone;
+                }
 
-            // Set initial map view based on basin
-            var basin = document.getElementById('basin').value;
-            if      (basin === 'gulf')       map.setView([25, -90],  5);
-            else if (basin === 'tropical')   map.setView([18, -68],  5);
-            else if (basin === 'pacific')    map.setView([20, -108], 5);
-            else if (basin === 'hawaii')     map.setView([22, -158], 6);
-            else if (basin === 'alaska')     map.setView([60, -153], 5);
-            else if (basin === 'greatlakes') map.setView([44, -85],  6);
-            
-            document.getElementById('basin').addEventListener('change', changeBasin);
-            document.getElementById('product').addEventListener('change', function() {
-                currentZone = null;
-                pendingZoneFromUrl = null;
-                updateUrl(null, document.getElementById('product').value, document.getElementById('basin').value);
-                loadForecastData();
-            });
-            document.getElementById('refreshBtn').addEventListener('click', refreshData);
-            
-            // Share button - copy URL to clipboard
-            document.getElementById('shareBtn').addEventListener('click', function() {
-                var btn = this;
-                var originalText = btn.textContent;
-                navigator.clipboard.writeText(window.location.href).then(function() {
-                    btn.textContent = 'Link Copied!';
-                    setTimeout(function() { btn.textContent = originalText; }, 2000);
-                }).catch(function() {
-                    // Fallback for older browsers
-                    prompt('Copy this link:', window.location.href);
-                });
-            });
-            
-            // About modal
-            var aboutModal = document.getElementById('aboutModal');
-            document.getElementById('aboutBtn').addEventListener('click', function() {
-                aboutModal.classList.add('open');
-            });
-            document.getElementById('modalClose').addEventListener('click', function() {
-                aboutModal.classList.remove('open');
-            });
-            aboutModal.addEventListener('click', function(e) {
-                if (e.target === aboutModal) {
-                    aboutModal.classList.remove('open');
-                }
-            });
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
-                    aboutModal.classList.remove('open');
-                }
-            });
-            
-            // Mobile toggle
-            document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
-            
-            // Handle browser back/forward
-            window.addEventListener('popstate', function(event) {
-                if (event.state) {
-                    if (event.state.product) document.getElementById('product').value = event.state.product;
-                    if (event.state.basin) document.getElementById('basin').value = event.state.basin;
-                    pendingZoneFromUrl = event.state.zone || null;
+                initMap();
+                updateLegend(); // Start with only "No Warning" visible until data loads
+
+                // Set initial map view based on basin
+                var basin = document.getElementById('basin').value;
+                if      (basin === 'gulf')       map.setView([25, -90],  5);
+                else if (basin === 'tropical')   map.setView([18, -68],  5);
+                else if (basin === 'pacific')    map.setView([20, -108], 5);
+                else if (basin === 'hawaii')     map.setView([22, -158], 6);
+                else if (basin === 'alaska')     map.setView([60, -153], 5);
+                else if (basin === 'greatlakes') map.setView([44, -85],  6);
+
+                document.getElementById('basin').addEventListener('change', changeBasin);
+                document.getElementById('product').addEventListener('change', function() {
+                    currentZone = null;
+                    pendingZoneFromUrl = null;
+                    updateUrl(null, document.getElementById('product').value, document.getElementById('basin').value);
                     loadForecastData();
-                }
-            });
-            
-            console.log('[DEBUG] Map initialized, loading forecast data...');
-            loadForecastData();
+                });
+                document.getElementById('refreshBtn').addEventListener('click', refreshData);
+
+                // Share button - copy URL to clipboard
+                document.getElementById('shareBtn').addEventListener('click', function() {
+                    var btn = this;
+                    var originalText = btn.textContent;
+                    navigator.clipboard.writeText(window.location.href).then(function() {
+                        btn.textContent = 'Link Copied!';
+                        setTimeout(function() { btn.textContent = originalText; }, 2000);
+                    }).catch(function() {
+                        prompt('Copy this link:', window.location.href);
+                    });
+                });
+
+                // About modal
+                var aboutModal = document.getElementById('aboutModal');
+                document.getElementById('aboutBtn').addEventListener('click', function() {
+                    aboutModal.classList.add('open');
+                });
+                document.getElementById('modalClose').addEventListener('click', function() {
+                    aboutModal.classList.remove('open');
+                });
+                aboutModal.addEventListener('click', function(e) {
+                    if (e.target === aboutModal) {
+                        aboutModal.classList.remove('open');
+                    }
+                });
+                document.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape' && aboutModal.classList.contains('open')) {
+                        aboutModal.classList.remove('open');
+                    }
+                });
+
+                // Mobile toggle
+                document.getElementById('mobileToggle').addEventListener('click', toggleSidebar);
+
+                // Handle browser back/forward
+                window.addEventListener('popstate', function(event) {
+                    if (event.state) {
+                        if (event.state.product) document.getElementById('product').value = event.state.product;
+                        if (event.state.basin) document.getElementById('basin').value = event.state.basin;
+                        pendingZoneFromUrl = event.state.zone || null;
+                        loadForecastData();
+                    }
+                });
+
+                console.log('[DEBUG] Map initialized, loading forecast data...');
+                loadForecastData();
+            }
+
+            fetch('assets/ui-config.json')
+                .then(function(r) { return r.ok ? r.json() : Promise.reject(); })
+                .then(function(data) { applyUiConfig(mergeUiConfig(data)); })
+                .catch(function() { applyUiConfig(mergeUiConfig(null)); })
+                .then(finishInit);
         });
     </script>
 </body>

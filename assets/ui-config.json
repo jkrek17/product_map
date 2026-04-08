@@ -1,0 +1,9 @@
+{
+  "products": {
+    "coastal": { "showInDropdown": false }
+  },
+  "regions": {
+    "hawaii": { "showInDropdown": false },
+    "alaska": { "showInDropdown": false }
+  }
+}

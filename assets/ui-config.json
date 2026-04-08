@@ -4,7 +4,8 @@
   },
   "regions": {
     "hawaii": { "showInDropdown": false },
-    "alaska": { "showInDropdown": false }
+    "alaska": { "showInDropdown": false },
+    "greatlakes": { "showInDropdown": false }
   },
   "map": {
     "excludeZoneIdPrefixes": ["PHZ", "PKZ"]

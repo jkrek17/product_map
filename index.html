@@ -966,13 +966,17 @@
 
         /**
          * UI toggles: edit assets/ui-config.json to show or hide dropdown entries.
-         * Hidden options stay in the DOM so ?product=coastal and ?basin=hawaii still work.
+         * Hidden options stay in the DOM so bookmark URLs (?basin=greatlakes, etc.) still work.
          * map.excludeZoneIdPrefixes: zone IDs starting with any of these strings are not drawn.
          * Use [] to plot all zones (including Hawaii PHZ* and Alaska PKZ*).
          */
         var UI_CONFIG_FALLBACK = {
             products: { coastal: { showInDropdown: false } },
-            regions: { hawaii: { showInDropdown: false }, alaska: { showInDropdown: false } },
+            regions: {
+                hawaii: { showInDropdown: false },
+                alaska: { showInDropdown: false },
+                greatlakes: { showInDropdown: false }
+            },
             map: { excludeZoneIdPrefixes: ['PHZ', 'PKZ'] }
         };
 
@@ -994,10 +998,13 @@
 
             var rh = (cfg.regions && cfg.regions.hawaii) || {};
             var ra = (cfg.regions && cfg.regions.alaska) || {};
+            var rgl = (cfg.regions && cfg.regions.greatlakes) || {};
             var optHi = document.querySelector('#basin option[value="hawaii"]');
             var optAk = document.querySelector('#basin option[value="alaska"]');
+            var optGl = document.querySelector('#basin option[value="greatlakes"]');
             if (optHi) optHi.hidden = rh.showInDropdown === false;
             if (optAk) optAk.hidden = ra.showInDropdown === false;
+            if (optGl) optGl.hidden = rgl.showInDropdown === false;
         }
 
         function filterGeoJsonForMap(geoJson, idField) {

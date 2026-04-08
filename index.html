@@ -808,7 +808,9 @@
                 <label for="product">Product:</label>
                 <select id="product">
                     <option value="offshore">Offshore Forecasts</option>
+                    <!-- <option value="coastal">Coastal</option> -->
                     <option value="navtex">NAVTEX</option>
+                    <option value="high_seas">High Seas</option>
                 </select>
             </div>
             <button type="button" id="refreshBtn">Refresh Data</button>
@@ -982,6 +984,23 @@
             return '#808080';
         }
 
+        /** Nearshore zones (same rule as api.php isCoastalOffshoreZoneId): PZZ 800–840; ANZ 100 NM band */
+        function isCoastalOffshoreZoneId(zoneId) {
+            var m = /^PZZ(\d{3})$/.exec(zoneId);
+            if (m) {
+                var n = parseInt(m[1], 10);
+                return n >= 800 && n <= 840;
+            }
+            return zoneId === 'ANZ825' || zoneId === 'ANZ828' || zoneId === 'ANZ830' || zoneId === 'ANZ833';
+        }
+
+        function getApiProductType() {
+            var p = document.getElementById('product').value;
+            if (p === 'high_seas') return 'high_seas';
+            if (p === 'navtex') return 'navtex';
+            return 'offshore';
+        }
+
         function initMap() {
             map = L.map('map', { zoomControl: true }).setView([38, -72], 5);
 
@@ -1029,6 +1048,15 @@
                         }
                     }
                     var geoJson = JSON.parse(text);
+                    if (product === 'high_seas' && geoJson.features) {
+                        geoJson = {
+                            type: geoJson.type,
+                            features: geoJson.features.filter(function(f) {
+                                var z = f.properties[idField] || f.properties.ID || f.properties.Name;
+                                return !isCoastalOffshoreZoneId(z);
+                            })
+                        };
+                    }
                     console.log('[DEBUG] GeoJSON parsed successfully');
                     console.log('[DEBUG] GeoJSON type:', geoJson.type);
                     console.log('[DEBUG] GeoJSON features count:', geoJson.features ? geoJson.features.length : 'N/A');
@@ -1132,7 +1160,7 @@
 
         function loadForecastData() {
             var product = document.getElementById('product').value;
-            var apiUrl = 'api.php?type=' + product;
+            var apiUrl = 'api.php?type=' + getApiProductType();
 
             console.log('[DEBUG] loadForecastData() called');
             console.log('[DEBUG] Product type:', product);
@@ -1163,6 +1191,11 @@
                         console.warn('[DEBUG] WARNING: Data is empty or null!');
                     }
                     forecastData = data;
+                    if (product === 'high_seas' && Array.isArray(forecastData)) {
+                        forecastData = forecastData.filter(function(row) {
+                            return !isCoastalOffshoreZoneId(row.zone);
+                        });
+                    }
                     console.log('[DEBUG] Calling loadZones()...');
                     loadZones();
                     document.getElementById('forecastPanel').innerHTML =
@@ -1187,6 +1220,11 @@
                                 console.log('[DEBUG] Static data first item:', JSON.stringify(data[0], null, 2));
                             }
                             forecastData = data;
+                            if (product === 'high_seas' && Array.isArray(forecastData)) {
+                                forecastData = forecastData.filter(function(row) {
+                                    return !isCoastalOffshoreZoneId(row.zone);
+                                });
+                            }
                             loadZones();
                         })
                         .catch(function(staticError) {
@@ -1318,7 +1356,7 @@
             btn.disabled = true;
 
             var product = document.getElementById('product').value;
-            var apiUrl = 'api.php?type=' + product + '&t=' + Date.now();
+            var apiUrl = 'api.php?type=' + getApiProductType() + '&t=' + Date.now();
             console.log('[DEBUG] Refresh API URL:', apiUrl);
 
             fetch(apiUrl)
@@ -1334,6 +1372,12 @@
                         console.log('[DEBUG] Refresh first item:', JSON.stringify(data[0], null, 2));
                     }
                     forecastData = data;
+                    var selProduct = document.getElementById('product').value;
+                    if (selProduct === 'high_seas' && Array.isArray(forecastData)) {
+                        forecastData = forecastData.filter(function(row) {
+                            return !isCoastalOffshoreZoneId(row.zone);
+                        });
+                    }
                     loadZones();
                     btn.textContent = 'Refresh Data';
                     btn.disabled = false;
@@ -1360,8 +1404,11 @@
             console.log('[DEBUG] URL parameters:', JSON.stringify(params));
             
             // Set product and basin from URL if provided
-            if (params.product && (params.product === 'offshore' || params.product === 'navtex')) {
-                document.getElementById('product').value = params.product;
+            if (params.product) {
+                var urlProduct = params.product === 'coastal' ? 'offshore' : params.product;
+                if (urlProduct === 'offshore' || urlProduct === 'navtex' || urlProduct === 'high_seas') {
+                    document.getElementById('product').value = urlProduct;
+                }
             }
             var validBasins = ['atlantic', 'gulf', 'tropical', 'pacific']; // 'hawaii', 'alaska' disabled
             if (params.basin && validBasins.indexOf(params.basin) !== -1) {

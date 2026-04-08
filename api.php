@@ -305,6 +305,18 @@ $NAVTEX_ZONES = array(
 );
 
 /**
+ * Nearshore / "coastal" offshore zones (matches $ZONE_NAMES: PZZ out to 60 NM; ANZ 100 NM band).
+ * Used to filter type=high_seas; keep in sync if zone sets change.
+ */
+function isCoastalOffshoreZoneId($zoneId) {
+    if (preg_match('/^PZZ(\d{3})$/', $zoneId, $m)) {
+        $n = intval($m[1]);
+        return $n >= 800 && $n <= 840;
+    }
+    return in_array($zoneId, array('ANZ825', 'ANZ828', 'ANZ830', 'ANZ833'), true);
+}
+
+/**
  * Parse NAVTEX forecast product
  * NAVTEX format uses zone names instead of zone IDs
  */
@@ -679,7 +691,7 @@ if ($type === 'diagnose') {
     exit;
 }
 
-if ($type === 'offshore') {
+if ($type === 'offshore' || $type === 'high_seas') {
     // Read and parse offshore data from local NWS text files
     debugLog("Loading offshore data from local files", $LOCAL_DATA_DIR);
     $allForecasts = array();
@@ -699,7 +711,13 @@ if ($type === 'offshore') {
         }
     }
     
-    debugLog("All offshore data loaded", array('total_forecasts' => count($allForecasts)));
+    if ($type === 'high_seas') {
+        $allForecasts = array_values(array_filter($allForecasts, function ($row) {
+            return !isCoastalOffshoreZoneId($row['zone']);
+        }));
+    }
+    
+    debugLog("All offshore data loaded", array('total_forecasts' => count($allForecasts), 'type' => $type));
     
     // If debug mode, include debug log in response
     if ($DEBUG) {

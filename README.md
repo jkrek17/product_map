@@ -1,83 +1,85 @@
-# OPC Weather Map
+# NWS Marine Weather Map
 
-Interactive marine weather forecast visualization from the NOAA Ocean Prediction Center. Displays offshore forecast zones color-coded by active weather warnings.
+Interactive marine forecast map: offshore zones, coastal (CWF), NAVTEX, and high seas, with zones colored by active marine warnings. Data is loaded from the **NWS API** (`api.weather.gov`) with local caching and optional fallback to text files under `/shtml/`.
 
 ## Features
 
-- **Live Data**: Fetches real-time forecasts from NWS Ocean Prediction Center
-- **Interactive Map**: Leaflet-based map with offshore forecast zones
-- **Warning Visualization**: Zones color-coded by warning severity:
-  - Red: Hurricane Force Wind Warning
-  - Orange: Storm Warning / Tropical Storm Warning
-  - Yellow: Gale Warning
-  - Pink: Gale Force Possible
-  - Purple: Storm Force Possible
-  - Gray: No Warning
-- **Forecast Details**: Click any zone to view detailed forecast text
-- **Wind & Wave Charts**: Time series visualization of conditions
-- **Multiple Products**: Offshore, NAVTEX, and Navy forecasts
-- **Region Selection**: Western Atlantic and Eastern Pacific
+- **Products** (dropdown): **Offshore**, **Coastal**, **NAVTEX**, **High Seas** — each uses the matching zone layer (GeoJSON or TopoJSON).
+- **Regions**: Atlantic, Gulf/Caribbean, Tropical Atlantic, Pacific, plus optional Hawaii, Alaska, Great Lakes (some can be hidden via config; see below).
+- **Warnings**: Broad set of NWS marine/advisory colors (gale, storm, hurricane, small craft, tsunami, etc.); legend entries show only warnings present in the current dataset.
+- **Forecast panel**: Click a zone for text; **wind/wave chart** (Chart.js) for products that expose period-based wind/seas — hidden for **High Seas** (raw text only).
+- **Basemap**: Esri Ocean Base + Reference; **US state outlines** (Natural Earth 1:110m, light stroke under zones).
+- **UI configuration**: `assets/ui-config.json` controls dropdown visibility for products/regions and optional **map exclusion** of zone ID prefixes (e.g. Hawaiian `PHZ*` / Alaskan `PKZ*` polygons). Options stay in the DOM when hidden so bookmark URLs still work.
 
 ## Pages
 
-- `index.html` - Main offshore and NAVTEX forecast map
-- `navy.html` - Navy OPAREA forecasts
+| File | Purpose |
+|------|---------|
+| `index.html` | Main marine map (all products above) |
+| `navy.html` | Navy OPAREA forecasts (separate UI) |
 
-## API Endpoints
+## API (`api.php`)
 
-`api.php` serves forecast data:
+JSON forecast arrays. Primary source: **NWS API**, with responses cached under `cache/`. Add `&debug=1` for diagnostic payloads where supported.
 
-- `api.php?type=offshore` - Offshore forecasts
-- `api.php?type=navtex` - NAVTEX forecasts
-- `api.php?type=diagnose` - Check data file status
-- Add `&debug=1` to any request for detailed debug info
+| Query | Description |
+|-------|-------------|
+| `api.php?type=offshore` | OPC/NHC offshore waters (OFF products) |
+| `api.php?type=coastal` | Coastal Forecast (CWF) plus related marine zones |
+| `api.php?type=navtex` | NAVTEX-style OFF products |
+| `api.php?type=highseas` | High Seas Forecast (HSF) |
+| `api.php?type=diagnose` | Local file / connectivity checks |
 
-## Data Sources
+**Prefetch:** `prefetch.php` can refresh cached JSON in the background (see script header for cron / `exec` / URL options). Ensures fast reads when the cache is warm.
 
-Forecast data from NOAA Ocean Prediction Center:
+## Configuration
 
-**Offshore Forecasts:**
-- NT1: https://ocean.weather.gov/shtml/NFDOFFNT1.txt (Georges Bank, Gulf of Maine)
-- NT2: https://ocean.weather.gov/shtml/NFDOFFNT2.txt (Mid-Atlantic, South Atlantic)
-- PZ5: https://ocean.weather.gov/shtml/NFDOFFPZ5.txt (Northern California)
-- PZ6: https://ocean.weather.gov/shtml/NFDOFFPZ6.txt (Southern California, Pacific Northwest)
+- **`assets/ui-config.json`** — `products.*.showInDropdown`, `regions.*.showInDropdown`, `map.excludeZoneIdPrefixes`.
+- **`api.php`** (top) — `$LOCAL_DATA_DIR`, NWS cache TTL, user agent.
 
-**NAVTEX Forecasts:**
-- N01: https://ocean.weather.gov/shtml/NFDOFFN01.php (New England)
-- N02: https://ocean.weather.gov/shtml/NFDOFFN02.php (Mid-Atlantic)
-- N03: https://ocean.weather.gov/shtml/NFDOFFN03.php (South Atlantic)
-- N07: https://ocean.weather.gov/shtml/NFDOFFN07.php (Southern California)
-- N08: https://ocean.weather.gov/shtml/NFDOFFN08.php (Northern California)
-- N09: https://ocean.weather.gov/shtml/NFDOFFN09.php (Pacific Northwest)
-
-## File Structure
+## File structure
 
 ```
-├── index.html              # Main application
-├── navy.html               # Navy forecasts page
-├── api.php                 # API endpoint for forecast data
-├── getText.php             # Text data fetcher
-├── css/
-│   └── navy.css            # Navy page styles
-├── js/
-│   └── navy.js             # Navy page JavaScript
+├── index.html                 # Main app
+├── navy.html                  # Navy OPAREA page
+├── api.php                    # Forecast JSON API
+├── prefetch.php               # Optional cache warmer
+├── getText.php                # Legacy text fetch helper
+├── get-forecast.php           # PIL-gated plain-text forecast files
+├── cache/                     # NWS + parsed JSON cache (see .gitignore)
 ├── assets/
-│   ├── offshore-forecasts.json  # Offshore forecast data
-│   ├── navtex-forecasts.json    # NAVTEX forecast data
-│   ├── offshores.geojson        # Offshore zone polygons
-│   ├── navtex.geojson           # NAVTEX zone polygons
-│   └── navy.geojson             # Navy OPAREA polygons
-├── libs/
-│   ├── leaflet/            # Leaflet 1.9.4
-│   └── chartjs/            # Chart.js 4.4.1
-└── README.md
+│   ├── ui-config.json         # Dropdown + map filter toggles
+│   ├── us-states-outline.geojson
+│   ├── offshores.geojson
+│   ├── coastal.geojson
+│   ├── navtex.geojson
+│   ├── highseas.topojson      # (and highseas.geojson if present)
+│   ├── offshore-forecasts.json
+│   └── navtex-forecasts.json  # Static fallbacks when API fails
+├── css/ , js/                 # navy.html assets
+└── libs/
+    ├── leaflet/
+    ├── chartjs/
+    └── topojson/              # TopoJSON → GeoJSON for highseas layer
 ```
 
 ## Requirements
 
-- PHP server
-- Modern web browser
+- **PHP** with `allow_url_fopen` or equivalent for HTTPS to `api.weather.gov`
+- **Writable** `cache/` directory for the web server user
+- **Modern browser** (ES5+ bundle in page)
+- Optional: **`/shtml/`** text files as in `api.php` fallback paths
+
+## URLs
+
+Bookmark examples: `?product=offshore&basin=atlantic&zone=ANZ800`, `?product=navtex`, `?product=highseas`.
+
+## Data and credits
+
+- **Forecasts**: [National Weather Service](https://www.weather.gov/) / NOAA (public domain).
+- **State outlines**: [Natural Earth](https://www.naturalearthdata.com/) 1:110m admin-1 (public domain).
+- **Ocean tiles**: Esri Ocean Basemap / Reference (see Esri terms).
 
 ## License
 
-NWS forecast data is in the public domain.
+NWS/NOAA forecast data is in the public domain. Natural Earth data is public domain. Application code follows the repository’s license.

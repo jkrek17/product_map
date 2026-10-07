@@ -49,6 +49,7 @@
         waves: '<path d="M2 9c2.5-2.5 4.5-2.5 7 0s4.5 2.5 7 0 4.5-2.5 6-1"/><path d="M2 15c2.5-2.5 4.5-2.5 7 0s4.5 2.5 7 0 4.5-2.5 6-1"/>',
         wind: '<path d="M3 8h11a3 3 0 1 0-3-3"/><path d="M3 12h16a3 3 0 1 1-3 3"/><path d="M3 16h7"/>',
         gust: '<path d="M3 7h9a2.5 2.5 0 1 0-2.5-2.5"/><path d="M3 12h15a3 3 0 1 1-3 3"/><path d="M3 17h5M12 17h2"/>',
+        none: '<circle cx="12" cy="12" r="8.5"/><path d="M6 18 18 6"/>',
         barb: '<path d="M4 20 18 6"/><path d="m18 6 3 4M15 9l3 4M12 12l1.6 2.2"/><circle cx="4" cy="20" r="1.4" fill="currentColor"/>'
     };
 
@@ -61,13 +62,15 @@
         product: 'waveh',
         opacity: 0.7,
         scale: 1,
-        overlays: { fronts: true, isobars: true, centers: true, warnings: false },
+        overlays: { fronts: true, isobars: true, centers: true, warnings: false, barbs: false },
+        barbColor: 'black',
         playing: false,
         grid: null // last resolved grid time { status, ms }
     };
 
     var map;
     var gridLayer;
+    var barbLayer;
     var popup = null;
     var applySeq = 0;
     var applyTimer = null;
@@ -148,6 +151,7 @@
             var p = JSON.parse(localStorage.getItem(PREFS_KEY) || 'null');
             if (!p) return;
             if (p.product && Ndfd.product(p.product).id === p.product) state.product = p.product;
+            if (p.barbColor === 'black' || p.barbColor === 'white') state.barbColor = p.barbColor;
             if (p.opacity >= 0.2 && p.opacity <= 1) state.opacity = p.opacity;
             if (p.scale >= 0.75 && p.scale <= 2) state.scale = p.scale;
             if (p.overlays) {
@@ -155,13 +159,19 @@
                     if (typeof p.overlays[k] === 'boolean') state.overlays[k] = p.overlays[k];
                 });
             }
+            // Barbs used to be a base grid; keep showing them as the overlay
+            if (p.product === 'wind') {
+                state.product = 'none';
+                state.overlays.barbs = true;
+            }
         } catch (e) { /* storage unavailable: use defaults */ }
     }
 
     function savePrefs() {
         try {
             localStorage.setItem(PREFS_KEY, JSON.stringify({
-                product: state.product, opacity: state.opacity, scale: state.scale, overlays: state.overlays
+                product: state.product, opacity: state.opacity, scale: state.scale, overlays: state.overlays,
+                barbColor: state.barbColor
             }));
         } catch (e) { /* ignore */ }
     }
@@ -334,39 +344,100 @@
     }
 
     // --- NDFD grid ------------------------------------------------------------
+    function baseId() {
+        return state.product === 'none' ? null : state.product;
+    }
+
+    // Layer whose time list drives the timeline's grid row (null: no grid shown)
+    function availId() {
+        return baseId() || (state.overlays.barbs ? Ndfd.BARBS_ID : null);
+    }
+
+    function gridStatus(id, h) {
+        return id ? Ndfd.resolveGridTime(id, validMs(h)).status : 'none';
+    }
+
+    // Show one NDFD layer for the current step -> { grid, result } | { off } | { stale }
+    async function showNdfd(layer, id, ms, seq) {
+        if (!id) {
+            layer.hide();
+            return { off: true };
+        }
+        await Ndfd.loadTimes(id);
+        if (seq !== applySeq) return { stale: true };
+        var grid = Ndfd.resolveGridTime(id, ms);
+        if (grid.status === 'none') {
+            layer.hide();
+            return { grid: grid };
+        }
+        var result = await layer.show(Ndfd.tileUrl(id, grid));
+        return result === 'stale' ? { stale: true } : { grid: grid, result: result };
+    }
+
+    // -> { state, text, title } for one layer's outcome
+    function describe(r, id, label, ms) {
+        if (r.grid.status === 'none') {
+            var range = Ndfd.range(id);
+            var why = !range ? '' : ms < range.first ? 'NDFD keeps no past grids.' : 'NDFD runs to ' + fmtShort(range.last) + '.';
+            return { state: 'none', text: 'No ' + label.toLowerCase(), title: 'No NDFD ' + label.toLowerCase() + ' grid for this valid time. ' + why };
+        }
+        if (r.grid.status === 'unknown') {
+            return { state: 'warn', text: label + ' · unverified', title: 'Grid availability could not be checked; the server may have no grid for this time.' };
+        }
+        if (r.result === 'timeout') {
+            return { state: 'warn', text: label + ' · slow', title: 'The NDFD server is responding slowly; some tiles may be missing.' };
+        }
+        if (r.grid.status === 'nearest') {
+            return { state: 'ok', text: label + ' · ' + fmtShort(r.grid.ms), title: label + ': nearest NDFD grid, valid ' + fmtValid(r.grid.ms) };
+        }
+        return { state: 'ok', text: label, title: label + ' valid ' + fmtValid(r.grid.ms) };
+    }
+
     async function updateGrid(seq) {
         var p = Ndfd.product(state.product);
+        var base = baseId();
+        var barbs = state.overlays.barbs ? Ndfd.BARBS_ID : null;
         var ms = validMs(state.hour);
 
+        if (!base && !barbs) {
+            gridLayer.hide();
+            barbLayer.hide();
+            state.grid = null;
+            setChip('chipGrid', 'none', 'Base grid off', 'No base grid selected');
+            return;
+        }
+
+        var loadingLabel = base ? p.short : 'Barbs';
         // During playback the progress bar suffices; don't flash the chip each frame
-        if (!state.playing) setChip('chipGrid', 'loading', p.short + ' · loading');
+        if (!state.playing) setChip('chipGrid', 'loading', loadingLabel + ' · loading');
         progress(1);
         try {
-            await Ndfd.loadTimes(p.id);
-            if (seq !== applySeq) return;
+            var results = await Promise.all([
+                showNdfd(gridLayer, base, ms, seq),
+                showNdfd(barbLayer, barbs, ms, seq)
+            ]);
+            if (seq !== applySeq || results[0].stale || results[1].stale) return;
+            var b = results[0];
+            var w = results[1];
+            state.grid = (b.grid && b.grid.status !== 'none' ? b.grid : null) ||
+                (w.grid && w.grid.status !== 'none' ? w.grid : null);
 
-            var grid = Ndfd.resolveGridTime(p.id, ms);
-            state.grid = grid;
-            if (grid.status === 'none') {
-                gridLayer.hide();
-                var range = Ndfd.range(p.id);
-                var why = !range ? '' : ms < range.first ? 'NDFD keeps no past grids' : 'NDFD runs to ' + fmtShort(range.last);
-                setChip('chipGrid', 'none', 'No ' + p.short.toLowerCase() + ' grid', 'No NDFD grid for this valid time. ' + why);
+            if (!base) {
+                var only = describe(w, barbs, 'Barbs', ms);
+                setChip('chipGrid', only.state, only.text, only.title);
                 return;
             }
-
-            var result = await gridLayer.show(Ndfd.tileUrl(p.id, grid));
-            if (result === 'stale' || seq !== applySeq) return;
-
-            if (grid.status === 'unknown') {
-                setChip('chipGrid', 'warn', p.short + ' · unverified', 'Grid availability could not be checked; the server may have no grid for this time.');
-            } else if (result === 'timeout') {
-                setChip('chipGrid', 'warn', p.short + ' · slow', 'The NDFD server is responding slowly; some tiles may be missing.');
-            } else if (grid.status === 'nearest') {
-                setChip('chipGrid', 'ok', p.short + ' · ' + fmtShort(grid.ms), 'Nearest NDFD grid: valid ' + fmtValid(grid.ms));
-            } else {
-                setChip('chipGrid', 'ok', p.name);
+            var d = describe(b, base, barbs ? p.short : p.name, ms);
+            if (!barbs) {
+                setChip('chipGrid', d.state, d.text, d.title);
+                return;
             }
+            var wd = describe(w, barbs, 'Barbs', ms);
+            var text = d.state === 'none' && wd.state === 'none' ? 'No grid' :
+                d.text + (wd.state === 'none' ? ' · no barbs' : ' + barbs');
+            var chipState = d.state === 'none' && wd.state !== 'none' ? wd.state :
+                d.state === 'ok' && wd.state === 'warn' ? 'warn' : d.state;
+            setChip('chipGrid', chipState, text, d.title + ' ' + wd.title);
         } finally {
             progress(-1);
         }
@@ -409,8 +480,7 @@
     }
 
     function hasAnything(h) {
-        var g = Ndfd.resolveGridTime(state.product, validMs(h)).status;
-        return g !== 'none' || !!frontsSource(h);
+        return gridStatus(availId(), h) !== 'none' || !!frontsSource(h);
     }
 
     function nextPlayable(h) {
@@ -494,7 +564,7 @@
         var avail = $('tlAvail');
         avail.innerHTML = '';
         for (var h = MIN_H; h <= MAX_H; h += STEP_H) {
-            var g = Ndfd.resolveGridTime(state.product, validMs(h)).status;
+            var g = gridStatus(availId(), h);
             var seg = document.createElement('div');
             seg.className = 'seg seg-' + ({ exact: 'on', nearest: 'near', none: 'off', unknown: 'unk' }[g]);
             var left = Math.max(0, pct(h - STEP_H / 2));
@@ -526,19 +596,28 @@
         '<g transform="translate(150 26)"><circle r="2" fill="currentColor"/><path d="M0 0 32 0"/><path d="M32 0 28 -12 24 0Z" fill="currentColor"/></g>' +
         '</svg><div class="barb-labels"><span>5 kt</span><span>10 kt</span><span>50 kt</span></div>';
 
+    function legendHead(name, unit) {
+        return '<div class="legend-head"><span>' + escapeHtml(name) + '</span><span class="unit">' + unit + '</span></div>';
+    }
+
     async function renderLegend() {
         var p = Ndfd.product(state.product);
         var el = $('legend');
-        var head = '<div class="legend-head"><span>' + escapeHtml(p.name) + '</span><span class="unit">' + p.unit + '</span></div>';
-        if (p.legend === 'barbs') {
-            el.innerHTML = head + BARB_KEY;
+        var barbs = state.overlays.barbs ? '<div class="legend-barbs">' + legendHead('Wind barbs', 'kt') + BARB_KEY + '</div>' : '';
+        if (!baseId()) {
+            el.hidden = !barbs;
+            el.innerHTML = barbs;
             return;
         }
-        el.innerHTML = head + '<div class="legend-bar legend-loading"></div>';
+        el.hidden = false;
+        var head = legendHead(p.name, p.unit);
+        el.innerHTML = head + '<div class="legend-bar legend-loading"></div>' + barbs;
         var stops = await Ndfd.legend(p.id);
         if (state.product !== p.id) return;
+        // Re-read barbs state: it may have been toggled while the legend loaded
+        barbs = state.overlays.barbs ? '<div class="legend-barbs">' + legendHead('Wind barbs', 'kt') + BARB_KEY + '</div>' : '';
         if (!stops) {
-            el.innerHTML = head + '<div class="legend-empty">Legend unavailable</div>';
+            el.innerHTML = head + '<div class="legend-empty">Legend unavailable</div>' + barbs;
             return;
         }
         var n = stops.length;
@@ -551,7 +630,7 @@
             return '<span style="left:' + ((i / (n - 1)) * 100).toFixed(2) + '%">' + s[0] + '</span>';
         }).join('');
         el.innerHTML = head + '<div class="legend-bar" style="background:linear-gradient(90deg,' + gradient + ')"></div>' +
-            '<div class="legend-labels">' + labels + '</div>';
+            '<div class="legend-labels">' + labels + '</div>' + barbs;
     }
 
     // --- Layer panel ------------------------------------------------------------
@@ -587,20 +666,41 @@
         markProduct();
         renderLegend();
         renderAvailability();
-        Ndfd.loadTimes(id).then(function () {
-            if (state.product === id) renderAvailability();
-        });
+        if (baseId()) {
+            Ndfd.loadTimes(id).then(function () {
+                if (state.product === id) renderAvailability();
+            });
+        }
         applyTime();
     }
 
-    function setOverlay(name, on) {
+    function setBarbColor(color) {
+        state.barbColor = color;
+        savePrefs();
+        document.querySelectorAll('[data-barb-color]').forEach(function (b) {
+            b.setAttribute('aria-checked', String(b.dataset.barbColor === color));
+        });
+        // Brightness floor of 1 maps NOAA's black barbs to white
+        if (barbLayer) barbLayer.setPaint('raster-brightness-min', color === 'white' ? 1 : 0);
+    }
+
+    // quiet: don't re-apply the time step (used while initializing)
+    function setOverlay(name, on, quiet) {
         state.overlays[name] = on;
         savePrefs();
         var input = document.querySelector('[data-overlay="' + name + '"]');
         if (input) input.checked = on;
+        if (name === 'barbs') {
+            document.body.classList.toggle('barbs-on', on);
+            renderLegend();
+            renderAvailability();
+        }
         if (!gridLayer) return; // applied in onMapLoad
         if (name === 'warnings') {
             map.setLayoutProperty('warnings', 'visibility', on ? 'visible' : 'none');
+        } else if (name === 'barbs') {
+            if (on) Ndfd.loadTimes(Ndfd.BARBS_ID).then(renderAvailability);
+            if (!quiet) applyTime();
         } else {
             Pgen.setGroupVisible(name, on);
         }
@@ -619,10 +719,12 @@
     function refreshAvailability() {
         if (Date.now() - lastRefresh < 60000) return;
         lastRefresh = Date.now();
-        var before = Ndfd.resolveGridTime(state.product, validMs(state.hour));
-        Ndfd.loadTimes(state.product, true).then(function () {
+        var id = availId();
+        if (!id) return;
+        var before = Ndfd.resolveGridTime(id, validMs(state.hour));
+        Ndfd.loadTimes(id, true).then(function () {
             renderAvailability();
-            var after = Ndfd.resolveGridTime(state.product, validMs(state.hour));
+            var after = Ndfd.resolveGridTime(id, validMs(state.hour));
             if (after.status !== before.status || after.ms !== before.ms) applyTime();
         });
     }
@@ -658,7 +760,8 @@
 
     function openReadout(lngLat) {
         var ll = lngLat.wrap();
-        var grid = state.grid || Ndfd.resolveGridTime(state.product, validMs(state.hour));
+        // Grid times are shared by all NDFD layers; waveh stands in when no grid is shown
+        var grid = state.grid || Ndfd.resolveGridTime('waveh', validMs(state.hour));
         if (popup) popup.remove();
         popup = new maplibregl.Popup({ className: 'readout', maxWidth: '300px', focusAfterOpen: false })
             .setLngLat(lngLat)
@@ -736,9 +839,12 @@
     }
 
     function onMapLoad() {
-        gridLayer = new Ndfd.GridLayer(map, 'warnings', state.opacity);
+        gridLayer = new Ndfd.GridLayer(map, 'warnings', state.opacity, 'ndfd');
+        // Barbs sit above the grid and warnings, below the fronts
+        barbLayer = new Ndfd.GridLayer(map, undefined, 0.95, 'barbs');
+        setBarbColor(state.barbColor);
         Pgen.init(map, state.scale);
-        Object.keys(state.overlays).forEach(function (k) { setOverlay(k, state.overlays[k]); });
+        Object.keys(state.overlays).forEach(function (k) { setOverlay(k, state.overlays[k], true); });
 
         map.on('click', function (e) { openReadout(e.lngLat); });
 
@@ -758,7 +864,7 @@
         var gridErrors = 0;
         map.on('error', function (e) {
             var sid = e.sourceId || (e.source && e.source.id);
-            if (gridLayer.isGridSource(sid)) {
+            if (gridLayer.isGridSource(sid) || barbLayer.isGridSource(sid)) {
                 gridErrors++;
                 // Usually the requested time just rolled off the server
                 refreshAvailability();
@@ -830,6 +936,12 @@
             savePrefs();
         });
 
+        document.querySelectorAll('[data-barb-color]').forEach(function (btn) {
+            btn.addEventListener('click', function () { setBarbColor(btn.dataset.barbColor); });
+        });
+        setBarbColor(state.barbColor);
+        document.body.classList.toggle('barbs-on', state.overlays.barbs);
+
         document.querySelectorAll('[data-overlay]').forEach(function (input) {
             input.checked = state.overlays[input.dataset.overlay];
             input.addEventListener('change', function () {
@@ -877,6 +989,7 @@
         else if (key === 'i' || key === 'I') setOverlay('isobars', !state.overlays.isobars);
         else if (key === 'c' || key === 'C') setOverlay('centers', !state.overlays.centers);
         else if (key === 'w' || key === 'W') setOverlay('warnings', !state.overlays.warnings);
+        else if (key === 'b' || key === 'B') setOverlay('barbs', !state.overlays.barbs);
         else if (key === 'l' || key === 'L') setPanelOpen(!document.body.classList.contains('panel-open'));
         else if (key === 'r' || key === 'R') map.easeTo(Object.assign({ duration: 800 }, HOME_VIEW));
         else if (key === '?') { var d = $('helpDialog'); d.open ? d.close() : d.showModal(); }
@@ -890,7 +1003,7 @@
     function startHousekeeping() {
         setInterval(function () {
             renderNow();
-            Ndfd.loadTimes(state.product).then(renderAvailability);
+            if (availId()) Ndfd.loadTimes(availId()).then(renderAvailability);
             var latest = getBaseTime();
             if (latest > state.baseTime) {
                 toast('A newer forecast cycle (' + fmtCycle(latest) + ') is available.', {
@@ -910,7 +1023,9 @@
         renderLegend();
         setPanelOpen(!isMobile());
 
-        Ndfd.loadTimes(state.product).then(function (c) {
+        // waveh times also serve the click readout when no grid is shown
+        if (state.overlays.barbs) Ndfd.loadTimes(Ndfd.BARBS_ID).then(renderAvailability);
+        Ndfd.loadTimes(baseId() || 'waveh').then(function (c) {
             renderAvailability();
             if (c.state === 'error') {
                 toast('Could not check which NDFD grids are available. Grids will still be requested.', { kind: 'warn', key: 'caps' });

@@ -23,12 +23,13 @@ Interactive marine forecast map: offshore zones, coastal (CWF), NAVTEX, and high
 
 MapLibre GL (WebGL) globe with a dark, map-first layout: top status bar, layer panel, legend and a bottom forecast timeline.
 
-- **Base grids** (NDFD WMS): wave height, wind speed, wind gust, wind barbs, with opacity control and a server-driven color legend.
+- **Base grids** (NDFD WMS): wave height, wind speed, wind gust or none, with opacity control and a server-driven color legend.
+- **Wind barbs overlay**: NDFD barbs (`ndfd:wind`) drawn above any base grid, black or white.
 - **Timeline**: −12 h to +96 h in 3 h steps with play/pause. Each step is marked for NDFD grid and fronts availability; NDFD availability is read from each layer's WMS `GetCapabilities` time list (ocean grids are 3-hourly, about 72 h ahead, and no past grids are kept). If a step has no exact grid, the nearest 3-hourly grid within 3 h is shown and labeled. Steps load into a hidden buffer and cross-fade in, so stepping and playback don't flash.
 - **Click readout**: wave height, wind speed and gust at the point (`GetFeatureInfo`) plus current watches/warnings there (NOAA `WWA/watch_warn_adv`).
 - **Fronts, isobars, pressure centers**: read from `/data/geoJson/{Pacific|Atlantic}_HS_Surface.YYYYMMDD.HH00.FNNN.geo.json` (the cycle that issued a chart valid at the selected time is found automatically), smoothed with Turf and drawn as native MapLibre layers.
 - **Reliability**: status chips for grid and fronts state, loading bar, toasts for server errors, retries for availability checks, automatic re-check when a grid time rolls off the server, and a prompt when a newer cycle starts. Preferences are kept in `localStorage`.
-- **Keyboard**: ←/→ step, Space play, 1–4 products, F/I/C/W overlays, L panel, R reset view, ? help.
+- **Keyboard**: ←/→ step, Space play, 1–4 base grid, B barbs, F/I/C/W overlays, L panel, R reset view, ? help.
 - **Config** (`window.OCEANIC_CONFIG`): `geojsonDir`, `homeLink`, and `demoFrontsDir` to load synthetic fronts from `tools/gen_demo_fronts.py` instead of the PGEN feed (used for the static copy at https://jkrek17.github.io/web/ndfd/).
 - **Code**: `js/oceanic.js` (app shell), `js/oceanic-ndfd.js` (grids), `js/oceanic-pgen.js` (fronts rendering), `css/oceanic.css`.
 

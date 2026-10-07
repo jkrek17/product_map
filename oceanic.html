@@ -68,6 +68,14 @@
                 <label class="switch-row"><span><i class="swatch swatch-fronts"></i>Fronts &amp; troughs</span><input type="checkbox" class="switch" data-overlay="fronts" checked><kbd>F</kbd></label>
                 <label class="switch-row"><span><i class="swatch swatch-isobars"></i>Isobars</span><input type="checkbox" class="switch" data-overlay="isobars" checked><kbd>I</kbd></label>
                 <label class="switch-row"><span><i class="swatch swatch-centers"></i>Highs, lows &amp; storms</span><input type="checkbox" class="switch" data-overlay="centers" checked><kbd>C</kbd></label>
+                <label class="switch-row"><span><i class="swatch swatch-barbs"></i>Wind barbs</span><input type="checkbox" class="switch" data-overlay="barbs"><kbd>B</kbd></label>
+                <div class="sub-row barb-color-row">
+                    <span>Barb color</span>
+                    <div class="segmented" role="radiogroup" aria-label="Barb color">
+                        <button type="button" role="radio" data-barb-color="black">Black</button>
+                        <button type="button" role="radio" data-barb-color="white">White</button>
+                    </div>
+                </div>
                 <label class="switch-row"><span><i class="swatch swatch-warnings"></i>Watches &amp; warnings</span><input type="checkbox" class="switch" data-overlay="warnings"><kbd>W</kbd></label>
             </section>
 
@@ -81,7 +89,7 @@
             </section>
 
             <footer class="panel-foot">
-                Click the ocean for wave, wind and hazard details.<br>
+                Click the ocean for wave, wind and hazard details. Wind barbs can be layered over any base grid.<br>
                 Data: NOAA/NWS NDFD &amp; OPC · Basemap: Esri
             </footer>
         </aside>
@@ -124,7 +132,8 @@
                 <dt><kbd>←</kbd> <kbd>→</kbd></dt><dd>Previous / next forecast step</dd>
                 <dt><kbd>Space</kbd></dt><dd>Play / pause</dd>
                 <dt><kbd>Home</kbd> <kbd>End</kbd></dt><dd>First / last step</dd>
-                <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Waves, wind, gust, barbs</dd>
+                <dt><kbd>1</kbd>–<kbd>4</kbd></dt><dd>Waves, wind, gust, no base grid</dd>
+                <dt><kbd>B</kbd></dt><dd>Wind barbs on top of the grid</dd>
                 <dt><kbd>F</kbd> <kbd>I</kbd> <kbd>C</kbd> <kbd>W</kbd></dt><dd>Fronts, isobars, centers, warnings</dd>
                 <dt><kbd>L</kbd></dt><dd>Show / hide layers panel</dd>
                 <dt><kbd>R</kbd></dt><dd>Reset view</dd>

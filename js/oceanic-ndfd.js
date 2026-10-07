@@ -25,8 +25,10 @@ window.Oceanic.Ndfd = (function () {
         { id: 'waveh', name: 'Significant Wave Height', short: 'Waves', unit: 'ft', icon: 'waves' },
         { id: 'wspd', name: 'Wind Speed', short: 'Wind', unit: 'kt', icon: 'wind' },
         { id: 'wgust', name: 'Wind Gust', short: 'Gust', unit: 'kt', icon: 'gust' },
-        { id: 'wind', name: 'Wind Barbs', short: 'Barbs', unit: 'kt', icon: 'barb', legend: 'barbs' }
+        { id: 'none', name: 'None', short: 'None', unit: '', icon: 'none' }
     ];
+    // Wind barbs overlay (black barbs; the app can render them white)
+    var BARBS_ID = 'wind';
 
     // Server colormaps as of 2026-10 ([value, color]); used if the legend
     // request fails.
@@ -289,10 +291,12 @@ window.Oceanic.Ndfd = (function () {
         });
     }
 
-    function GridLayer(map, beforeId, opacity) {
+    // prefix names the two source/layer buffers (e.g. 'ndfd', 'barbs')
+    function GridLayer(map, beforeId, opacity, prefix) {
+        prefix = prefix || 'ndfd';
         this.map = map;
         this.opacity = opacity;
-        this.buffers = ['ndfd-a', 'ndfd-b'];
+        this.buffers = [prefix + '-a', prefix + '-b'];
         this.active = 0;
         this.urls = [null, null];
         this.seq = 0;
@@ -355,6 +359,12 @@ window.Oceanic.Ndfd = (function () {
         });
     };
 
+    // Non-opacity paint property, applied to both buffers
+    GridLayer.prototype.setPaint = function (prop, value) {
+        var map = this.map;
+        this.buffers.forEach(function (id) { map.setPaintProperty(id, prop, value); });
+    };
+
     GridLayer.prototype.setOpacity = function (opacity) {
         this.opacity = opacity;
         var cur = this.buffers[this.active];
@@ -364,7 +374,7 @@ window.Oceanic.Ndfd = (function () {
 
     // --- Legend --------------------------------------------------------------
     function legend(id) {
-        if (product(id).legend === 'barbs') return Promise.resolve(null);
+        if (!FALLBACK_LEGENDS[id]) return Promise.resolve(null);
         if (!legends[id]) {
             var url = BASE + '/wms?SERVICE=WMS&REQUEST=GetLegendGraphic&VERSION=1.3.0&FORMAT=application/json&LAYER=ndfd:' + id;
             legends[id] = fetchWithTimeout(url, 15000)
@@ -428,6 +438,7 @@ window.Oceanic.Ndfd = (function () {
 
     return {
         PRODUCTS: PRODUCTS,
+        BARBS_ID: BARBS_ID,
         product: product,
         loadTimes: loadTimes,
         capsState: capsState,

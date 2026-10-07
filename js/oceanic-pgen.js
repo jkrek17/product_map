@@ -27,7 +27,9 @@ window.Oceanic.Pgen = (function () {
         var canvas = document.createElement('canvas');
         canvas.width = Math.ceil(w * SPRITE_RATIO);
         canvas.height = Math.ceil(h * SPRITE_RATIO);
-        var ctx = canvas.getContext('2d');
+        // CPU-backed: every sprite is read back with getImageData, and a
+        // GPU canvas would log a readback performance warning each time
+        var ctx = canvas.getContext('2d', { willReadFrequently: true });
         ctx.scale(SPRITE_RATIO, SPRITE_RATIO);
         return ctx;
     }

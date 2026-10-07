@@ -15,7 +15,14 @@
     var WARNINGS_WMS = 'https://mapservices.weather.noaa.gov/eventdriven/services/WWA/watch_warn_adv/MapServer/WMSServer';
     var WARNINGS_LAYER = '1'; // WatchesWarnings
     var ESRI_OCEAN = 'https://server.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}';
-    var GEOJSON_DIR = '/data/geoJson/';
+    // Optional page-level overrides: set window.OCEANIC_CONFIG before this
+    // script. demoFrontsDir switches to synthetic fronts files named by
+    // hours from the current cycle (e.g. Pacific_p024.geo.json,
+    // Atlantic_m006.geo.json) for hosts without the PGEN GeoJSON feed.
+    var CONFIG = window.OCEANIC_CONFIG || {};
+    var GEOJSON_DIR = CONFIG.geojsonDir || '/data/geoJson/';
+    var DEMO_FRONTS_DIR = CONFIG.demoFrontsDir || null;
+    var DEMO_HOURS = CONFIG.demoHours || [-12, -6, 0, 24, 48, 72, 96];
     var BASINS = ['Pacific', 'Atlantic'];
     var LOAD_DEBOUNCE_MS = 200;
 
@@ -520,23 +527,37 @@
         map.getSource('pgen').setData(geojson || { type: 'FeatureCollection', features: [] });
     }
 
+    function getDemoPath(basin, hoursToAdd) {
+        return DEMO_FRONTS_DIR + basin + '_' + (hoursToAdd < 0 ? 'm' : 'p') +
+            pad(Math.abs(hoursToAdd), 3) + '.geo.json';
+    }
+
     function loadDataForHour(hoursToAdd) {
         var seq = ++loadSeq;
-        var validTime = getFormattedTime(hoursToAdd);
-        var fileInfo = getBestFrontsFile(validTime);
+        var cycleLabel, paths;
 
-        if (!fileInfo) {
-            setFronts(null);
-            setStatus('No fronts cycle for this valid time');
-            return;
+        if (DEMO_FRONTS_DIR) {
+            if (DEMO_HOURS.indexOf(hoursToAdd) < 0) {
+                setFronts(null);
+                setStatus('Demo fronts: none for this hour');
+                return;
+            }
+            cycleLabel = 'demo (synthetic) ' + (hoursToAdd > 0 ? '+' : '') + hoursToAdd + ' h';
+            paths = BASINS.map(function (basin) { return getDemoPath(basin, hoursToAdd); });
+        } else {
+            var fileInfo = getBestFrontsFile(getFormattedTime(hoursToAdd));
+            if (!fileInfo) {
+                setFronts(null);
+                setStatus('No fronts cycle for this valid time');
+                return;
+            }
+            cycleLabel = fileInfo.base.toISOString().substring(0, 13).replace('T', ' ') + 'Z F' + pad(fileInfo.fHour, 3);
+            paths = BASINS.map(function (basin) { return getGeoJsonPath(basin, fileInfo.base, fileInfo.fHour); });
         }
 
-        var cycleLabel = fileInfo.base.toISOString().substring(0, 13).replace('T', ' ') + 'Z F' + pad(fileInfo.fHour, 3);
         setStatus('Fronts: loading ' + cycleLabel + '...');
 
-        Promise.all(BASINS.map(function (basin) {
-            return fetchFeatures(getGeoJsonPath(basin, fileInfo.base, fileInfo.fHour));
-        })).then(function (results) {
+        Promise.all(paths.map(fetchFeatures)).then(function (results) {
             if (seq !== loadSeq) return; // a newer request superseded this one
             var allFeatures = [].concat.apply([], results);
             if (allFeatures.length === 0) {

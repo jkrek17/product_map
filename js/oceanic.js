@@ -719,9 +719,8 @@
                 sources: {
                     ocean: { type: 'raster', tiles: [ESRI_OCEAN], tileSize: 256, maxzoom: 13, attribution: 'Basemap &copy; Esri' },
                     warnings: {
-                        type: 'raster', tileSize: 256, attribution: 'Hazards &copy; NOAA/NWS',
-                        tiles: [WARNINGS_WMS + '?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&LAYERS=1&STYLES=&FORMAT=image/png' +
-                            '&TRANSPARENT=true&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&BBOX={bbox-epsg-3857}']
+                        type: 'raster', tileSize: Ndfd.TILE_SIZE, attribution: 'Hazards &copy; NOAA/NWS',
+                        tiles: [Ndfd.wmsGetMapUrl(WARNINGS_WMS, { LAYERS: '1' })]
                     }
                 },
                 layers: [

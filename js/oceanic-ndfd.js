@@ -157,14 +157,100 @@ window.Oceanic.Ndfd = (function () {
         return { first: c.sorted[0], last: c.sorted[c.sorted.length - 1] };
     }
 
-    // --- Tiles ---------------------------------------------------------------
-    function wmsTileUrl(params) {
-        var url = BASE + '/wms?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&STYLES=&FORMAT=image/png' +
-            '&TRANSPARENT=true&CRS=EPSG:3857&WIDTH=256&HEIGHT=256&BBOX={bbox-epsg-3857}';
+    // --- Tile loading -------------------------------------------------------
+    // MapLibre fetches raster tiles with CORS (WebGL needs the pixels) and
+    // never retries a failed tile. NOAA's servers send CORS headers, but a
+    // throttled or dropped request comes back without them and the browser
+    // reports a CORS error. Tiles on the noaa:// scheme go through this
+    // loader instead: limited concurrency, retry with backoff, and WMS
+    // XML exceptions reported as errors rather than undecodable images.
+    var TILE_SCHEME = 'noaa';
+    var TILE_SIZE = 512;
+    var MAX_CONCURRENT = 6;
+    var TILE_RETRIES = 3;
+    var activeTiles = 0;
+    var tileQueue = [];
+    // Diagnostics: Oceanic.Ndfd.stats in the browser console
+    var stats = { requests: 0, retries: 0, failures: 0, lastError: null };
+
+    function acquireSlot(signal) {
+        return new Promise(function (resolve, reject) {
+            if (activeTiles < MAX_CONCURRENT) {
+                activeTiles++;
+                return resolve();
+            }
+            var entry = { resolve: resolve };
+            tileQueue.push(entry);
+            signal.addEventListener('abort', function () {
+                var i = tileQueue.indexOf(entry);
+                if (i >= 0) tileQueue.splice(i, 1);
+                reject(new DOMException('Aborted', 'AbortError'));
+            });
+        });
+    }
+
+    function releaseSlot() {
+        var next = tileQueue.shift();
+        if (next) next.resolve();
+        else activeTiles--;
+    }
+
+    async function loadTile(params, abortController) {
+        var url = params.url.replace(TILE_SCHEME + '://', 'https://');
+        var signal = abortController.signal;
+        for (var attempt = 0; ; attempt++) {
+            await acquireSlot(signal);
+            var retryable = true;
+            try {
+                stats.requests++;
+                var r = await fetch(url, { signal: signal, credentials: 'omit', cache: attempt ? 'reload' : 'default' });
+                if (!r.ok) {
+                    retryable = r.status === 429 || r.status >= 500;
+                    throw new Error('HTTP ' + r.status);
+                }
+                var type = r.headers.get('Content-Type') || '';
+                if (type.indexOf('image/') !== 0) {
+                    retryable = false;
+                    throw new Error('Not an image (' + type + ')');
+                }
+                return {
+                    data: await r.arrayBuffer(),
+                    cacheControl: r.headers.get('Cache-Control'),
+                    expires: r.headers.get('Expires')
+                };
+            } catch (err) {
+                // Network/CORS failures surface as TypeError and are retried
+                if (signal.aborted) throw err;
+                if (!retryable || attempt >= TILE_RETRIES) {
+                    stats.failures++;
+                    stats.lastError = err.message;
+                    throw err;
+                }
+                stats.retries++;
+            } finally {
+                releaseSlot();
+            }
+            await sleep(400 * Math.pow(3, attempt) + Math.random() * 300);
+            if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
+        }
+    }
+
+    if (window.maplibregl) maplibregl.addProtocol(TILE_SCHEME, loadTile);
+
+    // 'https://host/path?...' -> templated GetMap URL on the throttled scheme
+    function wmsGetMapUrl(base, params) {
+        var url = base.replace(/^https:\/\//, TILE_SCHEME + '://') +
+            '?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&STYLES=&FORMAT=image/png' +
+            '&TRANSPARENT=true&CRS=EPSG:3857&WIDTH=' + TILE_SIZE + '&HEIGHT=' + TILE_SIZE +
+            '&BBOX={bbox-epsg-3857}';
         Object.keys(params).forEach(function (k) {
             url += '&' + k + '=' + encodeURIComponent(params[k]);
         });
         return url;
+    }
+
+    function wmsTileUrl(params) {
+        return wmsGetMapUrl(BASE + '/wms', params);
     }
 
     // grid: result of resolveGridTime. Unknown availability (capabilities
@@ -213,7 +299,7 @@ window.Oceanic.Ndfd = (function () {
         var self = this;
         this.buffers.forEach(function (id) {
             map.addSource(id, {
-                type: 'raster', tileSize: 256, tiles: [wmsTileUrl({ LAYERS: 'ndfd:waveh' })],
+                type: 'raster', tileSize: TILE_SIZE, tiles: [wmsTileUrl({ LAYERS: 'ndfd:waveh' })],
                 attribution: 'NDFD &copy; NOAA/NWS'
             });
             map.addLayer({
@@ -349,6 +435,9 @@ window.Oceanic.Ndfd = (function () {
         hasExact: hasExact,
         range: range,
         tileUrl: tileUrl,
+        wmsGetMapUrl: wmsGetMapUrl,
+        TILE_SIZE: TILE_SIZE,
+        stats: stats,
         GridLayer: GridLayer,
         legend: legend,
         pointValues: pointValues,

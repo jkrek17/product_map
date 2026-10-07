@@ -175,18 +175,28 @@ window.Oceanic.Ndfd = (function () {
     // Diagnostics: Oceanic.Ndfd.stats in the browser console
     var stats = { requests: 0, retries: 0, failures: 0, lastError: null };
 
-    function acquireSlot(signal) {
+    // low: background work (frame preloading) queues behind visible tiles
+    function acquireSlot(signal, low) {
         return new Promise(function (resolve, reject) {
+            if (signal.aborted) return reject(new DOMException('Aborted', 'AbortError'));
             if (activeTiles < MAX_CONCURRENT) {
                 activeTiles++;
                 return resolve();
             }
-            var entry = { resolve: resolve };
-            tileQueue.push(entry);
+            var entry = { resolve: resolve, low: !!low };
+            if (low) {
+                tileQueue.push(entry);
+            } else {
+                var i = 0;
+                while (i < tileQueue.length && !tileQueue[i].low) i++;
+                tileQueue.splice(i, 0, entry);
+            }
             signal.addEventListener('abort', function () {
-                var i = tileQueue.indexOf(entry);
-                if (i >= 0) tileQueue.splice(i, 1);
-                reject(new DOMException('Aborted', 'AbortError'));
+                var j = tileQueue.indexOf(entry);
+                if (j >= 0) {
+                    tileQueue.splice(j, 1);
+                    reject(new DOMException('Aborted', 'AbortError'));
+                }
             });
         });
     }
@@ -197,11 +207,11 @@ window.Oceanic.Ndfd = (function () {
         else activeTiles--;
     }
 
-    async function loadTile(params, abortController) {
-        var url = params.url.replace(TILE_SCHEME + '://', 'https://');
-        var signal = abortController.signal;
+    // GET an image from NOAA through the shared pool, retrying transient
+    // failures -> { buffer, type, cacheControl, expires }
+    async function throttledImage(url, signal, low) {
         for (var attempt = 0; ; attempt++) {
-            await acquireSlot(signal);
+            await acquireSlot(signal, low);
             var retryable = true;
             try {
                 stats.requests++;
@@ -216,7 +226,8 @@ window.Oceanic.Ndfd = (function () {
                     throw new Error('Not an image (' + type + ')');
                 }
                 return {
-                    data: await r.arrayBuffer(),
+                    buffer: await r.arrayBuffer(),
+                    type: type,
                     cacheControl: r.headers.get('Cache-Control'),
                     expires: r.headers.get('Expires')
                 };
@@ -235,6 +246,24 @@ window.Oceanic.Ndfd = (function () {
             await sleep(400 * Math.pow(3, attempt) + Math.random() * 300);
             if (signal.aborted) throw new DOMException('Aborted', 'AbortError');
         }
+    }
+
+    function loadTile(params, abortController) {
+        var url = params.url.replace(TILE_SCHEME + '://', 'https://');
+        return throttledImage(url, abortController.signal, false).then(function (r) {
+            return { data: r.buffer, cacheControl: r.cacheControl, expires: r.expires };
+        });
+    }
+
+    // One whole-view GetMap image (EPSG:3857 bbox) for frame preloading -> Blob
+    function fetchViewImage(id, ms, bbox, width, height, signal) {
+        var url = BASE + '/wms?SERVICE=WMS&REQUEST=GetMap&VERSION=1.3.0&STYLES=&FORMAT=image/png' +
+            '&TRANSPARENT=true&CRS=EPSG:3857&LAYERS=ndfd:' + id +
+            '&WIDTH=' + width + '&HEIGHT=' + height + '&BBOX=' + bbox.map(function (v) { return v.toFixed(0); }).join(',') +
+            '&TIME=' + encodeURIComponent(new Date(ms).toISOString());
+        return throttledImage(url, signal, true).then(function (r) {
+            return new Blob([r.buffer], { type: r.type });
+        });
     }
 
     if (window.maplibregl) maplibregl.addProtocol(TILE_SCHEME, loadTile);
@@ -351,6 +380,11 @@ window.Oceanic.Ndfd = (function () {
         return result;
     };
 
+    GridLayer.prototype.isShowing = function (url) {
+        var cur = this.buffers[this.active];
+        return this.urls[this.active] === url && this.map.getLayoutProperty(cur, 'visibility') === 'visible';
+    };
+
     GridLayer.prototype.hide = function () {
         var map = this.map;
         this.seq++;
@@ -447,6 +481,7 @@ window.Oceanic.Ndfd = (function () {
         range: range,
         tileUrl: tileUrl,
         wmsGetMapUrl: wmsGetMapUrl,
+        fetchViewImage: fetchViewImage,
         TILE_SIZE: TILE_SIZE,
         stats: stats,
         GridLayer: GridLayer,

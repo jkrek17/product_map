@@ -17,6 +17,7 @@
 
     var Ndfd = window.Oceanic.Ndfd;
     var Pgen = window.Oceanic.Pgen;
+    var Frames = window.Oceanic.Frames;
 
     var CONFIG = window.OCEANIC_CONFIG || {};
     var GEOJSON_DIR = CONFIG.geojsonDir || '/data/geoJson/';
@@ -32,7 +33,9 @@
     var MAX_H = 96;
     var STEP_H = 3;
     var HOUR_MS = 3600000;
-    var PLAY_DWELL_MS = 1100;
+    var FRAME_MS = 1000;          // dwell per frame at 1x
+    var END_HOLD_MS = 1500;       // extra pause on the last frame
+    var SPEEDS = [0.5, 1, 2, 4];
     var HOME_VIEW = { center: [-105, 35], zoom: 1.8, bearing: 0, pitch: 0 };
     var PREFS_KEY = 'oceanic.prefs.v1';
     var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -64,6 +67,8 @@
         scale: 1,
         overlays: { fronts: true, isobars: true, centers: true, warnings: false, barbs: false },
         barbColor: 'black',
+        speed: 1,
+        holdEnd: true,
         playing: false,
         grid: null // last resolved grid time { status, ms }
     };
@@ -152,6 +157,8 @@
             if (!p) return;
             if (p.product && Ndfd.product(p.product).id === p.product) state.product = p.product;
             if (p.barbColor === 'black' || p.barbColor === 'white') state.barbColor = p.barbColor;
+            if (SPEEDS.indexOf(p.speed) >= 0) state.speed = p.speed;
+            if (typeof p.holdEnd === 'boolean') state.holdEnd = p.holdEnd;
             if (p.opacity >= 0.2 && p.opacity <= 1) state.opacity = p.opacity;
             if (p.scale >= 0.75 && p.scale <= 2) state.scale = p.scale;
             if (p.overlays) {
@@ -171,7 +178,7 @@
         try {
             localStorage.setItem(PREFS_KEY, JSON.stringify({
                 product: state.product, opacity: state.opacity, scale: state.scale, overlays: state.overlays,
-                barbColor: state.barbColor
+                barbColor: state.barbColor, speed: state.speed, holdEnd: state.holdEnd
             }));
         } catch (e) { /* ignore */ }
     }
@@ -393,6 +400,40 @@
         return { state: 'ok', text: label, title: label + ' valid ' + fmtValid(r.grid.ms) };
     }
 
+    // Show the preloaded frame for a slot -> 'shown' | 'pending' | 'none'
+    function showFrame(slot, id, grid) {
+        if (!id || grid.status === 'none') {
+            Frames.hide(slot);
+            return 'none';
+        }
+        if ((grid.status === 'exact' || grid.status === 'nearest') && Frames.show(slot, id, grid.ms)) return 'shown';
+        return 'pending';
+    }
+
+    function setGridChip(base, barbs, b, w, ms) {
+        var p = Ndfd.product(state.product);
+        state.grid = (b.grid && b.grid.status !== 'none' ? b.grid : null) ||
+            (w.grid && w.grid.status !== 'none' ? w.grid : null);
+        if (!base) {
+            var only = describe(w, barbs, 'Barbs', ms);
+            setChip('chipGrid', only.state, only.text, only.title);
+            return;
+        }
+        // Full product name only when it's the whole message
+        var plain = !barbs && b.grid && b.grid.status === 'exact' && b.result !== 'timeout';
+        var d = describe(b, base, plain ? p.name : p.short, ms);
+        if (!barbs) {
+            setChip('chipGrid', d.state, d.text, d.title);
+            return;
+        }
+        var wd = describe(w, barbs, 'Barbs', ms);
+        var text = d.state === 'none' && wd.state === 'none' ? 'No grid' :
+            d.text + (wd.state === 'none' ? ' · no barbs' : ' + barbs');
+        var chipState = d.state === 'none' && wd.state !== 'none' ? wd.state :
+            d.state === 'ok' && wd.state === 'warn' ? 'warn' : d.state;
+        setChip('chipGrid', chipState, text, d.title + ' ' + wd.title);
+    }
+
     async function updateGrid(seq) {
         var p = Ndfd.product(state.product);
         var base = baseId();
@@ -402,6 +443,8 @@
         if (!base && !barbs) {
             gridLayer.hide();
             barbLayer.hide();
+            Frames.hide('base');
+            Frames.hide('barbs');
             state.grid = null;
             setChip('chipGrid', 'none', 'Base grid off', 'No base grid selected');
             return;
@@ -412,6 +455,32 @@
         if (!state.playing) setChip('chipGrid', 'loading', loadingLabel + ' · loading');
         progress(1);
         try {
+            await Promise.all([base && Ndfd.loadTimes(base), barbs && Ndfd.loadTimes(barbs)]);
+            if (seq !== applySeq) return;
+            var gb = base ? Ndfd.resolveGridTime(base, ms) : null;
+            var gw = barbs ? Ndfd.resolveGridTime(barbs, ms) : null;
+
+            // Preloaded frames appear instantly; tiles (when not playing)
+            // then load underneath and replace them at full detail.
+            var fb = showFrame('base', base, gb);
+            var fw = showFrame('barbs', barbs, gw);
+            // Don't leave the previous step's tiles stacked under the frame
+            if (fb === 'shown' && !gridLayer.isShowing(Ndfd.tileUrl(base, gb))) gridLayer.hide();
+            if (fw === 'shown' && !barbLayer.isShowing(Ndfd.tileUrl(barbs, gw))) barbLayer.hide();
+            if (state.playing) {
+                if (fb === 'pending' && await Frames.whenReady(base, gb.ms, 20000)) fb = showFrame('base', base, gb);
+                if (fw === 'pending' && await Frames.whenReady(barbs, gw.ms, 20000)) fw = showFrame('barbs', barbs, gw);
+                if (seq !== applySeq) return;
+                if (fb !== 'pending' && fw !== 'pending') {
+                    gridLayer.hide();
+                    barbLayer.hide();
+                    setGridChip(base, barbs,
+                        base ? { grid: gb, result: 'loaded' } : { off: true },
+                        barbs ? { grid: gw, result: 'loaded' } : { off: true }, ms);
+                    return;
+                }
+            }
+
             var results = await Promise.all([
                 showNdfd(gridLayer, base, ms, seq),
                 showNdfd(barbLayer, barbs, ms, seq)
@@ -419,28 +488,80 @@
             if (seq !== applySeq || results[0].stale || results[1].stale) return;
             var b = results[0];
             var w = results[1];
-            state.grid = (b.grid && b.grid.status !== 'none' ? b.grid : null) ||
-                (w.grid && w.grid.status !== 'none' ? w.grid : null);
-
-            if (!base) {
-                var only = describe(w, barbs, 'Barbs', ms);
-                setChip('chipGrid', only.state, only.text, only.title);
-                return;
-            }
-            var d = describe(b, base, barbs ? p.short : p.name, ms);
-            if (!barbs) {
-                setChip('chipGrid', d.state, d.text, d.title);
-                return;
-            }
-            var wd = describe(w, barbs, 'Barbs', ms);
-            var text = d.state === 'none' && wd.state === 'none' ? 'No grid' :
-                d.text + (wd.state === 'none' ? ' · no barbs' : ' + barbs');
-            var chipState = d.state === 'none' && wd.state !== 'none' ? wd.state :
-                d.state === 'ok' && wd.state === 'warn' ? 'warn' : d.state;
-            setChip('chipGrid', chipState, text, d.title + ' ' + wd.title);
+            // Tiles are up: retire the frame unless the tiles timed out
+            if (b.result !== 'timeout' || fb !== 'shown') Frames.hide('base');
+            if (w.result !== 'timeout' || fw !== 'shown') Frames.hide('barbs');
+            setGridChip(base, barbs, b, w, ms);
         } finally {
             progress(-1);
         }
+    }
+
+    // --- Preloading -----------------------------------------------------------
+    var preloadTimer = null;
+
+    function schedulePreload(delay) {
+        clearTimeout(preloadTimer);
+        preloadTimer = setTimeout(runPreload, delay === undefined ? 700 : delay);
+    }
+
+    // Queue whole-view frames for every step that has a grid (playback order
+    // from the current step) and warm the fronts cache.
+    function runPreload() {
+        if (!gridLayer) return;
+        if (map.isMoving()) return schedulePreload();
+        var ids = [baseId(), state.overlays.barbs ? Ndfd.BARBS_ID : null].filter(Boolean);
+        var reqs = [];
+        var span = MAX_H - MIN_H + STEP_H;
+        for (var i = 0; i < span / STEP_H; i++) {
+            var h = state.hour + i * STEP_H;
+            if (h > MAX_H) h -= span;
+            ids.forEach(function (id) {
+                var g = Ndfd.resolveGridTime(id, validMs(h));
+                if (g.status === 'exact' || g.status === 'nearest') reqs.push({ id: id, ms: g.ms });
+            });
+            var src = frontsSource(h);
+            if (src) loadFronts(src);
+        }
+        Frames.prepare(reqs);
+    }
+
+    var cachedRaf = 0;
+
+    function onFramesChange() {
+        if (cachedRaf) return;
+        cachedRaf = requestAnimationFrame(function () {
+            cachedRaf = 0;
+            renderCached();
+        });
+    }
+
+    // Timeline marks for steps whose frames are preloaded, plus a counter
+    function renderCached() {
+        var el = $('tlCached');
+        el.innerHTML = '';
+        var ids = [baseId(), state.overlays.barbs ? Ndfd.BARBS_ID : null].filter(Boolean);
+        var sets = ids.map(function (id) { return { id: id, ready: Frames.readyMs(id) }; });
+        for (var h = MIN_H; ids.length && h <= MAX_H; h += STEP_H) {
+            var all = sets.every(function (x) {
+                var g = Ndfd.resolveGridTime(x.id, validMs(h));
+                return (g.status === 'exact' || g.status === 'nearest') && x.ready.has(g.ms);
+            });
+            if (!all) continue;
+            var seg = document.createElement('div');
+            seg.className = 'cached';
+            var left = Math.max(0, pct(h - STEP_H / 2));
+            seg.style.left = left + '%';
+            seg.style.width = (Math.min(100, pct(h + STEP_H / 2)) - left) + '%';
+            el.appendChild(seg);
+        }
+        var pr = Frames.progress();
+        var status = $('preloadStatus');
+        if (!pr.total) status.textContent = '';
+        else if (pr.ready < pr.total && pr.loading) status.textContent = 'Preloading ' + pr.ready + '/' + pr.total;
+        else if (pr.ready < pr.total) status.textContent = 'Preloaded ' + pr.ready + '/' + pr.total;
+        else status.textContent = 'Loop ready';
+        status.dataset.state = pr.ready >= pr.total ? 'ready' : 'loading';
     }
 
     // --- Time --------------------------------------------------------------
@@ -496,17 +617,16 @@
         if (state.playing) return;
         state.playing = true;
         renderPlayButton();
+        runPreload();
         while (state.playing) {
             var t0 = performance.now();
             var next = nextPlayable(state.hour);
             if (next === null) break;
-            var wrapped = next < state.hour;
             await setHour(next, true);
             if (!state.playing) break;
             var after = nextPlayable(next);
-            var src = after === null ? null : frontsSource(after);
-            if (src) loadFronts(src); // prefetch
-            var wait = PLAY_DWELL_MS + (wrapped ? 800 : 0) - (performance.now() - t0);
+            var isLast = after !== null && after < next;
+            var wait = FRAME_MS / state.speed + (isLast && state.holdEnd ? END_HOLD_MS : 0) - (performance.now() - t0);
             if (wait > 0) await sleep(wait);
         }
         stopPlay();
@@ -516,6 +636,22 @@
         if (!state.playing) return;
         state.playing = false;
         renderPlayButton();
+        applyTime(); // bring back full-detail tiles for the paused step
+    }
+
+    function setSpeed(speed) {
+        state.speed = speed;
+        savePrefs();
+        $('btnSpeed').textContent = (speed === 0.5 ? '½' : speed) + '×';
+        $('btnSpeed').setAttribute('aria-label', 'Loop speed ' + speed + 'x');
+        document.querySelectorAll('[data-speed]').forEach(function (b) {
+            b.setAttribute('aria-checked', String(parseFloat(b.dataset.speed) === speed));
+        });
+    }
+
+    function setSpeedMenuOpen(open) {
+        $('speedMenu').hidden = !open;
+        $('btnSpeed').setAttribute('aria-expanded', String(open));
     }
 
     function renderPlayButton() {
@@ -531,6 +667,7 @@
         state.baseTime = getBaseTime();
         frontsCache.clear();
         renderTimeline();
+        schedulePreload(0);
         setHour(Math.round((keep - state.baseTime) / (STEP_H * HOUR_MS)) * STEP_H, true);
     }
 
@@ -549,7 +686,7 @@
             tick.style.left = pct(h) + '%';
             if (d.getUTCHours() === 0) {
                 tick.classList.add('tick-day');
-                tick.innerHTML = '<span>' + DAYS[d.getUTCDay()] + ' ' + pad(d.getUTCDate(), 2) + '</span>';
+                tick.innerHTML = '<span>' + DAYS[d.getUTCDay()] + '<em> ' + pad(d.getUTCDate(), 2) + '</em></span>';
             } else if (d.getUTCHours() === 12) {
                 tick.classList.add('tick-mid');
                 tick.innerHTML = '<span>12Z</span>';
@@ -579,6 +716,7 @@
                 avail.appendChild(dot);
             }
         }
+        if (gridLayer) renderCached();
     }
 
     function renderNow() {
@@ -668,10 +806,14 @@
         renderAvailability();
         if (baseId()) {
             Ndfd.loadTimes(id).then(function () {
-                if (state.product === id) renderAvailability();
+                if (state.product === id) {
+                    renderAvailability();
+                    schedulePreload(300);
+                }
             });
         }
         applyTime();
+        schedulePreload(300);
     }
 
     function setBarbColor(color) {
@@ -682,6 +824,7 @@
         });
         // Brightness floor of 1 maps NOAA's black barbs to white
         if (barbLayer) barbLayer.setPaint('raster-brightness-min', color === 'white' ? 1 : 0);
+        if (barbLayer) Frames.setPaint('barbs', 'raster-brightness-min', color === 'white' ? 1 : 0);
     }
 
     // quiet: don't re-apply the time step (used while initializing)
@@ -699,8 +842,11 @@
         if (name === 'warnings') {
             map.setLayoutProperty('warnings', 'visibility', on ? 'visible' : 'none');
         } else if (name === 'barbs') {
-            if (on) Ndfd.loadTimes(Ndfd.BARBS_ID).then(renderAvailability);
-            if (!quiet) applyTime();
+            if (on) Ndfd.loadTimes(Ndfd.BARBS_ID).then(function () { renderAvailability(); schedulePreload(300); });
+            if (!quiet) {
+                applyTime();
+                schedulePreload(300);
+            }
         } else {
             Pgen.setGroupVisible(name, on);
         }
@@ -726,6 +872,7 @@
             renderAvailability();
             var after = Ndfd.resolveGridTime(id, validMs(state.hour));
             if (after.status !== before.status || after.ms !== before.ms) applyTime();
+            schedulePreload();
         });
     }
 
@@ -818,7 +965,8 @@
             style: {
                 version: 8,
                 projection: { type: 'globe' },
-                sky: { 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 5, 1, 7, 0] },
+                // Atmosphere glow around the globe, faded out before it hazes zoomed-in views
+                sky: { 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 0, 1, 2.5, 1, 4, 0] },
                 sources: {
                     ocean: { type: 'raster', tiles: [ESRI_OCEAN], tileSize: 256, maxzoom: 13, attribution: 'Basemap &copy; Esri' },
                     warnings: {
@@ -833,8 +981,10 @@
             }
         });
 
+        window.Oceanic.map = map; // for console diagnostics
         map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), 'top-right');
-        map.addControl(new maplibregl.AttributionControl({ compact: true }), 'bottom-left');
+        // NDFD credit is always shown: preloaded frames are image sources, which carry no attribution
+        map.addControl(new maplibregl.AttributionControl({ compact: true, customAttribution: 'NDFD &copy; NOAA/NWS' }), 'bottom-left');
         map.addControl(new maplibregl.ScaleControl({ unit: 'nautical' }), 'bottom-left');
     }
 
@@ -842,11 +992,17 @@
         gridLayer = new Ndfd.GridLayer(map, 'warnings', state.opacity, 'ndfd');
         // Barbs sit above the grid and warnings, below the fronts
         barbLayer = new Ndfd.GridLayer(map, undefined, 0.95, 'barbs');
-        setBarbColor(state.barbColor);
         Pgen.init(map, state.scale);
+        // Frame layers sit just above their tiled counterparts
+        Frames.init(map, {
+            base: { beforeId: 'warnings', opacity: state.opacity },
+            barbs: { beforeId: 'isobars', opacity: 0.95 }
+        }, onFramesChange);
+        setBarbColor(state.barbColor);
+        map.on('moveend', function () { schedulePreload(); });
         Object.keys(state.overlays).forEach(function (k) { setOverlay(k, state.overlays[k], true); });
 
-        map.on('click', function (e) { openReadout(e.lngLat); });
+        map.on('click', function (e) { setSpeedMenuOpen(false); openReadout(e.lngLat); });
 
         var coordsEl = $('coords');
         var pending = null;
@@ -886,6 +1042,8 @@
         }
 
         applyTime();
+        // Let the visible tiles go first, then preload frames in the background
+        schedulePreload(1500);
     }
 
     // --- Wiring -----------------------------------------------------------
@@ -913,6 +1071,25 @@
         $('btnNext').addEventListener('click', function () { step(1); });
         $('btnPlay').addEventListener('click', function () { state.playing ? stopPlay() : play(); });
 
+        setSpeed(state.speed);
+        $('btnSpeed').addEventListener('click', function (e) {
+            e.stopPropagation();
+            setSpeedMenuOpen($('speedMenu').hidden);
+        });
+        document.querySelectorAll('[data-speed]').forEach(function (b) {
+            b.addEventListener('click', function () {
+                setSpeed(parseFloat(b.dataset.speed));
+                setSpeedMenuOpen(false);
+            });
+        });
+        $('holdEnd').checked = state.holdEnd;
+        $('holdEnd').addEventListener('change', function () {
+            state.holdEnd = this.checked;
+            savePrefs();
+        });
+        $('speedMenu').addEventListener('click', function (e) { e.stopPropagation(); });
+        document.addEventListener('click', function () { setSpeedMenuOpen(false); });
+
         $('timeSlider').addEventListener('input', function () {
             stopPlay();
             setHour(parseInt(this.value, 10), false);
@@ -923,7 +1100,10 @@
         $('opacity').addEventListener('input', function () {
             state.opacity = parseFloat(this.value);
             $('opacityOut').textContent = Math.round(state.opacity * 100) + '%';
-            if (gridLayer) gridLayer.setOpacity(state.opacity);
+            if (gridLayer) {
+                gridLayer.setOpacity(state.opacity);
+                Frames.setPaint('base', 'raster-opacity', state.opacity);
+            }
             savePrefs();
         });
 
@@ -990,11 +1170,16 @@
         else if (key === 'c' || key === 'C') setOverlay('centers', !state.overlays.centers);
         else if (key === 'w' || key === 'W') setOverlay('warnings', !state.overlays.warnings);
         else if (key === 'b' || key === 'B') setOverlay('barbs', !state.overlays.barbs);
+        else if (key === '[' || key === ']') {
+            var i = SPEEDS.indexOf(state.speed) + (key === ']' ? 1 : -1);
+            setSpeed(SPEEDS[Math.max(0, Math.min(SPEEDS.length - 1, i))]);
+        }
         else if (key === 'l' || key === 'L') setPanelOpen(!document.body.classList.contains('panel-open'));
         else if (key === 'r' || key === 'R') map.easeTo(Object.assign({ duration: 800 }, HOME_VIEW));
         else if (key === '?') { var d = $('helpDialog'); d.open ? d.close() : d.showModal(); }
         else if (key === 'Escape') {
-            if (popup) { popup.remove(); popup = null; } else if (isMobile()) setPanelOpen(false);
+            if (!$('speedMenu').hidden) setSpeedMenuOpen(false);
+            else if (popup) { popup.remove(); popup = null; } else if (isMobile()) setPanelOpen(false);
         } else handled = false;
         if (handled) e.preventDefault();
     }

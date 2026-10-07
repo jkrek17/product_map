@@ -693,10 +693,65 @@ body.barbs-on .barb-color-row { display: flex; }
 }
 
 .tl-buttons {
+    position: relative;
     display: flex;
     align-items: center;
     gap: 4px;
 }
+
+.speed-btn {
+    min-width: 38px;
+    height: 26px;
+    margin-left: 2px;
+    padding: 0 6px;
+    border: 1px solid var(--border-strong);
+    border-radius: 6px;
+    background: var(--surface-raised);
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    cursor: pointer;
+}
+
+.speed-btn:hover,
+.speed-btn[aria-expanded="true"] { background: var(--accent-soft); color: var(--accent); }
+
+.speed-menu {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 18px);
+    z-index: 30;
+    display: grid;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-solid);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    white-space: nowrap;
+}
+
+.speed-title {
+    font-size: 10.5px;
+    font-weight: 700;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+    color: var(--text-3);
+}
+
+.speed-options button { min-width: 42px; }
+
+.speed-hold {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-2);
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.speed-hold input { accent-color: var(--accent-strong); }
 
 .tl-readout {
     display: flex;
@@ -754,6 +809,30 @@ body.barbs-on .barb-color-row { display: flex; }
 
 .tl-avail .seg:first-child { border-radius: 3px 0 0 3px; }
 
+.tl-cached {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 28px;
+    height: 2px;
+}
+
+.cached {
+    position: absolute;
+    top: 0;
+    height: 2px;
+    background: #e0f2fe;
+    box-shadow: 0 0 6px rgba(125, 211, 252, .8);
+}
+
+.preload-status {
+    font-size: 11px;
+    color: var(--text-2);
+    white-space: nowrap;
+}
+
+.preload-status[data-state="ready"] { color: var(--ok); }
+
 .fronts-dot {
     position: absolute;
     top: -8px;
@@ -792,6 +871,8 @@ body.barbs-on .barb-color-row { display: flex; }
     color: var(--text-3);
     white-space: nowrap;
 }
+
+.tick span em { font-style: normal; }
 
 .tick-day span {
     color: var(--text-2);
@@ -1200,6 +1281,8 @@ body.barbs-on .barb-color-row { display: flex; }
     .tl-track { height: 42px; }
     .tl-key { display: none; }
     .tick-mid span { display: none; }
+    .tick-day em { display: none; }
+    .speed-btn { min-width: 32px; margin-left: 0; }
 
     .legend {
         width: min(260px, calc(100% - 2 * var(--gap) - 48px));

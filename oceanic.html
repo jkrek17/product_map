@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oceanic Weather Forecast (NDFD &amp; PGEN)</title>
+    <link rel="stylesheet" href="libs/maplibre/maplibre-gl.css">
+    <link rel="stylesheet" href="css/oceanic.css">
+</head>
+<body>
+    <div class="header">
+        <div class="header-title">
+            <h1>Oceanic Weather Forecast (NDFD)</h1>
+            <p>NDFD grids with OPC surface analysis &amp; forecast fronts (WebGL globe)</p>
+        </div>
+        <div class="header-right">
+            <span id="validTimeDisplay" class="valid-time">Valid: Loading...</span>
+            <a href="index.html" id="backBtn">&#8592; OPC Map</a>
+        </div>
+    </div>
+
+    <div class="controls">
+        <div class="control-group">
+            <label for="layerSelect">Base Layer:</label>
+            <select id="layerSelect">
+                <option value="ndfd:waveh">Significant Wave Height</option>
+                <option value="ndfd:wspd">Wind Speed (Color Raster)</option>
+                <option value="ndfd:wgst">Wind Gust (Color Raster)</option>
+                <option value="ndfd:wind">Wind Barbs &amp; Direction</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label><input type="checkbox" id="warningToggle"> Show Watches &amp; Warnings</label>
+        </div>
+
+        <div class="control-group">
+            <label for="sizeSlider">Feature Size:</label>
+            <input type="range" id="sizeSlider" min="0.75" max="2" step="0.25" value="1.0">
+        </div>
+
+        <div class="control-group">
+            <span class="time-label">Forecast: <span id="hourDisplay">+0</span> Hrs</span>
+            <button type="button" id="btnPrev" class="time-btn" title="Back 3 hours">&laquo;</button>
+            <input type="range" id="timeSlider" min="-12" max="96" step="3" value="0">
+            <button type="button" id="btnNext" class="time-btn" title="Forward 3 hours">&raquo;</button>
+        </div>
+
+        <span id="frontsStatus" class="fronts-status"></span>
+    </div>
+
+    <div id="map"></div>
+
+    <script src="libs/maplibre/maplibre-gl.js"></script>
+    <script src="libs/turf/turf.min.js"></script>
+    <script src="js/oceanic.js"></script>
+</body>
+</html>

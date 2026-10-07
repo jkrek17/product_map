@@ -1,0 +1,213 @@
+/* Oceanic Weather Forecast (MapLibre / WebGL) - Stylesheet */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #1a1a2e;
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+.header {
+    background: linear-gradient(135deg, #0a2647 0%, #144272 100%);
+    padding: 12px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    border-bottom: 3px solid #2c74b3;
+    flex-shrink: 0;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.header-title {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+.header p {
+    color: #94a3b8;
+    font-size: 13px;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.valid-time {
+    font-weight: 600;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+#backBtn {
+    background: transparent;
+    color: #fff;
+    padding: 8px 16px;
+    border: 1px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+#backBtn:hover {
+    background: rgba(255,255,255,0.1);
+}
+
+/* Controls bar */
+.controls {
+    background: #0f1f3a;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 24px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+}
+
+.control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-left: 20px;
+    border-left: 1px solid rgba(255,255,255,0.15);
+}
+
+.control-group:first-child {
+    padding-left: 0;
+    border-left: none;
+}
+
+.control-group label,
+.time-label {
+    font-size: 12px;
+    color: #cbd5e1;
+    cursor: pointer;
+}
+
+.time-label {
+    font-weight: 600;
+    min-width: 120px;
+    cursor: default;
+}
+
+.control-group select {
+    padding: 6px 10px;
+    font-size: 13px;
+    background: #0a2647;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.control-group input[type="range"] {
+    cursor: pointer;
+}
+
+#timeSlider {
+    width: 250px;
+}
+
+.time-btn {
+    cursor: pointer;
+    padding: 3px 9px;
+    font-weight: bold;
+    background: #144272;
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 4px;
+}
+
+.time-btn:hover {
+    background: #205295;
+}
+
+.fronts-status {
+    font-size: 12px;
+    color: #94a3b8;
+    margin-left: auto;
+}
+
+/* Map */
+#map {
+    flex: 1;
+    width: 100%;
+    /* Deep-space backdrop visible around the globe */
+    background: radial-gradient(circle at center, #13294b 0%, #050b18 70%);
+}
+
+/* Overlay toggle control (MapLibre custom control) */
+.overlay-toggle {
+    background: #fff;
+    color: #222;
+    padding: 8px 10px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.overlay-toggle label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+@media (max-width: 768px) {
+    .header {
+        padding: 10px 14px;
+        flex-wrap: wrap;
+    }
+
+    .header h1 {
+        font-size: 18px;
+    }
+
+    .header p {
+        display: none;
+    }
+
+    .controls {
+        padding: 8px 14px;
+        gap: 10px;
+    }
+
+    .control-group {
+        padding-left: 0;
+        border-left: none;
+    }
+
+    #timeSlider {
+        width: 140px;
+    }
+
+    .fronts-status {
+        margin-left: 0;
+    }
+}

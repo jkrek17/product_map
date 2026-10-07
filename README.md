@@ -17,8 +17,17 @@ Interactive marine forecast map: offshore zones, coastal (CWF), NAVTEX, and high
 |------|---------|
 | `index.html` | Main marine map (all products above) |
 | `navy.html` | Navy OPAREA forecasts (separate UI) |
+| `oceanic.html` | Oceanic forecast on a MapLibre GL (WebGL) globe: NDFD grids + OPC fronts/isobars |
 
-## API (`api.php`)
+## Oceanic forecast globe (`oceanic.html`)
+
+WebGL port of the Leaflet oceanic forecast page, rendered with MapLibre GL JS on a 3D globe.
+
+- **Base layer**: NDFD WMS (`ndfd:waveh`, `ndfd:wspd`, `ndfd:wgst`, `ndfd:wind`) for the selected forecast hour (-12 h to +96 h in 3 h steps). Valid times already in the past use NDFD `VTIT` (the 0-hour grid issued at that time); future times use `TIME`.
+- **Watches & warnings**: NOAA `WWA/watch_warn_adv` WMS overlay.
+- **Fronts, isobars, pressure centers**: read from `/data/geoJson/{Pacific|Atlantic}_HS_Surface.YYYYMMDD.HH00.FNNN.geo.json` (the cycle that issued a forecast valid at the selected time is found automatically). Lines are smoothed with Turf and drawn as native MapLibre line/symbol layers; pips and labels are canvas-rendered sprites, so no glyph server is needed.
+
+
 
 JSON forecast arrays. Primary source: **NWS API**, with responses cached under `cache/`. Add `&debug=1` for diagnostic payloads where supported.
 
@@ -42,6 +51,7 @@ JSON forecast arrays. Primary source: **NWS API**, with responses cached under `
 ```
 ├── index.html                 # Main app
 ├── navy.html                  # Navy OPAREA page
+├── oceanic.html               # MapLibre globe: NDFD + OPC fronts
 ├── api.php                    # Forecast JSON API
 ├── prefetch.php               # Optional cache warmer
 ├── getText.php                # Legacy text fetch helper
@@ -56,10 +66,12 @@ JSON forecast arrays. Primary source: **NWS API**, with responses cached under `
 │   ├── highseas.topojson      # (and highseas.geojson if present)
 │   ├── offshore-forecasts.json
 │   └── navtex-forecasts.json  # Static fallbacks when API fails
-├── css/ , js/                 # navy.html assets
+├── css/ , js/                 # navy.html / oceanic.html assets
 └── libs/
     ├── leaflet/
     ├── chartjs/
+    ├── maplibre/              # MapLibre GL JS 5.x (oceanic.html)
+    ├── turf/                  # Turf 7 (front/isobar smoothing)
     └── topojson/              # TopoJSON → GeoJSON for highseas layer
 ```
 

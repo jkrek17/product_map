@@ -17,6 +17,23 @@ Interactive marine forecast map: offshore zones, coastal (CWF), NAVTEX, and high
 |------|---------|
 | `index.html` | Main marine map (all products above) |
 | `navy.html` | Navy OPAREA forecasts (separate UI) |
+| `oceanic.html` | Oceanic forecast on a MapLibre GL (WebGL) globe: NDFD grids + OPC fronts/isobars |
+
+## Oceanic forecast globe (`oceanic.html`)
+
+MapLibre GL (WebGL) globe with a dark, map-first layout: top status bar, layer panel, legend and a bottom forecast timeline.
+
+- **Base grids** (NDFD WMS): wave height, wind speed, wind gust or none, with opacity control and a server-driven color legend.
+- **Wind barbs overlay**: NDFD barbs (`ndfd:wind`) drawn above any base grid, black or white.
+- **Timeline**: −12 h to +96 h in 3 h steps with play/pause. Each step is marked for NDFD grid and fronts availability; NDFD availability is read from each layer's WMS `GetCapabilities` time list (ocean grids are 3-hourly, about 72 h ahead, and no past grids are kept). If a step has no exact grid, the nearest 3-hourly grid within 3 h is shown and labeled. Steps load into a hidden buffer and cross-fade in, so stepping and playback don't flash.
+- **Preloaded frames** (`js/oceanic-frames.js`): once the map stops moving, every step with a grid is fetched as one GetMap image of the visible area (two for views across the date line) and kept in memory, so scrubbing and loops are instant; sharp tiles then replace the frame when paused. Frames and tiles share the throttled NOAA request pool (tiles first). The timeline shows preloaded steps and a "Preloading n/N" / "Loop ready" status.
+- **Loop speed**: ½×, 1×, 2×, 4× (1× ≈ 1 frame/s, keys `[` `]`) with optional pause on the last frame.
+- **Click readout**: wave height, wind speed and gust at the point (`GetFeatureInfo`) plus current watches/warnings there (NOAA `WWA/watch_warn_adv`).
+- **Fronts, isobars, pressure centers**: read from `/data/geoJson/{Pacific|Atlantic}_HS_Surface.YYYYMMDD.HH00.FNNN.geo.json` (the cycle that issued a chart valid at the selected time is found automatically), smoothed with Turf and drawn as native MapLibre layers.
+- **Reliability**: status chips for grid and fronts state, loading bar, toasts for server errors, retries for availability checks, automatic re-check when a grid time rolls off the server, and a prompt when a newer cycle starts. Preferences are kept in `localStorage`.
+- **Keyboard**: ←/→ step, Space play, [ ] loop speed, 1–4 base grid, B barbs, F/I/C/W overlays, L panel, R reset view, ? help.
+- **Config** (`window.OCEANIC_CONFIG`): `geojsonDir`, `homeLink`, and `demoFrontsDir` to load synthetic fronts from `tools/gen_demo_fronts.py` instead of the PGEN feed (used for the static copy at https://jkrek17.github.io/web/ndfd/).
+- **Code**: `js/oceanic.js` (app shell), `js/oceanic-ndfd.js` (grids), `js/oceanic-frames.js` (preloaded frames), `js/oceanic-pgen.js` (fronts rendering), `css/oceanic.css`.
 
 ## API (`api.php`)
 
@@ -42,6 +59,7 @@ JSON forecast arrays. Primary source: **NWS API**, with responses cached under `
 ```
 ├── index.html                 # Main app
 ├── navy.html                  # Navy OPAREA page
+├── oceanic.html               # MapLibre globe: NDFD + OPC fronts
 ├── api.php                    # Forecast JSON API
 ├── prefetch.php               # Optional cache warmer
 ├── getText.php                # Legacy text fetch helper
@@ -56,10 +74,12 @@ JSON forecast arrays. Primary source: **NWS API**, with responses cached under `
 │   ├── highseas.topojson      # (and highseas.geojson if present)
 │   ├── offshore-forecasts.json
 │   └── navtex-forecasts.json  # Static fallbacks when API fails
-├── css/ , js/                 # navy.html assets
+├── css/ , js/                 # navy.html / oceanic.html assets
 └── libs/
     ├── leaflet/
     ├── chartjs/
+    ├── maplibre/              # MapLibre GL JS 5.x (oceanic.html)
+    ├── turf/                  # Turf 7 (front/isobar smoothing)
     └── topojson/              # TopoJSON → GeoJSON for highseas layer
 ```
 

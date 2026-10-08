@@ -1,0 +1,100 @@
+# Publishes the static copy of the oceanic globe (tools/build_ndfd_site.sh)
+# to ndfd/ in the public site repository jkrek17/web, served at
+# https://jkrek17.github.io/web/ndfd/ and listed on its projects index.
+#
+# Only ndfd/ is touched, as an ordinary commit on top of web's main; the
+# awips-tools site publish copies other projects' folders forward, so this
+# folder survives its force pushes.
+#
+# Needs the secret WEB_TOKEN: a fine-grained personal access token scoped to
+# jkrek17/web with Contents: read and write. Skips quietly until it is set.
+
+name: Publish NDFD globe
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'oceanic.html'
+      - 'js/oceanic*.js'
+      - 'css/**'
+      - 'libs/maplibre/**'
+      - 'libs/turf/**'
+      - 'tools/gen_demo_fronts.py'
+      - 'tools/build_ndfd_site.sh'
+      - '.github/workflows/publish_ndfd.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish-ndfd
+  cancel-in-progress: false
+
+env:
+  WEB_REPO: jkrek17/web
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check configuration
+        id: cfg
+        env:
+          TOKEN: ${{ secrets.WEB_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "WEB_TOKEN not set; nothing to publish."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ready == 'true'
+
+      - uses: actions/setup-python@v5
+        if: steps.cfg.outputs.ready == 'true'
+        with:
+          python-version: '3.11'
+
+      - name: Build the static copy
+        if: steps.cfg.outputs.ready == 'true'
+        run: |
+          pip install --quiet numpy contourpy
+          tools/build_ndfd_site.sh "$RUNNER_TEMP/ndfd"
+
+      - name: Push ndfd/ to the public repository
+        if: steps.cfg.outputs.ready == 'true'
+        env:
+          TOKEN: ${{ secrets.WEB_TOKEN }}
+        run: |
+          web="$RUNNER_TEMP/web"
+          # Sparse and blobless, so the other projects' data is not downloaded.
+          git clone -q --depth 1 --filter=blob:none --sparse \
+            "https://x-access-token:${TOKEN}@github.com/${WEB_REPO}.git" "$web"
+          git -C "$web" sparse-checkout set --no-cone /ndfd/
+          git -C "$web" config user.name "ndfd-publish"
+          git -C "$web" config user.email "ndfd-publish@users.noreply.github.com"
+          # The site publish can force-push main at any time, so rebuild the
+          # commit on a fresh clone and retry if the push loses that race.
+          for attempt in 1 2 3 4; do
+            git -C "$web" fetch -q --depth 1 origin main
+            git -C "$web" reset -q --hard origin/main
+            rm -rf "$web/ndfd"
+            cp -r "$RUNNER_TEMP/ndfd" "$web/ndfd"
+            git -C "$web" add -A ndfd
+            if git -C "$web" diff --cached --quiet; then
+              echo "ndfd/ is already up to date."
+              exit 0
+            fi
+            git -C "$web" commit -q -m "Publish ndfd/ from ${GITHUB_REPOSITORY}@${GITHUB_SHA::8}"
+            if git -C "$web" push -q origin HEAD:main; then
+              exit 0
+            fi
+            sleep $((attempt * 5))
+          done
+          echo "Could not push to ${WEB_REPO} after 4 attempts." >&2
+          exit 1

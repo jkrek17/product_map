@@ -32,7 +32,7 @@ MapLibre GL (WebGL) globe with a dark, map-first layout: top status bar, layer p
 - **Fronts, isobars, pressure centers**: read from `/data/geoJson/{Pacific|Atlantic}_HS_Surface.YYYYMMDD.HH00.FNNN.geo.json` (the cycle that issued a chart valid at the selected time is found automatically), smoothed with Turf and drawn as native MapLibre layers.
 - **Reliability**: status chips for grid and fronts state, loading bar, toasts for server errors, retries for availability checks, automatic re-check when a grid time rolls off the server, and a prompt when a newer cycle starts. Preferences are kept in `localStorage`.
 - **Keyboard**: ←/→ step, Space play, [ ] loop speed, 1–4 base grid, B barbs, F/I/C/W overlays, L panel, R reset view, ? help.
-- **Config** (`window.OCEANIC_CONFIG`): `geojsonDir`, `homeLink`, and `demoFrontsDir` to load synthetic fronts from `tools/gen_demo_fronts.py` instead of the PGEN feed (used for the static copy at https://jkrek17.github.io/web/ndfd/).
+- **Config** (`window.OCEANIC_CONFIG`): `geojsonDir`, `homeLink`, and `demoFrontsDir` to load synthetic fronts from `tools/gen_demo_fronts.py` instead of the PGEN feed (used for the static copy at https://jkrek17.github.io/web/ndfd/, built by `tools/build_ndfd_site.sh` and published by `.github/workflows/publish_ndfd.yml` on every change; that workflow needs a `WEB_TOKEN` secret with write access to `jkrek17/web`).
 - **Code**: `js/oceanic.js` (app shell), `js/oceanic-ndfd.js` (grids), `js/oceanic-frames.js` (preloaded frames), `js/oceanic-pgen.js` (fronts rendering), `css/oceanic.css`.
 
 ## API (`api.php`)
